@@ -634,6 +634,22 @@ function chipsFor(c) {
   out.push(c.bakeSplit ? 'אפייה ' + c.bake1 + ' + ' + c.bake2 + ' דק׳' : 'אפייה ' + c.bakeOne + ' דק׳', 'חדר ' + c.temp + '°');
   return out;
 }
+function midnight(t) { var d = new Date(t); d.setHours(0, 0, 0, 0); return d.getTime(); }
+function whenCard(g, multi) {
+  var at = atOf(g.key), m0 = midnight(Date.now()), cur = midnight(at), opts = [];
+  for (var n = 0; n < 14; n++) { var d = new Date(m0); d.setDate(d.getDate() + n); opts.push(d.getTime()); }
+  if (opts.indexOf(cur) < 0) opts.unshift(cur);
+  var sel = opts.map(function (t) {
+    var d = new Date(t), lab = (dayOf(t) === 'היום' || dayOf(t) === 'מחר' ? dayOf(t) + ' · ' : '') + d.toLocaleDateString('he-IL', { weekday: 'long' }).replace('יום ', '') + ' ' + d.getDate() + '.' + (d.getMonth() + 1);
+    return '<option value="' + t + '"' + (t === cur ? ' selected' : '') + '>' + lab + '</option>';
+  }).join('');
+  var sb = 'width:44px;height:44px;border-radius:22px;border:1px solid var(--line);background:var(--card);color:var(--ink);font-size:22px;padding:0';
+  return '<div class="card pad" style="display:flex;flex-direction:column;gap:10px"><small style="color:var(--mut);font-size:13px">' + ANCH[S.plan.anchor] + (multi ? ' · ' + esc(g.name) : '') + '</small>' +
+    '<select class="inp daySel" data-bk="' + g.key + '" aria-label="יום" style="min-height:48px;font-size:17px;font-weight:600">' + sel + '</select>' +
+    '<div style="display:flex;align-items:center;justify-content:center;gap:6px"><button type="button" style="' + sb + '" data-act="tstep" data-bk="' + g.key + '" data-d="-1" aria-label="רבע שעה אחורה">−</button>' +
+    '<input class="inp timeIn" data-bk="' + g.key + '" value="' + hhmm(at) + '" inputmode="numeric" dir="ltr" aria-label="שעה" style="width:130px;text-align:center;font-family:var(--f-disp);font-weight:300;font-size:36px;min-height:56px">' +
+    '<button type="button" style="' + sb + '" data-act="tstep" data-bk="' + g.key + '" data-d="1" aria-label="רבע שעה קדימה">+</button></div></div>';
+}
 function planView() {
   var bs = batches(), now = Date.now(), multi = bs.length > 1;
   var selRows = S.recipes.filter(function (r) { return S.plan.sel[r.id]; }).map(function (r) {
@@ -645,8 +661,7 @@ function planView() {
     Object.keys(ANCH).map(function (k) { return '<button type="button" data-act="anchor" data-v="' + k + '" aria-pressed="' + (S.plan.anchor === k) + '">' + ANCH[k] + '</button>'; }).join('') + '</div>' +
     (multi ? '<div class="notice" style="background:var(--tint);color:var(--deep)">התהליך של המתכונים שבחרת שונה, ולכן הם מתחלקים ל־' + bs.length + ' הכנות. בחר זמן לכל הכנה.</div>' : '') +
     bs.map(function (g) {
-      return '<label class="card when"><span style="min-width:0"><small>' + ANCH[S.plan.anchor] + (multi ? ' · ' + esc(g.name) : '') + '</small><span class="big">' + dayOf(atOf(g.key)) + ' · ' + hhmm(atOf(g.key)) + '</span></span><span class="mut">' + ic('fwd', 20, 1.8) + '</span>' +
-        '<input type="datetime-local" class="atInput" data-bk="' + g.key + '" value="' + localInput(atOf(g.key)) + '" aria-label="תאריך ושעה"></label>';
+      return whenCard(g, multi);
     }).join('') + '</div>';
   var how = '<div class="sec"><div class="rowx" style="align-items:flex-start"><div style="display:flex;flex-direction:column;gap:2px"><h2 style="font-family:var(--f-disp);font-weight:500;font-size:24px">איך?</h2><div class="sub" style="margin-top:0">כל שלבי ההכנה של המתכון, לפי ההגדרות שלו</div></div><button type="button" class="link" data-act="nav" data-v="settings">עריכה</button></div>' +
     bs.map(function (g) { return (multi ? '<div style="font-weight:700;font-size:14px;margin-top:4px">' + esc(g.name) + '</div>' : '') + '<div class="chips">' + chipsFor(g.p.c).map(function (c) { return '<span class="chip">' + esc(c) + '</span>'; }).join('') + '</div>'; }).join('') + '</div>';
@@ -830,6 +845,7 @@ function onAct(a, el) {
     case 'treset': delete b.timers[d.id]; break;
     case 'ropen': S.open = S.open === d.id ? null : d.id; delArm = null; break;
     case 'tsel': if (S.plan.sel[d.id]) delete S.plan.sel[d.id]; else S.plan.sel[d.id] = 1; break;
+    case 'tstep': S.plan.ats[d.bk] = atOf(d.bk) + (+d.d) * 15 * 6e4; break;
     case 'bsel': S.bi = +d.v; break;
     case 'rpick': S.plan.sel[d.id] = S.plan.sel[d.id] || 1; S.view = 'plan'; window.scrollTo(0, 0); break;
     case 'radd': { var id = 'r' + Date.now().toString(36); S.recipes.push({ id: id, name: 'מתכון חדש', unit: 'כיכרות', starter: 150, sType: 'white', ing: [{ n: 'קמח לבן', a: 500 }, { n: 'מים', a: 350 }, { n: 'מלח', a: 10 }], over: {} }); S.open = id; break; }
@@ -876,9 +892,14 @@ app.addEventListener('input', function (e) {
   clearTimeout(saveT); saveT = setTimeout(save, 300);
 });
 app.addEventListener('change', function (e) {
-  if (e.target.classList.contains('atInput')) {
-    var t = new Date(e.target.value).getTime();
-    if (!isNaN(t)) { S.plan.ats[e.target.dataset.bk] = t; render(); }
+  var el = e.target, bk = el.dataset && el.dataset.bk;
+  if (el.classList.contains('daySel')) {
+    var cur = new Date(atOf(bk)), n = new Date(+el.value);
+    n.setHours(cur.getHours(), cur.getMinutes(), 0, 0); S.plan.ats[bk] = n.getTime(); render();
+  } else if (el.classList.contains('timeIn')) {
+    var m = /^\s*(\d{1,2})\s*[:.]?\s*(\d{2})?\s*$/.exec(el.value);
+    if (m && +m[1] < 24 && +(m[2] || 0) < 60) { var dd = new Date(atOf(bk)); dd.setHours(+m[1], +(m[2] || 0), 0, 0); S.plan.ats[bk] = dd.getTime(); }
+    render();
   }
 });
 
