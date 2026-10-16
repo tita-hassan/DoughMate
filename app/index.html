@@ -470,8 +470,8 @@ var ART = {
   }
 };
 var IC = {
-  book: '<path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11"/>',
-  gear: '<circle cx="12" cy="12" r="3"/><path d="M12 3v2.5M12 18.5V21M3 12h2.5M18.5 12H21M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M18.4 5.6l-1.8 1.8M7.4 16.6l-1.8 1.8"/>',
+  book: '<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>',
+  gear: '<path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>',
   back: '<path d="M9 6l6 6-6 6"/>', fwd: '<path d="M15 6l-6 6 6 6"/>', check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
   pause: '<path d="M9 5v14M15 5v14"/>', play: '<path d="M8 5l11 7-11 7z"/>', reset: '<path d="M4 12a8 8 0 1 0 2.6-5.9M4 4v4.5h4.5"/>', plus: '<path d="M12 5v14M5 12h14"/>', x: '<path d="M6 6l12 12M18 6L6 18"/>'
 };
@@ -630,7 +630,7 @@ function chipsFor(c) {
   if (c.feeds > 0) out.push(c.feeds + ' האכלות בשיא');
   out.push(METHOD[c.method], 'לישה ' + MIX[c.mix]);
   if (c.folds > 0) out.push(c.folds + ' קיפולים, כל ' + c.gap + ' דק׳');
-  out.push('כ־' + c.toShape + ' שעות עד עיצוב', 'תפיחה ' + PROOF[c.proof], SHAPE[c.shape]);
+  out.push('כ־' + c.toShape + ' שעות עד עיצוב (כולל מלח וקיפולים)', 'תפיחה ' + PROOF[c.proof], SHAPE[c.shape]);
   out.push(c.bakeSplit ? 'אפייה ' + c.bake1 + ' + ' + c.bake2 + ' דק׳' : 'אפייה ' + c.bakeOne + ' דק׳', 'חדר ' + c.temp + '°');
   return out;
 }
@@ -649,6 +649,11 @@ function whenCard(g, multi) {
     '<div style="display:flex;align-items:center;justify-content:center;gap:6px"><button type="button" style="' + sb + '" data-act="tstep" data-bk="' + g.key + '" data-d="-1" aria-label="רבע שעה אחורה">−</button>' +
     '<input class="inp timeIn" data-bk="' + g.key + '" value="' + hhmm(at) + '" inputmode="numeric" dir="ltr" aria-label="שעה" style="width:130px;text-align:center;font-family:var(--f-disp);font-weight:300;font-size:36px;min-height:56px">' +
     '<button type="button" style="' + sb + '" data-act="tstep" data-bk="' + g.key + '" data-d="1" aria-label="רבע שעה קדימה">+</button></div></div>';
+}
+function planSet(key, v) {
+  var old = {}; batches().forEach(function (g) { g.items.forEach(function (x) { old[x.r.id] = S.plan.ats[g.key]; }); });
+  S.recipes.forEach(function (r) { if (S.plan.sel[r.id]) r.over[key] = v; });
+  batches().forEach(function (g) { var t = old[g.items[0].r.id]; if (t != null) S.plan.ats[g.key] = t; });
 }
 function planView() {
   var bs = batches(), now = Date.now(), multi = bs.length > 1;
@@ -669,7 +674,14 @@ function planView() {
     var p = g.p, warn = '';
     if (p.feeds.length && p.feeds[0].t < now) warn = 'ההאכלה הראשונה כבר עברה. אפשר לדחות את התאריך, או להפחית את מספר ההאכלות בהגדרות.';
     else if (p.feeds.some(function (f) { var h = new Date(f.t).getHours(); return h < 6 || h >= 23; })) warn = 'אחת ההאכלות יוצאת בלילה. אפשר להזיז את הזמן או לשנות את מספר ההאכלות.';
-    return (multi ? '<div style="font-weight:700;font-size:14px">' + esc(g.name) + '</div>' : '') + (warn ? '<div class="notice">' + warn + '</div>' : '') +
+    var fx = '';
+    {
+      var cf = g.p.c;
+      fx = '<div class="card pad" style="display:flex;flex-direction:column;gap:10px"><div class="rowx"><span style="font-weight:600">מספר האכלות</span>' + stepper('planfeed', 'feeds', cf.feeds) + '</div>' +
+        '<div class="lb" style="font-size:13px;color:var(--mut);font-weight:700">יחס האכלה</div>' + seg('planfeed', 'ratio', RATIOS.reduce(function (o, k) { o[k] = k; return o; }, {}), cf.ratio).replace('--c:5', '--c:3') +
+        '<div class="sx mut" style="font-size:13px">אפשר גם להזיז את הזמן למעלה. השינוי חל על המתכונים שנבחרו.</div></div>';
+    }
+    return (multi ? '<div style="font-weight:700;font-size:14px">' + esc(g.name) + '</div>' : '') + (warn ? '<div class="notice">' + warn + '</div>' : '') + fx +
       '<div class="card strip"><div><small>' + (p.feeds.length ? 'האכלה ראשונה' : 'האכלות') + '</small><b>' + (p.feeds.length ? hhmm(p.feeds[0].t) : '—') + '</b><small>' + (p.feeds.length ? dayOf(p.feeds[0].t) : 'ללא') + '</small></div>' +
       '<div><small>לישה</small><b>' + hhmm(p.mix) + '</b><small>' + dayOf(p.mix) + '</small></div><div><small>אפייה</small><b>' + hhmm(p.bakeStart) + '</b><small>' + dayOf(p.bakeStart) + '</small></div></div>';
   }).join('');
@@ -750,9 +762,9 @@ function settingsView() {
   if (!draft) draft = Object.assign({}, S.settings);
   var d = draft, dirty = JSON.stringify(d) !== JSON.stringify(S.settings);
   function group(rows) { return '<div class="card sgroup">' + rows + '</div>'; }
-  function autoRow(key, label) {
+  function autoRow(key, label, extra) {
     var has = d[key] != null, v = has ? d[key] : autoVal(key, d.temp);
-    return '<div class="sr"><span>' + label + '<small>' + (has ? 'ערך קבוע' : 'לפי טבלת החישוב') + '</small></span><span style="display:flex;align-items:center;gap:2px">' + stepper('draft', key, v, { dflt: !has }) +
+    return '<div class="sr"><span>' + label + '<small>' + (extra ? extra + ' · ' : '') + (has ? 'ערך קבוע' : 'לפי טבלת החישוב') + '</small></span><span style="display:flex;align-items:center;gap:2px">' + stepper('draft', key, v, { dflt: !has }) +
       (has ? '<button type="button" class="rb" style="width:36px;height:36px;border-color:var(--line);color:var(--mut)" data-act="rclear" data-ctx="draft" data-k="' + key + '" aria-label="חזרה לטבלת החישוב">' + ic('reset', 16) + '</button>' : '') + '</span></div>';
   }
   function sec(t, body) { return '<div class="sec" style="gap:10px"><div style="font-size:13px;font-weight:700;color:var(--mut)">' + t + '</div>' + body + '</div>'; }
@@ -762,7 +774,7 @@ function settingsView() {
       group(srow('draft', 'reserve', 'להשאיר בצנצנת', d.reserve) + '<div class="sr"><span>זרע ישר מהמקרר<small>מוסיף כשעה להאכלה הראשונה</small></span><div class="seg" style="--c:2;width:132px">' +
         '<button type="button" data-act="set" data-ctx="draft" data-k="cold" data-v="false" aria-pressed="' + !d.cold + '">לא</button><button type="button" data-act="set" data-ctx="draft" data-k="cold" data-v="true" aria-pressed="' + d.cold + '">כן</button></div></div>')) +
     sec('הבצק', '<div class="fld"><div class="lb">שיטה</div>' + seg('draft', 'method', METHOD, d.method) + '</div><div class="fld"><div class="lb">לישה</div>' + seg('draft', 'mix', MIX, d.mix) + '</div>' +
-      group(srow('draft', 'folds', 'קיפולים', d.folds) + srow('draft', 'gap', 'זמן בין קיפולים', d.gap) + autoRow('toShape', 'זמן מוערך עד עיצוב') + srow('draft', 'saltWait', 'המתנה עד המלח', d.saltWait) + srow('draft', 'bench', 'מנוחת ספסל', d.bench))) +
+      group(srow('draft', 'folds', 'קיפולים', d.folds) + srow('draft', 'gap', 'זמן בין קיפולים', d.gap) + autoRow('toShape', 'זמן מוערך עד עיצוב', 'כולל המתנה למלח והקיפולים') + srow('draft', 'saltWait', 'המתנה עד המלח', d.saltWait) + srow('draft', 'bench', 'מנוחת ספסל', d.bench))) +
     sec('אפייה', '<div class="fld"><div class="lb">צורת אפייה</div>' + seg('draft', 'shape', SHAPE, d.shape).replace('--c:4', '--c:2') + '</div>' +
       '<div class="fld"><div class="lb">זמן אפייה</div>' + seg('draft', 'bakeSplit', { 'false': 'זמן אחד', 'true': 'מחולק' }, String(d.bakeSplit)) + '</div>' +
       group(d.bakeSplit ? srow('draft', 'bake1', 'שלב ראשון (מכוסה)', d.bake1) + srow('draft', 'bake2', 'שלב שני (פתוח)', d.bake2) : srow('draft', 'bakeOne', 'זמן אפייה', d.bakeOne))) +
@@ -780,7 +792,7 @@ function calcView() {
   return '<div class="sec" style="gap:6px"><h1 class="ttl">טבלאות חישוב</h1><div class="mut" style="font-size:15px">שעות לפי טמפרטורת החדר וסוג הקמח. לוח הזמנים מחושב מהטבלאות האלה, ובין שתי טמפרטורות החישוב ממוצע ביניהן.</div></div>' +
     '<div class="fld"><div class="lb">סוג קמח</div><div class="seg" style="--c:2">' + [['white', 'חיטה לבן'], ['spelt', 'כוסמין מלא']].map(function (x) { return '<button type="button" data-act="calctype" data-v="' + x[0] + '" aria-pressed="' + (ty === x[0]) + '">' + x[1] + '</button>'; }).join('') + '</div></div>' +
     table('שיא המחמצת', 'שעות מההאכלה עד השיא, לפי יחס האכלה (מחמצת:קמח:מים)', peakRows) +
-    table('זמן עד עיצוב', 'שעות מתחילת הלישה עד העיצוב', one('toShape')) +
+    table('זמן עד עיצוב', 'שעות מתחילת הלישה עד העיצוב, כולל המלח והקיפולים', one('toShape')) +
     table('תפיחה חמה', 'שעות מהעיצוב עד שהבצק מוכן לתנור', one('warmH')) +
     '<button type="button" class="btn ghost" style="align-self:flex-start" data-act="calcreset">' + (delArm === 'calc' ? 'בטוח? לחץ שוב לאיפוס' : 'איפוס לברירת מחדל') + '</button>';
 }
@@ -859,6 +871,7 @@ function onAct(a, el) {
     case 'set': {
       var v = d.v;
       if (v === 'true') v = true; else if (v === 'false') v = false;
+      if (d.ctx === 'planfeed') { planSet(d.k, v); break; }
       if (d.ctx === 'brew') { b.c[d.k] = v; var pit = timerItem(b, 'proof'); if (!b.timers.proof) { /* idle: duration follows the choice */ } break; }
       if (d.ctx.indexOf('recmeta:') === 0) { recipeById(d.ctx.slice(8))[d.k] = v; break; }
       var o = ctxObj(d.ctx); if (!o) break;
@@ -867,6 +880,7 @@ function onAct(a, el) {
     }
     case 'step': {
       var dd = +d.d, key = d.k, ctx = d.ctx, bd = BOUNDS[key];
+      if (ctx === 'planfeed') { var nv = clamp(key, eff(S.recipes.filter(function (x) { return S.plan.sel[x.id]; })[0])[key] + dd * bd[2]); planSet(key, nv); break; }
       if (ctx.indexOf('sel:') === 0) { var sid = ctx.slice(4); S.plan.sel[sid] = clamp('qty', (S.plan.sel[sid] || 1) + dd); break; }
       if (key === 'starter') { var rr = recipeById(ctx.slice(4)); rr.starter = clamp(key, rr.starter + dd * bd[2]); break; }
       var obj = ctxObj(ctx); if (!obj) break;
