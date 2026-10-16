@@ -245,7 +245,7 @@ var MIX = { hand: 'ידני', kneader: 'מלוש', mixer: 'מיקסר' };
 var SHAPE = { dutch: 'תנור הולנדי', pan: 'קסטן', stone: 'אבן שמוט', tray: 'תבנית תנור' };
 var PROOF = { warm: 'חמה', cold: 'קרה' };
 var RATIOS = ['1:1:1', '1:2:2', '1:3:3', '1:5:5', '1:10:10'];
-var ANCH = { bakeEnd: 'סוף אפייה', bakeStart: 'תחילת אפייה', proofEnd: 'סוף תפיחה', peak: 'מחמצת בשיא' };
+var ANCH = { bakeEnd: 'סוף אפייה', bakeStart: 'תחילת אפייה', bulkEnd: 'סוף תפיחה ראשונה', peak: 'מחמצת בשיא' };
 var ORD = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי'];
 var DEFAULTS = { feeds: 3, ratio: '1:10:10', reserve: 50, cold: false, temp: 24, method: 'ferment', mix: 'hand', folds: 3, gap: 30,
   toShape: null, saltWait: 10, bench: 15, shape: 'dutch', bakeSplit: true, bake1: 20, bake2: 20, bakeOne: 25, proof: 'warm', warmH: null, coldH: 12 };
@@ -318,6 +318,7 @@ var S = (function () {
   Object.keys(s.plan.sel).forEach(function (id) { if (!s.recipes.some(function (r) { return r.id === id; }) || !s.plan.sel[id]) delete s.plan.sel[id]; });
   if (!Object.keys(s.plan.sel).length) s.plan.sel[s.recipes[0].id] = 1;
   if (s.bi >= s.brews.length) s.bi = 0;
+  if (!ANCH[s.plan.anchor]) s.plan.anchor = 'bakeStart';
   if (s.view === 'settings' || s.view === 'calc') s.view = 'plan';
   return s;
 })();
@@ -363,7 +364,7 @@ function offsets(c) {
 function computePlan(items, anchor, at) {
   var r0 = items[0].r, c = eff(r0), o = offsets(c);
   var starter = items.reduce(function (a, x) { return a + x.r.starter * x.qty; }, 0);
-  var back = { peak: 0, proofEnd: o.proofEnd, bakeStart: o.bakeStart, bakeEnd: o.bakeEnd }[anchor] || 0;
+  var back = { peak: 0, bulkEnd: o.shape, bakeStart: o.bakeStart, bakeEnd: o.bakeEnd }[anchor] || 0;
   var mix = at - back * 6e4, min = 6e4;
   var rt = c.ratio.split(':').map(Number), fa = rt[1], wa = rt[2], R = 1 + fa + wa;
   var base = peakTbl(r0.sType, c.ratio, c.temp);
