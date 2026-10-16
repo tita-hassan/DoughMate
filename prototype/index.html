@@ -1,0 +1,1037 @@
+<title>מחשבון מחמצת</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700&family=Suez+One&display=swap">
+<style>
+/* Layout: one column, three stage tabs (feed, dough, bake). Stages 2 and 3 follow one process at a time (bread or focaccia), switched at the top when both are selected. Timers carry the weight of stages 2 and 3. */
+:root {
+  --bg: #EAEEE8;
+  --surface: #F6F8F3;
+  --tint: #E1EADF;
+  --ink: #1B2620;
+  --muted: #55645B;
+  --line: #C9D3C7;
+  --accent: #1C6B5F;
+  --accent-ink: #FFFFFF;
+  --hero-bg: #1C6B5F;
+  --hero-ink: #F3FAF6;
+  --hero-sub: #D3EEE5;
+  --crust: #86500F;
+  --crust-bg: #F1E2C6;
+  --ok-bg: #D6EBDC;
+  --ok-ink: #1A5632;
+  --warn-bg: #F5DFD3;
+  --warn-ink: #84300F;
+  --font-display: 'Suez One', 'Frank Ruhl Libre', serif;
+  --font-body: 'Assistant', 'Heebo', system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #121815; --surface: #1A221E; --tint: #243029; --ink: #E3EAE1; --muted: #9AA89F; --line: #2F3C35;
+    --accent: #5CC2B2; --accent-ink: #0C1F1B; --hero-bg: #5CC2B2; --hero-ink: #0B1D19; --hero-sub: #12403A;
+    --crust: #E6B566; --crust-bg: #3A2D17; --ok-bg: #1F3A2A; --ok-ink: #8FD6A8; --warn-bg: #442318; --warn-ink: #F2A98A;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #121815; --surface: #1A221E; --tint: #243029; --ink: #E3EAE1; --muted: #9AA89F; --line: #2F3C35;
+  --accent: #5CC2B2; --accent-ink: #0C1F1B; --hero-bg: #5CC2B2; --hero-ink: #0B1D19; --hero-sub: #12403A;
+  --crust: #E6B566; --crust-bg: #3A2D17; --ok-bg: #1F3A2A; --ok-ink: #8FD6A8; --warn-bg: #442318; --warn-ink: #F2A98A;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
+  padding-block: 20px 120px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap { max-width: 560px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+.panel { display: flex; flex-direction: column; gap: 24px; min-width: 0; }
+.ltr { direction: ltr; unicode-bidi: isolate; display: inline-block; }
+button, input { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+h1 { font-family: var(--font-display); font-weight: 400; font-size: 32px; line-height: 1.15; margin: 0; text-wrap: balance; }
+.sub { margin: 4px 0 0; color: var(--muted); }
+h2 { font-size: 15px; font-weight: 700; margin: 0 0 10px; color: var(--muted); letter-spacing: 0.02em; }
+section { min-width: 0; }
+.block { border-top: 1px solid var(--line); padding-top: 16px; }
+.muted { color: var(--muted); }
+
+/* Tabs */
+.tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.tab { display: flex; flex-direction: column; align-items: center; gap: 0; min-height: 56px; padding: 6px 4px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--surface); font-weight: 700; font-size: 14px; line-height: 1.25; text-align: center; }
+.tab .n { font-family: var(--font-display); font-weight: 400; font-size: 18px; color: var(--accent); }
+.tab[aria-selected="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.tab[aria-selected="true"] .n { color: var(--accent-ink); }
+.strip { display: flex; flex-wrap: wrap; gap: 8px; }
+.strip button { display: inline-flex; gap: 8px; align-items: center; min-height: 40px; padding: 4px 14px; border-radius: 999px; border: 1.5px solid var(--accent); background: var(--tint); font-weight: 700; font-size: 14px; }
+.strip .t { font-variant-numeric: tabular-nums; color: var(--accent); }
+
+/* Result (stage 1) */
+.results { display: flex; flex-direction: column; gap: 16px; }
+.result { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+.hero { background: var(--hero-bg); color: var(--hero-ink); padding: 18px 18px 16px; }
+.hero-label { font-size: 14px; font-weight: 600; opacity: 0.9; }
+.hero-time { font-family: var(--font-display); font-size: 40px; line-height: 1.15; display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; }
+.hero-time .day { font-size: 26px; }
+.hero-sub { color: var(--hero-sub); font-size: 14px; margin-top: 4px; }
+.notice { margin: 14px 18px 0; padding: 10px 12px; border-radius: 10px; background: var(--warn-bg); color: var(--warn-ink); font-size: 14px; display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+.notice button { background: transparent; border: 1.5px solid currentColor; color: inherit; border-radius: 8px; padding: 6px 12px; font-weight: 600; min-height: 36px; }
+.group { padding: 16px 18px 18px; }
+.group + .group { border-top: 1px solid var(--line); }
+.group-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 2px 12px; margin-bottom: 10px; }
+.group-head h3 { margin: 0; font-size: 17px; }
+.group-head span { color: var(--muted); font-size: 14px; }
+.amounts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.amt { background: var(--tint); border-radius: 10px; padding: 10px 6px; text-align: center; min-width: 0; }
+.amt b { display: block; font-family: var(--font-display); font-weight: 400; font-size: 32px; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.amt span { display: block; font-size: 13px; color: var(--muted); margin-top: 2px; }
+.foot { margin: 10px 0 0; font-size: 14px; color: var(--muted); }
+.empty { padding: 24px 18px; color: var(--muted); }
+.empty b { color: var(--ink); display: block; font-size: 17px; margin-bottom: 4px; }
+.hint { font-size: 14px; color: var(--muted); margin: 10px 2px 0; }
+
+/* Recipes */
+.recipes { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+.recipe { display: flex; align-items: center; gap: 12px; padding: 10px 8px; border-bottom: 1px solid var(--line); min-width: 0; }
+.recipe.on { background: var(--tint); }
+.recipe .info { flex: 1; min-width: 0; }
+.recipe .name { font-weight: 700; }
+.recipe .meta { font-size: 14px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 2px 8px; align-items: center; }
+.chip { display: inline-block; font-size: 12px; font-weight: 700; padding: 1px 8px; border-radius: 999px; background: var(--crust-bg); color: var(--crust); }
+.stepper { display: flex; align-items: center; gap: 4px; flex: none; }
+.stepper button { width: 44px; height: 44px; border-radius: 10px; border: 1.5px solid var(--line); background: var(--surface); font-size: 22px; line-height: 1; display: grid; place-items: center; }
+.stepper button:active { background: var(--tint); }
+.stepper .val { min-width: 28px; text-align: center; font-weight: 700; font-size: 18px; font-variant-numeric: tabular-nums; }
+.recipe.on .val { color: var(--accent); }
+
+/* Conditions */
+.fields { display: flex; flex-direction: column; gap: 16px; }
+.field label, .field .lab { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-weight: 600; margin-bottom: 6px; }
+.field output { font-family: var(--font-display); font-size: 20px; color: var(--accent); }
+input[type="datetime-local"], input[type="number"] {
+  width: 100%; min-height: 46px; padding: 8px 12px; border-radius: 10px;
+  border: 1.5px solid var(--line); background: var(--surface); font-variant-numeric: tabular-nums;
+}
+input[type="range"] { width: 100%; accent-color: var(--accent); min-height: 32px; }
+.scale { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); }
+.check { display: flex; align-items: center; gap: 10px; font-weight: 600; min-height: 44px; }
+.check input { width: 22px; height: 22px; accent-color: var(--accent); }
+
+/* Ratios */
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.pill { min-height: 44px; padding: 6px 16px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--surface); font-weight: 700; }
+.pill[aria-checked="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.custom { margin-top: 12px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; direction: ltr; }
+.custom input { width: 84px; }
+.custom span { font-weight: 700; }
+
+.compare { display: flex; flex-direction: column; gap: 8px; }
+.cmp { display: grid; grid-template-columns: 78px minmax(0, 1fr) auto; align-items: center; gap: 10px; text-align: start; width: 100%; padding: 10px 12px; border-radius: 10px; border: 1.5px solid var(--line); background: var(--surface); min-height: 56px; }
+.cmp[aria-pressed="true"] { border-color: var(--accent); background: var(--tint); }
+.cmp .r { font-family: var(--font-display); font-size: 19px; }
+.cmp .t { display: block; font-weight: 700; font-variant-numeric: tabular-nums; }
+.cmp .p { display: block; font-size: 13px; color: var(--muted); }
+.tag { font-size: 12px; font-weight: 700; padding: 2px 10px; border-radius: 999px; white-space: nowrap; }
+.tag.ok { background: var(--ok-bg); color: var(--ok-ink); }
+.tag.night, .tag.past { background: var(--warn-bg); color: var(--warn-ink); }
+
+.small { font-size: 13px; color: var(--muted); display: flex; flex-direction: column; gap: 4px; }
+.small p { margin: 0; }
+
+/* Stage heads, ingredients, steps */
+.stagehead { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; }
+.stagehead .lab { font-size: 14px; font-weight: 600; color: var(--muted); }
+.stagehead .big { font-family: var(--font-display); font-size: 30px; line-height: 1.15; display: flex; flex-wrap: wrap; gap: 2px 10px; align-items: baseline; }
+.stagehead .big .day { font-size: 22px; }
+.bar { height: 8px; border-radius: 999px; background: var(--tint); overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--accent); border-radius: 999px; }
+.prog { font-size: 14px; color: var(--muted); display: flex; justify-content: space-between; gap: 12px; }
+.ing { border-top: 1px solid var(--line); padding: 8px 0; }
+.ing summary { display: flex; justify-content: space-between; gap: 12px; min-height: 40px; align-items: center; cursor: pointer; }
+.ing ul { list-style: none; margin: 0 0 6px; padding: 0; }
+.ing li { display: flex; justify-content: space-between; gap: 12px; padding: 4px 0; }
+.ing li b { font-variant-numeric: tabular-nums; }
+.steps { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+.grp { padding: 14px 0 4px; display: flex; flex-wrap: wrap; gap: 2px 10px; align-items: baseline; }
+.grp b { font-family: var(--font-display); font-weight: 400; font-size: 19px; }
+.grp span { font-size: 14px; color: var(--muted); }
+.step { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+.stepnote { padding: 12px 0; border-bottom: 1px solid var(--line); font-size: 14px; color: var(--muted); }
+.tick { width: 44px; height: 44px; border-radius: 50%; border: 2px solid var(--line); background: var(--surface); display: grid; place-items: center; padding: 0; }
+.tick[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); }
+.tick[aria-pressed="true"]::after { content: ""; width: 12px; height: 7px; border-left: 3px solid var(--accent-ink); border-bottom: 3px solid var(--accent-ink); transform: rotate(-45deg) translate(1px, -2px); }
+.sb { min-width: 0; }
+.st { font-weight: 700; font-size: 17px; display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: center; }
+.sb p { margin: 2px 0 0; color: var(--muted); }
+.step.done .st, .step.done .sb p { opacity: 0.55; }
+.timer { margin-top: 10px; background: var(--tint); border: 1.5px solid transparent; border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 6px; }
+.timer.run { border-color: var(--accent); }
+.timer.done { background: var(--ok-bg); color: var(--ok-ink); }
+.readout { font-family: var(--font-display); font-size: 44px; line-height: 1.1; font-variant-numeric: tabular-nums; direction: ltr; text-align: start; }
+.tmeta { font-size: 14px; color: var(--muted); }
+.timer.done .tmeta { color: var(--ok-ink); }
+.cust { display: flex; align-items: center; gap: 10px; font-weight: 600; }
+.cust input { width: 96px; }
+.tbtns { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+.btn { min-height: 44px; padding: 6px 18px; border-radius: 10px; border: 1.5px solid var(--line); background: var(--surface); font-weight: 700; }
+.btn.pri { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.seg { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 10px; }
+.seg.top { margin-top: 0; }
+.seg.three { grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 0; }
+.seg.three button { font-size: 14px; padding: 4px 6px; line-height: 1.25; }
+.assump { border-top: 1px solid var(--line); padding-top: 4px; }
+.assump summary { min-height: 44px; display: flex; align-items: center; font-weight: 600; cursor: pointer; }
+.assump .fields { padding: 4px 0 8px; }
+.fhint { font-size: 14px; color: var(--muted); margin: 6px 2px 0; }
+.seg button { min-height: 44px; border-radius: 10px; border: 1.5px solid var(--line); background: var(--surface); font-weight: 700; }
+.seg button[aria-checked="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.next { min-height: 48px; padding: 8px 20px; border-radius: 12px; border: 1.5px solid var(--accent); background: var(--accent); color: var(--accent-ink); font-weight: 700; align-self: stretch; }
+.ghost { min-height: 44px; padding: 6px 16px; border-radius: 10px; border: 1.5px solid var(--line); background: transparent; font-weight: 600; align-self: flex-start; }
+
+/* Alerts */
+.toasts { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; display: flex; flex-direction: column; gap: 8px; align-items: center; pointer-events: none;
+  padding: 12px max(16px, env(safe-area-inset-right, 0px)) calc(12px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
+.toast { pointer-events: auto; width: 100%; max-width: 560px; background: var(--ink); color: var(--bg); border-radius: 12px; padding: 12px 14px; display: flex; gap: 12px; align-items: center; justify-content: space-between; box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25); }
+.toast b { display: block; }
+.toast span { font-size: 14px; opacity: 0.85; }
+.toast button { flex: none; min-height: 40px; padding: 4px 14px; border-radius: 8px; border: 1.5px solid currentColor; background: transparent; color: inherit; font-weight: 700; }
+@media (prefers-reduced-motion: no-preference) { .bar i { transition: width .3s; } }
+</style>
+
+<div class="wrap" dir="rtl" lang="he">
+  <header>
+    <h1>מחשבון מחמצת</h1>
+    <p class="sub">מההאכלה ועד הלחם על הרשת</p>
+  </header>
+
+  <nav class="tabs" role="tablist" aria-label="שלבי ההכנה" id="tabs">
+    <button type="button" class="tab" role="tab" id="tab-s1" data-tab="s1" aria-controls="p-s1" aria-selected="true"><span class="n">1</span>האכלת מחמצת</button>
+    <button type="button" class="tab" role="tab" id="tab-s2" data-tab="s2" aria-controls="p-s2" aria-selected="false"><span class="n">2</span>הכנת הבצק</button>
+    <button type="button" class="tab" role="tab" id="tab-s3" data-tab="s3" aria-controls="p-s3" aria-selected="false"><span class="n">3</span>אפייה</button>
+  </nav>
+  <div class="strip" id="strip" aria-live="off"></div>
+
+  <!-- Stage 1 -->
+  <div class="panel" id="p-s1" role="tabpanel" aria-labelledby="tab-s1">
+    <section class="results" id="result" aria-live="polite"></section>
+
+    <section class="block">
+      <h2>מה אופים</h2>
+      <ul class="recipes" id="recipes"></ul>
+    </section>
+
+    <section class="block">
+      <h2>תנאים</h2>
+      <div class="fields">
+        <div class="field">
+          <div class="lab">לחשב לפי</div>
+          <div class="seg three" role="radiogroup" aria-label="לחשב לפי" id="anchorSeg"></div>
+        </div>
+        <div class="field" id="fieldMixB">
+          <label for="mixAt"><span id="mixLabB">תחילת לישה</span></label>
+          <input type="datetime-local" id="mixAt">
+          <p class="fhint" id="mixHintB"></p>
+        </div>
+        <div class="field" id="fieldMixF" hidden>
+          <label for="mixAtF"><span id="mixLabF">תחילת לישה</span></label>
+          <input type="datetime-local" id="mixAtF">
+          <p class="fhint" id="mixHintF"></p>
+        </div>
+        <div class="field">
+          <label for="temp">טמפרטורת החדר <output id="tempOut" for="temp"></output></label>
+          <input type="range" id="temp" min="16" max="32" step="1" value="25">
+          <div class="scale"><span>32°</span><span>16°</span></div>
+        </div>
+        <div class="field">
+          <label for="reserve">להשאיר בצנצנת אחרי הלישה (ג׳)</label>
+          <input type="number" id="reserve" min="0" step="10" inputmode="numeric" value="50">
+        </div>
+        <label class="check" for="cold"><input type="checkbox" id="cold"> הזרע יוצא ישר מהמקרר (מוסיף כשעה)</label>
+      </div>
+      <details class="assump">
+        <summary>הנחות לחישוב לוח הזמנים</summary>
+        <div class="fields">
+          <div class="field"><label for="dur-breadRest">לחם: המשך התפיחה הראשונה אחרי הקיפול האחרון (שעות)</label><input type="number" id="dur-breadRest" data-dur="breadRest" min="0" step="0.5" inputmode="decimal"></div>
+          <div class="field"><label for="dur-proofWarm">לחם: תפיחה חמה סופית (שעות)</label><input type="number" id="dur-proofWarm" data-dur="proofWarm" min="0" step="0.5" inputmode="decimal"></div>
+          <div class="field"><label for="dur-proofCold">לחם: תפיחה קרה במקרר (שעות)</label><input type="number" id="dur-proofCold" data-dur="proofCold" min="0" step="0.5" inputmode="decimal"></div>
+          <div class="field"><label for="dur-fRise">פוקצ׳ה: עלייה של 50% אחרי הקיפולים (שעות)</label><input type="number" id="dur-fRise" data-dur="fRise" min="0" step="0.5" inputmode="decimal"></div>
+          <div class="field"><label for="dur-fFridge">פוקצ׳ה: התפחה שנייה במקרר (שעות)</label><input type="number" id="dur-fFridge" data-dur="fFridge" min="0" step="0.5" inputmode="decimal"></div>
+          <div class="field"><label for="dur-fbake">פוקצ׳ה: משך אפייה (דקות)</label><input type="number" id="dur-fbake" data-dur="fbake" min="1" step="1" inputmode="numeric" placeholder="25"></div>
+        </div>
+        <p class="hint">הנתונים האלה משפיעים רק כשמחשבים לפי תחילת או סוף אפייה, ובתצוגת האפייה המשוערת. אלה הערכות, ואפשר לשנות אותן לפי איך הבצק שלך מתנהג. אם משך אפיית הפוקצ׳ה ריק, החישוב מניח 25 דקות.</p>
+      </details>
+    </section>
+
+    <section class="block">
+      <h2>יחס האכלה (מחמצת : קמח : מים)</h2>
+      <div class="chips" role="radiogroup" aria-label="יחס האכלה" id="chips"></div>
+      <div class="custom" id="custom" hidden>
+        <span>1</span><span>:</span>
+        <input type="number" id="ratioA" min="0.5" step="0.5" inputmode="decimal" aria-label="חלקי קמח" value="5">
+        <span>:</span>
+        <input type="number" id="ratioB" min="0.5" step="0.5" inputmode="decimal" aria-label="חלקי מים" value="5">
+      </div>
+    </section>
+
+    <section class="block">
+      <h2>מתי צריך להאכיל בכל יחס</h2>
+      <div class="compare" id="compare"></div>
+      <p class="hint">לחיצה על שורה בוחרת את היחס.</p>
+    </section>
+
+    <div class="small">
+      <p>סימן שהמחמצת מוכנה: נפחה גדל פי 2–3, פני השטח מלאים בועות והכיפה מתחילה להשתטח. אם הגיעה לשם, אפשר ללוש.</p>
+      <p>החישוב מניח שההידרציה של הזרע זהה להידרציה של ההאכלה. הזמנים הם הערכה לפי טמפרטורה, ובפועל המחמצת שלך קובעת.</p>
+      <p>המתכונים נטענו מהגיליון "מחשבון לחם" ומהלשונית "פוקצ׳ה".</p>
+    </div>
+    <button type="button" class="next" data-tab="s2">לשלב 2: הכנת הבצק ←</button>
+  </div>
+
+  <!-- Stage 2 -->
+  <div class="panel" id="p-s2" role="tabpanel" aria-labelledby="tab-s2" hidden>
+    <div id="s2sw"></div>
+    <section class="stagehead" id="s2head"></section>
+    <section>
+      <h2>מצרכים לבצק</h2>
+      <div id="s2ing"></div>
+    </section>
+    <section>
+      <h2>השלבים</h2>
+      <ol class="steps" id="s2steps"></ol>
+    </section>
+    <button type="button" class="next" data-tab="s3">לשלב 3: אפייה ←</button>
+  </div>
+
+  <!-- Stage 3 -->
+  <div class="panel" id="p-s3" role="tabpanel" aria-labelledby="tab-s3" hidden>
+    <div id="s3sw"></div>
+    <section class="stagehead" id="s3head"></section>
+    <section>
+      <h2>השלבים</h2>
+      <ol class="steps" id="s3steps"></ol>
+    </section>
+    <button type="button" class="ghost" id="resetBtn" data-reset="1">התחלת הכנה חדשה</button>
+  </div>
+</div>
+<div class="toasts" id="toasts" dir="rtl" lang="he" role="status"></div>
+
+<script>
+/* ---------- data (from the "מחשבון לחם" sheet) ---------- */
+const PROCS = { bread: { name: 'לחם' }, focaccia: { name: 'פוקצ׳ה' } };
+const RECIPES = [
+  { id: 'plain',   name: 'לבן רגיל',            starter: 150, type: 'white',
+    ing: [['מים', 225], ['מלח', 8], ['מחמצת חיטה לבן', 150], ['קמח לבן', 350]] },
+  { id: 'gouda',   name: 'גאודה-טימין/אורגנו',  starter: 150, type: 'white',
+    ing: [['מים', 225], ['מלח', 8], ['מחמצת חיטה לבן', 150], ['קמח לבן', 350], ['גאודה', 50], ['טימין', 5], ['אורגנו', 5]] },
+  { id: 'cheddar', name: 'צ׳דר-שיפקה',          starter: 150, type: 'white',
+    ing: [['מים', 225], ['מלח', 8], ['מחמצת חיטה לבן', 150], ['קמח לבן', 350], ['צ׳דר', 50], ['שיפקה', 50]] },
+  { id: 'matbucha',name: 'מטבוחה',              starter: 150, type: 'white',
+    ing: [['מים', 155], ['מלח', 8], ['מחמצת חיטה לבן', 150], ['קמח לבן', 350], ['מטבוחה', 70]] },
+  { id: 'kalamata',name: 'זיתי קלמטה',          starter: 150, type: 'white',
+    ing: [['מים', 225], ['מלח', 8], ['מחמצת חיטה לבן', 150], ['קמח לבן', 350], ['זיתי קלמטה', 60]] },
+  { id: 'oregano', name: 'אורגנו טרי',          starter: 150, type: 'white',
+    ing: [['מים', 225], ['מלח', 8], ['מחמצת חיטה לבן', 150], ['קמח לבן', 350], ['אורגנו טרי', 5]] },
+  { id: 'spelt70', name: 'כוסמין 70%',          starter: 150, type: 'spelt',
+    ing: [['מים', 225], ['מלח', 8], ['מחמצת כוסמין מלא', 150], ['קמח כוסמין מלא', 245], ['קמח לבן', 105]] },
+  { id: 'french',  name: 'כפרי צרפתי',          starter: 160, type: 'white',
+    ing: [['מים', 210], ['מלח', 8], ['מחמצת חיטה לבן', 160], ['קמח לבן', 210], ['קמח מלא', 80], ['קמח שיפון', 32]] },
+  { id: 'frenchg', name: 'כפרי צרפתי-שום ירוק', starter: 160, type: 'white',
+    ing: [['מים', 210], ['מלח', 8], ['מחמצת חיטה לבן', 160], ['קמח לבן', 210], ['קמח מלא', 80], ['קמח שיפון', 32], ['שום ירוק', 20]] },
+  { id: 'focaccia',name: 'פוקצ׳ה',              starter: 300, type: 'white', note: 'לישה בערב, אפייה למחרת',
+    ing: [['מים', 650], ['מלח', 24], ['סוכר', 30], ['מחמצת חיטה לבן', 300], ['קמח לבן', 850], ['שמן זית', 50], ['גאודה', 150], ['טימין', 5], ['אורגנו', 5]] }
+];
+RECIPES.forEach(r => { r.proc = r.id === 'focaccia' ? 'focaccia' : 'bread'; });
+const STARTERS = {
+  white: { name: 'מחמצת חיטה לבן', flour: 'קמח חיטה לבן' },
+  spelt: { name: 'מחמצת כוסמין מלא', flour: 'קמח כוסמין מלא' }
+};
+const PRESETS = ['1:1:1', '1:2:2', '1:3:3', '1:5:5', '1:10:10'];
+/* hours to peak at 24 degrees, by total growth factor R = 1 + flour + water parts */
+const PEAK_TABLE = [[3, 4], [5, 6], [7, 7.5], [11, 9.5], [21, 12], [41, 14.5]];
+const KEY = 'sourdough-calc-v2';
+const ANCHORS = { mix: 'תחילת לישה', bakeStart: 'תחילת אפייה', bakeEnd: 'סוף אפייה' };
+
+/* ---------- stage 1 calculation ---------- */
+function baseHours(R) {
+  const t = PEAK_TABLE;
+  if (R <= t[0][0]) return t[0][1];
+  if (R >= t[t.length - 1][0]) return t[t.length - 1][1];
+  for (let i = 1; i < t.length; i++) {
+    if (R <= t[i][0]) {
+      const [x0, y0] = t[i - 1], [x1, y1] = t[i];
+      return y0 + (y1 - y0) * (R - x0) / (x1 - x0);
+    }
+  }
+}
+function peakHours(R, temp, cold) {
+  return baseHours(R) * Math.pow(2, (24 - temp) / 8) + (cold ? 1 : 0);
+}
+function round15(d) { return new Date(Math.round(d.getTime() / 9e5) * 9e5); }
+function statusOf(feed, now) {
+  if (feed.getTime() < now.getTime()) return 'past';
+  const h = feed.getHours();
+  return (h < 6 || h >= 23) ? 'night' : 'ok';
+}
+function planFor(ratio, mix, temp, cold, now) {
+  const R = 1 + ratio[1] + ratio[2];
+  const peak = peakHours(R, temp, cold);
+  const at = k => round15(new Date(mix.getTime() - peak * k * 36e5));
+  const feed = at(1);
+  return { R, peak, feed, from: at(1.2), to: at(0.85), status: statusOf(feed, now) };
+}
+function amountsFor(need, ratio) {
+  const R = 1 + ratio[1] + ratio[2];
+  const seed = Math.max(1, Math.ceil(need / R));
+  const flour = Math.round(seed * ratio[1]);
+  const water = Math.round(seed * ratio[2]);
+  return { seed, flour, water, total: seed + flour + water };
+}
+
+/* ---------- stages 2 and 3: timers and steps ---------- */
+const TIMERS = {
+  salt:   { proc: 'bread', title: 'הוספת מלח',   sec: 600,  tab: 's2', msg: 'עברו 10 דקות. מוסיפים את המלח.' },
+  fold1:  { proc: 'bread', title: 'קיפול ראשון', sec: 1800, tab: 's2', msg: 'זמן לקיפול הראשון.' },
+  fold2:  { proc: 'bread', title: 'קיפול שני',   sec: 1800, tab: 's2', msg: 'זמן לקיפול השני.' },
+  fold3:  { proc: 'bread', title: 'קיפול שלישי', sec: 1800, tab: 's2', msg: 'זמן לקיפול השלישי.' },
+  bench:  { proc: 'bread', title: 'מנוחת ספסל',  sec: 900,  tab: 's2', msg: 'המנוחה נגמרה. מעצבים.' },
+  check:  { proc: 'bread', title: 'בדיקת תפיחה', sec: 1800, tab: 's3', msg: 'בודקים את התפיחה.' },
+  spring: { proc: 'bread', title: 'Oven Spring', sec: 1200, tab: 's3', msg: 'עברו 20 דקות. ממשיכים באפייה.' },
+  bake:   { proc: 'bread', title: 'אפייה עד שמוכן', sec: 1200, tab: 's3', msg: 'עברו 20 דקות. בודקים טמפרטורה פנימית.' },
+  fsalt:  { proc: 'focaccia', title: 'מלח, שמן וסוכר', sec: 600, tab: 's2', msg: 'מוסיפים מלח, שמן זית וסוכר ולשים.' },
+  ffold1: { proc: 'focaccia', title: 'קיפול ראשון', sec: 1800, tab: 's2', msg: 'זמן לקיפול הראשון.' },
+  ffold2: { proc: 'focaccia', title: 'קיפול שני',   sec: 1800, tab: 's2', msg: 'זמן לקיפול השני.' },
+  ffold3: { proc: 'focaccia', title: 'קיפול שלישי', sec: 1800, tab: 's2', msg: 'זמן לקיפול השלישי.' },
+  fbake:  { proc: 'focaccia', title: 'אפיית פוקצ׳ה', custom: true, tab: 's3', msg: 'האפייה הסתיימה. בודקים שהפוקצ׳ה מוכנה.' }
+};
+/* planned offset in minutes from the start of mixing, when each timer runs back to back */
+const PLAN = { salt: 10, fold1: 40, fold2: 70, fold3: 100, fsalt: 10, ffold1: 40, ffold2: 70, ffold3: 100 };
+
+const STEPS2_BREAD = [
+  { id: 'mix', t: 'Autolyse / Fermentolyse', x: 'Autolyse: קמח ומים. Fermentolyse: קמח, מים ומחמצת. בשני המקרים בלי מלח.' },
+  { h: 'Bulk Fermentation', x: 'ארבעה טיימרים ברצף' },
+  { id: 'salt', timer: 'salt',  t: 'עד הוספת מלח', x: 'אחרי 10 דקות מוסיפים את המלח ומטמיעים אותו בבצק.' },
+  { id: 'f1',   timer: 'fold1', t: 'קיפול ראשון',  x: 'Stretch and Fold או Coil Fold, אחרי חצי שעה.' },
+  { id: 'f2',   timer: 'fold2', t: 'קיפול שני',    x: 'Stretch and Fold או Coil Fold, אחרי חצי שעה.' },
+  { id: 'f3',   timer: 'fold3', t: 'קיפול שלישי',  x: 'Stretch and Fold או Coil Fold, אחרי חצי שעה.' },
+  { h: 'עיצוב' },
+  { id: 'poke', t: 'Poke Test', x: 'לוחצים בעדינות באצבע מקומחת. חוזר לאט ולא עד הסוף: מוכן. חוזר מהר: צריך עוד זמן. נשאר שקוע: התפיחה עברה.' },
+  { id: 'pre',  t: 'Pre-shaping', x: 'מרכזים את הבצק לכדור רופף.' },
+  { id: 'bench', timer: 'bench', t: 'Bench Rest', x: 'רבע שעה של מנוחה.' },
+  { id: 'shape', t: 'Shaping', x: 'מעצבים סופית ומותחים את פני הבצק.' },
+  { id: 'proof', choice: true, t: 'Warm Proofing / Cold Proofing' }
+];
+/* focaccia: the process written in the recipe sheet */
+const STEPS2_FOCACCIA = [
+  { id: 'f-ferm', t: 'פרמנטוליזה', x: 'מערבבים קמח, מים ומחמצת, בלי מלח, שמן וסוכר.' },
+  { id: 'f-salt', timer: 'fsalt', t: 'מלח, שמן זית וסוכר', x: 'אחרי 10–15 דקות מוסיפים מלח, שמן זית וסוכר, ולשים טוב עד שהכול נטמע.' },
+  { h: 'התפחה ראשונה', x: 'בטמפרטורת החדר' },
+  { id: 'f-f1', timer: 'ffold1', t: 'קיפול ראשון',  x: 'שלושה קיפולים, כל חצי שעה.' },
+  { id: 'f-f2', timer: 'ffold2', t: 'קיפול שני',    x: 'חצי שעה אחרי הקודם.' },
+  { id: 'f-f3', timer: 'ffold3', t: 'קיפול שלישי',  x: 'חצי שעה אחרי הקודם.' },
+  { id: 'f-rise', t: 'עלייה של 50%', x: 'בסוף ההתפחה הראשונה הבצק עולה בכ־50%.' },
+  { h: 'עיצוב והתפחה שנייה' },
+  { id: 'f-shape', t: 'עיצוב לתבניות', x: 'תבניות אלומיניום עם נייר אפייה, משומנות היטב.' },
+  { id: 'f-cold', t: 'התפחה שנייה: לילה במקרר', x: 'ממשיכים בבוקר, בשלב 3.' }
+];
+function steps2(p) { return p === 'focaccia' ? STEPS2_FOCACCIA : STEPS2_BREAD; }
+function steps3(p) {
+  if (p === 'focaccia') {
+    return [
+      { id: 'f-dimples', t: 'גומות', x: 'בבוקר עושים גומות בבצק.' },
+      { id: 'f-top', t: 'מלח, שמן זית ותוספות', x: 'מוסיפים מלח, שמן זית ותוספות.' },
+      { id: 'f-bake', timer: 'fbake', t: 'אפייה', x: 'הטמפרטורה והזמן לא כתובים במתכון. קבע את משך האפייה לפי התנור שלך.' }
+    ];
+  }
+  const warm = state.proof === 'warm';
+  const list = [{ id: 'preheat', t: 'חימום תנור / תנור הולנדי', x: 'מחממים את התנור כשהתנור ההולנדי בפנים.' }];
+  if (warm) {
+    list.push({ id: 'check', timer: 'check', t: 'בדיקת תפיחה חמה', x: 'חצי שעה נוספת עד הבדיקה. אם עדיין לא מוכן, מפעילים שוב.' });
+  } else {
+    list.push({ note: 'תפיחה קרה: אין בדיקה, עוברים ישר לאפייה.' });
+  }
+  list.push(
+    { id: 'spring', timer: 'spring', t: 'אפייה: עד Oven Spring', x: '20 דקות ראשונות.' },
+    { id: 'bake',   timer: 'bake',   t: 'המשך אפייה', x: '20 דקות נוספות עד שהלחם מוכן.' },
+    { id: 'temp', t: 'בדיקת טמפרטורה פנימית', x: 'מוכן ב־95 מעלות.' },
+    { id: 'rack', t: 'להניח על רשת' }
+  );
+  return list;
+}
+
+function pad2(n) { return String(n).padStart(2, '0'); }
+function fmtLeft(ms) {
+  const s = Math.max(0, Math.ceil(ms / 1000));
+  return pad2(Math.floor(s / 60)) + ':' + pad2(s % 60);
+}
+function secOf(id) {
+  const T = TIMERS[id];
+  return T.custom ? Math.max(0, +state.custom[id] || 0) * 60 : T.sec;
+}
+function timerState(t, id, now) {
+  const s = t[id];
+  if (!s) return { mode: 'idle', left: secOf(id) * 1000 };
+  if (s.end) {
+    const left = s.end - now;
+    return left > 0 ? { mode: 'run', left, end: s.end } : { mode: 'done', left: 0, end: s.end };
+  }
+  return { mode: 'pause', left: s.left };
+}
+/*END-CALC*/
+
+/* ---------- state ---------- */
+function localInput(d) { return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()) + 'T' + pad2(d.getHours()) + ':' + pad2(d.getMinutes()); }
+function defaultMix(p) { const d = new Date(); d.setDate(d.getDate() + 1); d.setHours(p === 'focaccia' ? 19 : 8, 0, 0, 0); return d; }
+
+const state = {
+  tab: 's1', proc: 'bread', qty: { plain: 2, gouda: 1 }, ratio: '1:10:10', a: 5, b: 5, temp: 25, reserve: 50, cold: false,
+  /* the time the person typed, per process; its meaning depends on state.anchor */
+  at: { bread: defaultMix('bread'), focaccia: defaultMix('focaccia') },
+  anchor: 'mix',
+  dur: { breadRest: 2, proofWarm: 1.5, proofCold: 12, fRise: 1, fFridge: 12 },
+  proof: 'warm', done: {}, t: {}, rounds: {}, custom: {}
+};
+const SAVED_KEYS = ['tab', 'proc', 'qty', 'ratio', 'a', 'b', 'temp', 'reserve', 'cold', 'proof', 'done', 't', 'rounds', 'custom', 'anchor'];
+try {
+  const saved = JSON.parse(localStorage.getItem(KEY) || 'null');
+  if (saved) {
+    SAVED_KEYS.forEach(k => { if (saved[k] !== undefined) state[k] = saved[k]; });
+    if (saved.dur) Object.keys(state.dur).forEach(k => { if (typeof saved.dur[k] === 'number') state.dur[k] = saved.dur[k]; });
+    const fresh = ts => ts && ts > Date.now() - 36 * 36e5;
+    if (typeof saved.mixTs === 'number') { if (fresh(saved.mixTs)) state.at.bread = new Date(saved.mixTs); }
+    else if (saved.mixTs) ['bread', 'focaccia'].forEach(p => { if (fresh(saved.mixTs[p])) state.at[p] = new Date(saved.mixTs[p]); });
+    if (!ANCHORS[state.anchor]) state.anchor = 'mix';
+  }
+} catch (e) {}
+function save() {
+  try {
+    const o = {};
+    SAVED_KEYS.forEach(k => { o[k] = state[k]; });
+    o.mixTs = { bread: state.at.bread.getTime(), focaccia: state.at.focaccia.getTime() };
+    o.dur = state.dur;
+    localStorage.setItem(KEY, JSON.stringify(o));
+  } catch (e) {}
+}
+
+const $ = id => document.getElementById(id);
+function ratioOf(key) {
+  if (key === 'custom') return [1, Math.max(0.5, +state.a || 0.5), Math.max(0.5, +state.b || 0.5)];
+  return key.split(':').map(Number);
+}
+function ratioLabel(key) { return key === 'custom' ? '1:' + ratioOf(key)[1] + ':' + ratioOf(key)[2] : key; }
+/* minutes from the start of mixing to the oven going in, from the timers plus the assumptions */
+function mixToBakeMin(p) {
+  const D = state.dur;
+  if (p === 'focaccia') return 100 + D.fRise * 60 + 10 + D.fFridge * 60 + 10;
+  return 100 + D.breadRest * 60 + 5 + 15 + 10 + (state.proof === 'warm' ? D.proofWarm : D.proofCold) * 60;
+}
+function bakeMin(p) { return p === 'focaccia' ? (+state.custom.fbake || 25) : 40; }
+function offsetFor(p, mode) {
+  if (mode === 'bakeStart') return mixToBakeMin(p);
+  if (mode === 'bakeEnd') return mixToBakeMin(p) + bakeMin(p);
+  return 0;
+}
+function mixOf(p) { const at = state.at[p] || state.at.bread; return new Date(at.getTime() - offsetFor(p, state.anchor) * 6e4); }
+function bakeStartOf(p) { return new Date(mixOf(p).getTime() + mixToBakeMin(p) * 6e4); }
+function bakeEndOf(p) { return new Date(bakeStartOf(p).getTime() + bakeMin(p) * 6e4); }
+function validMix(p) { return !isNaN(mixOf(p).getTime()); }
+function activeProcs() {
+  return ['bread', 'focaccia'].filter(p => RECIPES.some(r => r.proc === p && (state.qty[r.id] || 0) > 0));
+}
+function curProc() {
+  const a = activeProcs();
+  if (!a.length) return 'bread';
+  return a.indexOf(state.proc) >= 0 ? state.proc : a[0];
+}
+
+/* ---------- formatting ---------- */
+function hhmm(d) { return pad2(d.getHours()) + ':' + pad2(d.getMinutes()); }
+function dayLabel(d, now) {
+  const a = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const b = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const diff = Math.round((a - b) / 864e5);
+  if (diff === 0) return 'היום';
+  if (diff === 1) return 'מחר';
+  if (diff === -1) return 'אתמול';
+  return d.toLocaleDateString('he-IL', { weekday: 'long' });
+}
+function hoursLabel(h) { const x = Math.round(h * 2) / 2; return 'כ־' + x + ' שעות'; }
+function num(s) { return '<bdi class="ltr">' + s + '</bdi>'; }
+
+/* ---------- stage 1 render ---------- */
+function renderRecipes() {
+  $('recipes').innerHTML = RECIPES.map(r => {
+    const q = state.qty[r.id] || 0;
+    const chip = r.type === 'spelt' ? '<span class="chip">מחמצת כוסמין</span>' : '';
+    const note = r.note ? '<span>' + r.note + '</span>' : '';
+    return '<li class="recipe' + (q > 0 ? ' on' : '') + '" data-id="' + r.id + '">' +
+      '<div class="info"><div class="name">' + r.name + '</div>' +
+      '<div class="meta"><span>' + r.starter + ' ג׳ מחמצת</span>' + chip + note + '</div></div>' +
+      '<div class="stepper"><button type="button" data-step="-1" aria-label="פחות ' + r.name + '">−</button>' +
+      '<span class="val" aria-live="polite">' + q + '</span>' +
+      '<button type="button" data-step="1" aria-label="עוד ' + r.name + '">+</button></div></li>';
+  }).join('');
+}
+
+function renderChips() {
+  const keys = PRESETS.concat(['custom']);
+  $('chips').innerHTML = keys.map(k =>
+    '<button type="button" class="pill" role="radio" data-ratio="' + k + '" aria-checked="' + (state.ratio === k) + '">' +
+    (k === 'custom' ? 'מותאם' : num(k)) + '</button>').join('');
+  $('custom').hidden = state.ratio !== 'custom';
+}
+
+function hintFor(p) {
+  if (!validMix(p)) return '';
+  const now = new Date(), mix = mixOf(p);
+  if (state.anchor === 'mix') {
+    const s = bakeStartOf(p), e = bakeEndOf(p);
+    return 'אפייה משוערת: ' + dayLabel(s, now) + ' ' + num(hhmm(s)) + '–' + num(hhmm(e));
+  }
+  const hrs = Math.round(offsetFor(p, state.anchor) / 30) / 2;
+  return 'לישה תתחיל ' + dayLabel(mix, now) + ' ' + num(hhmm(mix)) + ' (כ־' + hrs + ' שעות לפני ' + (state.anchor === 'bakeEnd' ? 'סוף' : 'תחילת') + ' האפייה)';
+}
+function syncDur() {
+  Object.keys(state.dur).forEach(k => { const el = $('dur-' + k); if (el && document.activeElement !== el) el.value = state.dur[k]; });
+  const f = $('dur-fbake');
+  if (f && document.activeElement !== f) f.value = state.custom.fbake || '';
+}
+function renderMixFields() {
+  const a = activeProcs();
+  const showB = a.indexOf('bread') >= 0 || !a.length;
+  const showF = a.indexOf('focaccia') >= 0;
+  const multi = showB && showF;
+  const base = ANCHORS[state.anchor];
+  $('anchorSeg').innerHTML = Object.keys(ANCHORS).map(k =>
+    '<button type="button" role="radio" data-anchor="' + k + '" aria-checked="' + (state.anchor === k) + '">' + ANCHORS[k] + '</button>').join('');
+  $('fieldMixB').hidden = !showB;
+  $('fieldMixF').hidden = !showF;
+  $('mixLabB').textContent = base + (multi ? ': לחם' : '');
+  $('mixLabF').textContent = base + (multi ? ': פוקצ׳ה' : '');
+  $('mixHintB').innerHTML = hintFor('bread');
+  $('mixHintF').innerHTML = hintFor('focaccia');
+  syncDur();
+}
+
+function groupsNeeded(proc) {
+  const sums = { white: 0, spelt: 0 };
+  RECIPES.forEach(r => { if (r.proc === proc) sums[r.type] += (state.qty[r.id] || 0) * r.starter; });
+  return Object.keys(sums).filter(k => sums[k] > 0).map(k => ({ type: k, sum: sums[k] }));
+}
+
+function renderResult() {
+  const now = new Date();
+  const ps = activeProcs();
+  const el = $('result');
+  if (!ps.length) {
+    el.innerHTML = '<div class="result"><div class="empty"><b>עוד לא בחרת מה אופים</b>הוסף כיכר או מתכון ברשימה למטה, והחישוב יופיע כאן.</div></div>';
+    return;
+  }
+  const ratio = ratioOf(state.ratio);
+  const multi = ps.length > 1;
+  const hydration = Math.round(ratio[2] / ratio[1] * 100);
+  const okAll = k => ps.every(q => validMix(q) && planFor(ratioOf(k), mixOf(q), state.temp, state.cold, now).status === 'ok');
+
+  const cards = ps.map(p => {
+    const who = multi ? ' ל' + PROCS[p].name : '';
+    if (!validMix(p)) {
+      return '<div class="result"><div class="empty"><b>חסרה שעת לישה' + who + '</b>בחר תאריך ושעה בשדה "תחילת לישה".</div></div>';
+    }
+    const mix = mixOf(p);
+    const pl = planFor(ratio, mix, state.temp, state.cold, now);
+
+    let notice = '';
+    if (pl.status !== 'ok') {
+      const alt = PRESETS.find(okAll);
+      const msg = pl.status === 'past' ? 'שעת ההאכלה' + who + ' כבר עברה.' : 'ההאכלה' + who + ' יוצאת בלילה.';
+      const btn = alt ? '<button type="button" data-ratio="' + alt + '">עבור ליחס ' + alt + '</button>' : '';
+      const tail = alt
+        ? ' ביחס ' + alt + ' ההאכלה' + who + ' יוצאת בשעה ' + hhmm(planFor(ratioOf(alt), mix, state.temp, state.cold, now).feed) + '.'
+        : ' אפשר לדחות את הלישה או לשנות טמפרטורה.';
+      notice = '<div class="notice"><span>' + msg + tail + '</span>' + btn + '</div>';
+    }
+
+    const rows = groupsNeeded(p).map(g => {
+      const need = g.sum + Math.max(0, +state.reserve || 0);
+      const a = amountsFor(need, ratio);
+      const keep = a.total - g.sum;
+      const info = STARTERS[g.type];
+      return '<div class="group"><div class="group-head"><h3>' + info.name + '</h3>' +
+        '<span>' + num(ratioLabel(state.ratio)) + (hydration !== 100 ? ' · הידרציה ' + hydration + '%' : '') + '</span></div>' +
+        '<div class="amounts">' +
+        '<div class="amt"><b>' + a.seed + '</b><span>ג׳ מחמצת</span></div>' +
+        '<div class="amt"><b>' + a.flour + '</b><span>ג׳ ' + info.flour.replace('קמח ', 'קמח<br>') + '</span></div>' +
+        '<div class="amt"><b>' + a.water + '</b><span>ג׳ מים</span></div></div>' +
+        '<p class="foot">יוצאים ' + a.total + ' ג׳: ' + g.sum + ' ללישה ו־' + keep + ' להשארה בצנצנת.</p></div>';
+    }).join('');
+
+    return '<div class="result"><div class="hero"><div class="hero-label">להאכיל את המחמצת' + (multi ? ' · ' + PROCS[p].name : '') + '</div>' +
+      '<div class="hero-time"><span class="day">' + dayLabel(pl.feed, now) + '</span>' + num(hhmm(pl.feed)) + '</div>' +
+      '<div class="hero-sub">טווח נוח ' + num(hhmm(pl.from) + '–' + hhmm(pl.to)) + ' · שיא אחרי ' + hoursLabel(pl.peak) + ' ב־' + num(state.temp + '°') +
+      '<br>לישה ' + dayLabel(mix, now) + ' ' + num(hhmm(mix)) + '</div></div>' + notice + rows + '</div>';
+  }).join('');
+
+  el.innerHTML = cards + (multi ? '<p class="hint">יש שתי האכלות נפרדות, כי שעות הלישה שונות. להאכלה השנייה קח את הזרע מהמחמצת שנשארה בצנצנת אחרי הראשונה.</p>' : '');
+}
+
+function renderCompare() {
+  const now = new Date();
+  const ps = activeProcs().length ? activeProcs() : ['bread'];
+  if (!ps.every(validMix)) { $('compare').innerHTML = ''; return; }
+  const multi = ps.length > 1;
+  const keys = PRESETS.slice();
+  if (state.ratio === 'custom') keys.push('custom');
+  const tags = { ok: 'מתאים', night: 'בלילה', past: 'כבר עבר' };
+  $('compare').innerHTML = keys.map(k => {
+    const plans = ps.map(p => planFor(ratioOf(k), mixOf(p), state.temp, state.cold, now));
+    const status = ['past', 'night', 'ok'].find(s => plans.some(x => x.status === s));
+    const lines = plans.map((pl, i) =>
+      '<span class="t">' + (multi ? PROCS[ps[i]].name + ' · ' : '') + dayLabel(pl.feed, now) + ' ' + num(hhmm(pl.feed)) + '</span>').join('');
+    return '<button type="button" class="cmp" data-ratio="' + k + '" aria-pressed="' + (state.ratio === k) + '">' +
+      '<span class="r">' + num(ratioLabel(k)) + '</span>' +
+      '<span>' + lines + '<span class="p">שיא אחרי ' + hoursLabel(plans[0].peak) + '</span></span>' +
+      '<span class="tag ' + status + '">' + tags[status] + '</span></button>';
+  }).join('');
+}
+
+/* ---------- stages 2 and 3 render ---------- */
+function progressOf(list) {
+  const items = list.filter(s => s.id);
+  const done = items.filter(s => state.done[s.id]).length;
+  return { done, total: items.length };
+}
+function headHTML(label, big, list) {
+  const p = progressOf(list);
+  const pct = p.total ? Math.round(p.done / p.total * 100) : 0;
+  return '<div class="lab">' + label + '</div><div class="big">' + big + '</div>' +
+    '<div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="' + p.total + '" aria-valuenow="' + p.done + '"><i style="width:' + pct + '%"></i></div>' +
+    '<div class="prog"><span>הושלמו ' + p.done + ' מתוך ' + p.total + '</span></div>';
+}
+function bakeLine(p) {
+  if (!validMix(p)) return '';
+  const now = new Date(), s = bakeStartOf(p), e = bakeEndOf(p);
+  return '<div class="prog"><span>אפייה משוערת: ' + dayLabel(s, now) + ' ' + num(hhmm(s)) + ' עד ' + num(hhmm(e)) + '</span></div>';
+}
+function procSwitchHTML() {
+  const a = activeProcs();
+  if (a.length < 2) return '';
+  const c = curProc();
+  return '<div class="seg top" role="radiogroup" aria-label="תהליך">' + a.map(p =>
+    '<button type="button" role="radio" data-procsw="' + p + '" aria-checked="' + (c === p) + '">' + PROCS[p].name + '</button>').join('') + '</div>';
+}
+function timerHTML(id) {
+  const T = TIMERS[id], now = Date.now(), st = timerState(state.t, id, now);
+  const btn = (a, l, c) => '<button type="button" class="btn' + (c ? ' ' + c : '') + '" data-t="' + a + '" data-id="' + id + '">' + l + '</button>';
+  let btns = '', meta = '', cust = '';
+  if (st.mode === 'idle') {
+    btns = btn('start', 'התחל טיימר', 'pri');
+    if (T.custom) {
+      meta = 'קבע משך בדקות ולחץ התחל';
+      cust = '<label class="cust">משך בדקות <input type="number" id="cust-' + id + '" data-cust="' + id + '" min="1" step="1" inputmode="numeric" value="' + (state.custom[id] || '') + '"></label>';
+    } else {
+      meta = 'משך ' + (secOf(id) / 60) + ' דקות';
+      if (PLAN[id] !== undefined && validMix(T.proc)) meta += ' · מתוכנן ל־' + num(hhmm(new Date(mixOf(T.proc).getTime() + PLAN[id] * 6e4)));
+    }
+  } else if (st.mode === 'run') {
+    btns = btn('pause', 'השהה') + btn('reset', 'אפס');
+    meta = 'מסתיים ב־' + num(hhmm(new Date(st.end)));
+  } else if (st.mode === 'pause') {
+    btns = btn('start', 'המשך', 'pri') + btn('reset', 'אפס');
+    meta = 'מושהה';
+  } else {
+    btns = (id === 'check' ? btn('again', 'עוד ' + (secOf(id) / 60) + ' דקות', 'pri') : '') + btn('reset', 'אפס');
+    meta = 'הסתיים ב־' + num(hhmm(new Date(st.end)));
+  }
+  return '<div class="timer ' + st.mode + '"><div class="readout" data-readout="' + id + '">' + fmtLeft(st.left) + '</div>' +
+    '<div class="tmeta">' + meta + '</div>' + cust + '<div class="tbtns">' + btns + '</div></div>';
+}
+function choiceHTML() {
+  const w = state.proof === 'warm';
+  const text = w ? 'בטמפרטורת החדר. בשלב 3 יש בדיקה חוזרת של חצי שעה עד שמוכן.' : 'במקרר. אופים ישר ממנו, בלי בדיקה.';
+  return '<div class="seg" role="radiogroup" aria-label="סוג התפחה אחרונה">' +
+    '<button type="button" role="radio" data-proof="warm" aria-checked="' + w + '">תפיחה חמה</button>' +
+    '<button type="button" role="radio" data-proof="cold" aria-checked="' + !w + '">תפיחה קרה</button></div>' +
+    '<p>' + text + '</p>';
+}
+function stepsHTML(list) {
+  return list.map(s => {
+    if (s.h) return '<li class="grp"><b>' + s.h + '</b>' + (s.x ? '<span>' + s.x + '</span>' : '') + '</li>';
+    if (s.note) return '<li class="stepnote">' + s.note + '</li>';
+    const d = !!state.done[s.id];
+    let extra = '';
+    if (s.timer) extra = timerHTML(s.timer);
+    if (s.choice) extra = choiceHTML();
+    const rounds = (s.timer === 'check' && (state.rounds.check || 0) > 1) ? '<span class="chip">סבב ' + state.rounds.check + '</span>' : '';
+    return '<li class="step' + (d ? ' done' : '') + '"><button type="button" class="tick" data-done="' + s.id + '" aria-pressed="' + d + '" aria-label="סימון כהושלם: ' + s.t + '"></button>' +
+      '<div class="sb"><div class="st">' + s.t + rounds + '</div>' + (s.x && !s.choice ? '<p>' + s.x + '</p>' : '') + extra + '</div></li>';
+  }).join('');
+}
+function ingredientsHTML(p) {
+  const items = RECIPES.filter(r => r.proc === p && (state.qty[r.id] || 0) > 0);
+  if (!items.length) return '<p class="muted">בחר מה אופים בשלב 1 כדי לראות את המצרכים.</p>';
+  return items.map(r => {
+    const q = state.qty[r.id];
+    return '<details class="ing" open><summary><b>' + r.name + '</b><span>×' + q + '</span></summary><ul>' +
+      r.ing.map(i => '<li><span>' + i[0] + '</span><b>' + (i[1] * q) + ' ג׳</b></li>').join('') + '</ul></details>';
+  }).join('');
+}
+
+function renderStage2() {
+  const p = curProc(), now = new Date(), multi = activeProcs().length > 1;
+  const list = steps2(p);
+  $('s2sw').innerHTML = procSwitchHTML();
+  const big = validMix(p)
+    ? '<span class="day">' + dayLabel(mixOf(p), now) + '</span>' + num(hhmm(mixOf(p)))
+    : '<span class="day">לא נבחרה שעה</span>';
+  $('s2head').innerHTML = headHTML('תחילת לישה' + (multi ? ' · ' + PROCS[p].name : '') + ' (נקבעת בשלב 1)', big, list) + bakeLine(p);
+  $('s2ing').innerHTML = ingredientsHTML(p);
+  $('s2steps').innerHTML = stepsHTML(list);
+}
+function renderStage3() {
+  const p = curProc();
+  const list = steps3(p);
+  $('s3sw').innerHTML = procSwitchHTML();
+  let label, big;
+  if (p === 'focaccia') {
+    label = 'אחרי התפחה שנייה לילה במקרר';
+    big = '<span>' + PROCS[p].name + '</span>';
+  } else {
+    label = 'סוג ההתפחה האחרונה (נבחר בשלב 2)';
+    big = '<span>' + (state.proof === 'warm' ? 'תפיחה חמה' : 'תפיחה קרה') + '</span>';
+  }
+  $('s3head').innerHTML = headHTML(label, big, list) + bakeLine(p);
+  $('s3steps').innerHTML = stepsHTML(list);
+  if (!resetArmed) $('resetBtn').textContent = 'התחלת הכנה חדשה';
+}
+
+function renderStrip() {
+  const now = Date.now();
+  const multi = activeProcs().length > 1;
+  const run = Object.keys(TIMERS).filter(id => timerState(state.t, id, now).mode === 'run');
+  const html = run.map(id => {
+    const T = TIMERS[id], st = timerState(state.t, id, now);
+    return '<button type="button" data-tab="' + T.tab + '" data-procsw="' + T.proc + '">' + (multi ? PROCS[T.proc].name + ' · ' : '') + T.title +
+      ' <span class="t">' + num(fmtLeft(st.left)) + '</span></button>';
+  }).join('');
+  if ($('strip').innerHTML !== html) $('strip').innerHTML = html;
+}
+
+function renderTabs() {
+  ['s1', 's2', 's3'].forEach(t => {
+    $('p-' + t).hidden = state.tab !== t;
+    $('tab-' + t).setAttribute('aria-selected', String(state.tab === t));
+  });
+}
+function renderAll() { renderChips(); renderMixFields(); renderResult(); renderCompare(); renderStage2(); renderStage3(); renderStrip(); renderTabs(); }
+function refresh() { renderMixFields(); renderResult(); renderCompare(); renderStage2(); renderStage3(); renderStrip(); }
+
+/* ---------- alerts: sound, vibration, toast, wake lock ---------- */
+let actx = null, lock = null, resetArmed = false;
+function ensureAudio() {
+  try {
+    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+    if (actx.state === 'suspended') actx.resume();
+  } catch (e) {}
+}
+function beep() {
+  try {
+    if (!actx) return;
+    const t0 = actx.currentTime;
+    for (let i = 0; i < 3; i++) {
+      const o = actx.createOscillator(), g = actx.createGain(), s = t0 + i * 0.5;
+      o.frequency.value = 880; o.connect(g); g.connect(actx.destination);
+      g.gain.setValueAtTime(0.0001, s);
+      g.gain.exponentialRampToValueAtTime(0.3, s + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, s + 0.4);
+      o.start(s); o.stop(s + 0.45);
+    }
+  } catch (e) {}
+}
+function pushToast(title, msg, tab, proc) {
+  const box = $('toasts');
+  while (box.children.length >= 3) box.removeChild(box.firstChild);
+  const div = document.createElement('div');
+  div.className = 'toast';
+  const txt = document.createElement('div');
+  const b = document.createElement('b'); b.textContent = title;
+  const s = document.createElement('span'); s.textContent = msg;
+  txt.appendChild(b); txt.appendChild(s);
+  const btn = document.createElement('button');
+  btn.type = 'button'; btn.textContent = 'הבנתי'; btn.setAttribute('data-toast', tab); btn.setAttribute('data-proc', proc);
+  div.appendChild(txt); div.appendChild(btn);
+  box.appendChild(div);
+}
+function alertDone(id) {
+  const T = TIMERS[id];
+  const prefix = activeProcs().length > 1 ? PROCS[T.proc].name + ' · ' : '';
+  beep();
+  try { if (navigator.vibrate) navigator.vibrate([300, 150, 300, 150, 300]); } catch (e) {}
+  pushToast(prefix + T.title + ': הסתיים', T.msg, T.tab, T.proc);
+}
+async function syncLock() {
+  const now = Date.now();
+  const any = Object.keys(TIMERS).some(id => timerState(state.t, id, now).mode === 'run');
+  try {
+    if (any && !lock && navigator.wakeLock && document.visibilityState === 'visible') {
+      lock = await navigator.wakeLock.request('screen');
+      lock.addEventListener('release', () => { lock = null; });
+    } else if (!any && lock) {
+      await lock.release(); lock = null;
+    }
+  } catch (e) { lock = null; }
+}
+
+/* ---------- timer actions ---------- */
+function timerAct(act, id) {
+  const now = Date.now(), st = timerState(state.t, id, now);
+  const fresh = st.mode === 'idle' || st.mode === 'done';
+  if ((act === 'start' || act === 'again') && fresh && secOf(id) <= 0) {
+    const inp = document.getElementById('cust-' + id);
+    if (inp) inp.focus();
+    return;
+  }
+  if (act === 'start' || act === 'again') {
+    ensureAudio();
+    if (act === 'again' || fresh) state.rounds[id] = (state.rounds[id] || 0) + 1;
+    const left = (act === 'again' || fresh) ? secOf(id) * 1000 : st.left;
+    state.t[id] = { end: now + left };
+  } else if (act === 'pause') {
+    state.t[id] = { left: st.left };
+  } else if (act === 'reset') {
+    delete state.t[id]; state.rounds[id] = 0;
+  }
+  save(); renderStage2(); renderStage3(); renderStrip(); syncLock();
+}
+function tick() {
+  const now = Date.now();
+  let changed = false;
+  Object.keys(TIMERS).forEach(id => {
+    const s = state.t[id];
+    if (!s || !s.end) return;
+    const left = s.end - now;
+    if (left <= 0) {
+      if (!s.fired) { s.fired = true; changed = true; alertDone(id); }
+    } else {
+      const el = document.querySelector('[data-readout="' + id + '"]');
+      if (el) el.textContent = fmtLeft(left);
+    }
+  });
+  if (changed) { save(); renderStage2(); renderStage3(); syncLock(); }
+  renderStrip();
+}
+
+/* ---------- events ---------- */
+function setTab(t) {
+  state.tab = t; save(); renderTabs();
+  try { window.scrollTo(0, 0); } catch (e) {}
+}
+function setProc(p) { state.proc = p; save(); renderStage2(); renderStage3(); }
+/* switching the mode keeps the schedule where it is: the typed time becomes the equivalent time in the new mode */
+function setAnchor(mode) {
+  if (!ANCHORS[mode] || mode === state.anchor) return;
+  ['bread', 'focaccia'].forEach(p => {
+    const mix = mixOf(p);
+    if (!isNaN(mix.getTime())) state.at[p] = new Date(mix.getTime() + offsetFor(p, mode) * 6e4);
+  });
+  state.anchor = mode;
+  $('mixAt').value = isNaN(state.at.bread.getTime()) ? '' : localInput(state.at.bread);
+  $('mixAtF').value = isNaN(state.at.focaccia.getTime()) ? '' : localInput(state.at.focaccia);
+  save(); refresh();
+}
+document.addEventListener('click', e => {
+  const tg = e.target.closest('[data-tab]');
+  if (tg) { if (tg.dataset.procsw) setProc(tg.dataset.procsw); setTab(tg.dataset.tab); return; }
+  const ts = e.target.closest('[data-toast]');
+  if (ts) { const tab = ts.dataset.toast, pr = ts.dataset.proc; ts.closest('.toast').remove(); if (pr) setProc(pr); setTab(tab); return; }
+  const ps = e.target.closest('[data-procsw]');
+  if (ps) { setProc(ps.dataset.procsw); return; }
+  const an = e.target.closest('[data-anchor]');
+  if (an) { setAnchor(an.dataset.anchor); return; }
+  const tt = e.target.closest('[data-t]');
+  if (tt) { timerAct(tt.dataset.t, tt.dataset.id); return; }
+  const dn = e.target.closest('[data-done]');
+  if (dn) { const k = dn.dataset.done; state.done[k] = !state.done[k]; save(); renderStage2(); renderStage3(); return; }
+  const pf = e.target.closest('[data-proof]');
+  if (pf) { state.proof = pf.dataset.proof; save(); renderStage2(); renderStage3(); return; }
+  const rs = e.target.closest('[data-reset]');
+  if (rs) {
+    if (!resetArmed) {
+      resetArmed = true; rs.textContent = 'בטוח? לחץ שוב כדי לאפס הכול';
+      setTimeout(() => { resetArmed = false; const b = $('resetBtn'); if (b) b.textContent = 'התחלת הכנה חדשה'; }, 4000);
+    } else {
+      resetArmed = false;
+      state.done = {}; state.t = {}; state.rounds = {};
+      state.at = { bread: defaultMix('bread'), focaccia: defaultMix('focaccia') };
+      state.anchor = 'mix';
+      $('mixAt').value = localInput(state.at.bread);
+      $('mixAtF').value = localInput(state.at.focaccia);
+      $('toasts').innerHTML = '';
+      save(); refresh(); syncLock(); setTab('s1');
+    }
+    return;
+  }
+  const step = e.target.closest('[data-step]');
+  if (step) {
+    const li = step.closest('.recipe');
+    const id = li.dataset.id;
+    const q = Math.min(20, Math.max(0, (state.qty[id] || 0) + Number(step.dataset.step)));
+    state.qty[id] = q;
+    li.classList.toggle('on', q > 0);
+    li.querySelector('.val').textContent = q;
+    save(); refresh();
+    return;
+  }
+  const r = e.target.closest('[data-ratio]');
+  if (r) { state.ratio = r.dataset.ratio; save(); renderChips(); renderResult(); renderCompare(); }
+});
+document.addEventListener('input', e => {
+  const du = e.target.closest && e.target.closest('[data-dur]');
+  if (du) {
+    const k = du.dataset.dur, v = du.value === '' ? null : +du.value;
+    if (k === 'fbake') state.custom.fbake = v || 0;
+    else if (v !== null && v >= 0) state.dur[k] = v;
+    save(); refresh();
+    return;
+  }
+  const c = e.target.closest && e.target.closest('[data-cust]');
+  if (!c) return;
+  const id = c.dataset.cust;
+  state.custom[id] = +c.value || 0;
+  save(); syncDur(); renderMixFields();
+  const ro = document.querySelector('[data-readout="' + id + '"]');
+  if (ro) ro.textContent = fmtLeft(secOf(id) * 1000);
+});
+
+function bind(id, fn) { $(id).addEventListener('input', () => { fn($(id)); save(); refresh(); }); }
+bind('mixAt', el => { state.at.bread = new Date(el.value); });
+bind('mixAtF', el => { state.at.focaccia = new Date(el.value); });
+bind('temp', el => { state.temp = +el.value; $('tempOut').textContent = el.value + '°'; });
+bind('reserve', el => { state.reserve = el.value === '' ? 0 : +el.value; });
+bind('ratioA', el => { state.a = +el.value; });
+bind('ratioB', el => { state.b = +el.value; });
+$('cold').addEventListener('change', () => { state.cold = $('cold').checked; save(); refresh(); });
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') { tick(); syncLock(); } });
+
+/* ---------- init ---------- */
+$('mixAt').value = localInput(state.at.bread);
+$('mixAtF').value = localInput(state.at.focaccia);
+$('temp').value = state.temp;
+$('tempOut').textContent = state.temp + '°';
+$('reserve').value = state.reserve;
+$('cold').checked = !!state.cold;
+$('ratioA').value = state.a;
+$('ratioB').value = state.b;
+renderRecipes();
+renderAll();
+setInterval(tick, 1000);
+syncLock();
+</script>

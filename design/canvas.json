@@ -1,0 +1,89 @@
+{
+  "v": 3,
+  "createdOnFiles": {
+    "v": 1,
+    "at": "2026-10-16T20:20:00Z"
+  },
+  "title": "מחמצת: מסכי האפליקציה",
+  "launch": {
+    "view": "canvas"
+  },
+  "pages": [],
+  "boards": {
+    "Main.dc.html": {
+      "x": 1410,
+      "y": 0,
+      "w": 390,
+      "h": 1120,
+      "title": "1 · מה? מתי? איך?"
+    },
+    "Feed.dc.html": {
+      "x": 940,
+      "y": 0,
+      "w": 390,
+      "h": 1300,
+      "title": "2 · האכלת מחמצת"
+    },
+    "Dough.dc.html": {
+      "x": 470,
+      "y": 0,
+      "w": 390,
+      "h": 1300,
+      "title": "3 · הכנת הבצק"
+    },
+    "Bake.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 390,
+      "h": 960,
+      "title": "4 · אפייה"
+    },
+    "Recipes.dc.html": {
+      "x": 1410,
+      "y": 1700,
+      "w": 390,
+      "h": 1760,
+      "title": "המתכונים שלי"
+    },
+    "Settings.dc.html": {
+      "x": 940,
+      "y": 1700,
+      "w": 390,
+      "h": 1150,
+      "title": "ההגדרות שלי"
+    },
+    "Logo.dc.html": {
+      "x": 0,
+      "y": 1700,
+      "w": 820,
+      "h": 1060,
+      "title": "DoughMate · לוגו"
+    }
+  },
+  "order": [
+    "Main.dc.html",
+    "Feed.dc.html",
+    "Dough.dc.html",
+    "Bake.dc.html",
+    "Recipes.dc.html",
+    "Settings.dc.html",
+    "Logo.dc.html"
+  ],
+  "notes": {
+    "t1": {
+      "x": 0,
+      "y": -300,
+      "text": "ארבעת השלבים",
+      "kind": "title1",
+      "maxW": 1800
+    },
+    "t2": {
+      "x": 0,
+      "y": 1400,
+      "text": "מתכונים והגדרות",
+      "kind": "title1",
+      "maxW": 1800
+    }
+  },
+  "designSystems": []
+}

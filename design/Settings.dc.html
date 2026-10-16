@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="he">
+<head>
+<meta charset="utf-8">
+<title>ההגדרות שלי</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700&family=Frank+Ruhl+Libre:wght@300;400;500;700&display=swap">
+<style>
+body{margin:0}
+a{color:#B4572B}a:hover{color:#7E3A19}
+</style>
+</helmet>
+<div dir="rtl" lang="he" style="width: 390px; height: 1150px; box-sizing: border-box; background: #F5EEE2; font-family: 'Assistant', sans-serif; color: #2A1F16; display: flex; flex-direction: column; padding: 20px 20px 28px; gap: 20px">
+
+<div style="display: flex; align-items: center; justify-content: space-between">
+<a href="Main.dc.html" style="display: flex; align-items: center; gap: 6px; font-size: 15px; font-weight: 600; text-decoration: none; min-height: 44px">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>חזרה</a>
+<div style="font-family: 'Frank Ruhl Libre', serif; font-weight: 500; font-size: 18px; direction: ltr">DoughMate</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 4px">
+<h1 style="margin: 0; font-family: 'Frank Ruhl Libre', serif; font-weight: 500; font-size: 28px">ההגדרות שלי</h1>
+<div style="font-size: 15px; color: #8A7A68">הערכים כאן חלים על כל המתכונים, אלא אם מתכון קובע ערך משלו</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 10px">
+<div style="font-size: 13px; font-weight: 700; color: #8A7A68">הבצק</div>
+<div style="background: #FFFCF6; border: 1px solid #E7DCCB; box-shadow: 0 1px 2px rgba(60,40,20,.05), 0 6px 18px rgba(60,40,20,.05); border-radius: 18px; display: flex; flex-direction: column">
+<sc-for list="{{dough}}" as="s" hint-placeholder-count="4">
+<div style="{{s.row}}">
+<span style="font-size: 16px; font-weight: 600">{{s.label}}</span>
+<span style="display: flex; align-items: center; gap: 2px">
+<button type="button" aria-label="פחות" style="width: 44px; height: 44px; border-radius: 22px; border: 1px solid #E7DCCB; background: #FFFCF6; font-size: 22px; color: #2A1F16; padding: 0">−</button>
+<span style="min-width: 64px; text-align: center; font-family: 'Frank Ruhl Libre', serif; font-size: 18px; font-weight: 500; color: #B4572B">{{s.value}}</span>
+<button type="button" aria-label="עוד" style="width: 44px; height: 44px; border-radius: 22px; border: 1px solid #E7DCCB; background: #FFFCF6; font-size: 22px; color: #2A1F16; padding: 0">+</button>
+</span>
+</div>
+</sc-for>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 10px">
+<div style="font-size: 13px; font-weight: 700; color: #8A7A68">אפייה</div>
+<div style="background: #FFFCF6; border: 1px solid #E7DCCB; box-shadow: 0 1px 2px rgba(60,40,20,.05), 0 6px 18px rgba(60,40,20,.05); border-radius: 18px; display: flex; flex-direction: column">
+<sc-for list="{{bake}}" as="s" hint-placeholder-count="2">
+<div style="{{s.row}}">
+<span style="font-size: 16px; font-weight: 600">{{s.label}}</span>
+<span style="display: flex; align-items: center; gap: 2px">
+<button type="button" aria-label="פחות" style="width: 44px; height: 44px; border-radius: 22px; border: 1px solid #E7DCCB; background: #FFFCF6; font-size: 22px; color: #2A1F16; padding: 0">−</button>
+<span style="min-width: 64px; text-align: center; font-family: 'Frank Ruhl Libre', serif; font-size: 18px; font-weight: 500; color: #B4572B">{{s.value}}</span>
+<button type="button" aria-label="עוד" style="width: 44px; height: 44px; border-radius: 22px; border: 1px solid #E7DCCB; background: #FFFCF6; font-size: 22px; color: #2A1F16; padding: 0">+</button>
+</span>
+</div>
+</sc-for>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 10px">
+<div style="font-size: 13px; font-weight: 700; color: #8A7A68">תפיחה סופית</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+<button type="button" style="min-height: 48px; border-radius: 14px; background: #B4572B; color: #FFFCF6; border: 1px solid #B4572B; font-family: 'Assistant', sans-serif; font-size: 16px; font-weight: 700">חמה</button>
+<button type="button" style="min-height: 48px; border-radius: 14px; background: #FFFCF6; color: #2A1F16; border: 1px solid #E7DCCB; font-family: 'Assistant', sans-serif; font-size: 16px; font-weight: 700">קרה</button>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 10px">
+<div style="font-size: 13px; font-weight: 700; color: #8A7A68">האכלות לפני התהליך</div>
+<div style="background: #FFFCF6; border: 1px solid #E7DCCB; box-shadow: 0 1px 2px rgba(60,40,20,.05), 0 6px 18px rgba(60,40,20,.05); border-radius: 18px; padding: 6px 8px 12px 12px; padding-right: 16px; display: flex; flex-direction: column; gap: 2px">
+<div style="display: flex; align-items: center; justify-content: space-between; min-height: 56px">
+<span style="font-size: 16px; font-weight: 600">מספר האכלות</span>
+<span style="display: flex; align-items: center; gap: 2px">
+<button type="button" aria-label="פחות" style="width: 44px; height: 44px; border-radius: 22px; border: 1px solid #E7DCCB; background: #FFFCF6; font-size: 22px; color: #2A1F16; padding: 0">−</button>
+<span style="min-width: 64px; text-align: center; font-family: 'Frank Ruhl Libre', serif; font-size: 18px; font-weight: 500; color: #B4572B">3</span>
+<button type="button" aria-label="עוד" style="width: 44px; height: 44px; border-radius: 22px; border: 1px solid #E7DCCB; background: #FFFCF6; font-size: 22px; color: #2A1F16; padding: 0">+</button>
+</span>
+</div>
+<div style="font-size: 13px; color: #8A7A68; line-height: 1.4; padding-left: 8px">כל האכלה בשיא. בין האכלה להאכלה יש טיימר שמזכיר להאכיל שוב</div>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 10px">
+<div style="font-size: 13px; font-weight: 700; color: #8A7A68">המחמצת</div>
+<div style="background: #FFFCF6; border: 1px solid #E7DCCB; box-shadow: 0 1px 2px rgba(60,40,20,.05), 0 6px 18px rgba(60,40,20,.05); border-radius: 18px; display: flex; flex-direction: column">
+<sc-for list="{{starter}}" as="s" hint-placeholder-count="3">
+<div style="{{s.row}}">
+<span style="font-size: 16px; font-weight: 600">{{s.label}}</span>
+<span style="font-family: 'Frank Ruhl Libre', serif; font-size: 18px; font-weight: 500; color: #B4572B; direction: ltr">{{s.value}}</span>
+</div>
+</sc-for>
+</div>
+</div>
+
+<div style="margin-top: auto">
+<a href="Main.dc.html" style="display: flex; align-items: center; justify-content: center; background: #B4572B; color: #FFFCF6; border-radius: 16px; min-height: 56px; font-size: 17px; font-weight: 700; text-decoration: none">קבע לכל המתכונים</a>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1150}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const LINE = '#E7DCCB';
+    const rows = (list) => list.map((s, i) => ({
+      ...s,
+      row: 'display: flex; align-items: center; justify-content: space-between; padding: 6px 8px 6px 12px; padding-right: 16px; min-height: 56px; ' + (i > 0 ? 'border-top: 1px solid ' + LINE : '')
+    }));
+    const dough = rows([
+      { label: 'קיפולים', value: '3' },
+      { label: 'הפרש בין קיפולים', value: '30 דק׳' },
+      { label: 'זמן מוערך עד עיצוב', value: '5 שעות' },
+      { label: 'טמפרטורת החדר', value: '24°' }
+    ]);
+    const bake = rows([
+      { label: 'אפייה מכוסה', value: '20 דק׳' },
+      { label: 'אפייה בלי מכסה', value: '20 דק׳' }
+    ]);
+    const starter = rows([
+      { label: 'יחס האכלה', value: '1:10:10' },
+      { label: 'עתודה בצנצנת', value: '50 ג׳' },
+      { label: 'קמח להאכלה', value: 'חיטה לבן' }
+    ]);
+    return { dough, bake, starter };
+  }
+}
+</script>
+</body>
+</html>

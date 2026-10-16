@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="he">
+<head>
+<meta charset="utf-8">
+<title>אפייה</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700&family=Frank+Ruhl+Libre:wght@300;400;500;700&display=swap">
+<style>
+body{margin:0}
+@keyframes jarRise{0%{transform:translateY(14px);opacity:0}10%{transform:translateY(14px);opacity:1}78%{transform:translateY(0);opacity:1}92%{transform:translateY(0);opacity:1}100%{transform:translateY(0);opacity:0}}
+.jar-rise{animation:jarRise 10s cubic-bezier(.4,0,.2,1) infinite}
+@keyframes bub{0%{transform:translateY(0);opacity:0}25%{opacity:1}100%{transform:translateY(-9px);opacity:0}}
+.bub{animation:bub 2.6s ease-in infinite}.bub.d1{animation-delay:.8s}.bub.d2{animation-delay:1.6s}
+@keyframes domeRise{0%{transform:scale(.55);opacity:0}10%{transform:scale(.55);opacity:1}80%{transform:scale(1);opacity:1}92%{transform:scale(1);opacity:1}100%{transform:scale(1);opacity:0}}
+.dome{transform-box:fill-box;transform-origin:50% 100%;animation:domeRise 10s cubic-bezier(.4,0,.2,1) infinite}
+@keyframes loafSpring{0%{transform:scale(.9,.58);opacity:0}8%{transform:scale(.9,.58);opacity:1}60%{transform:scale(1,1);opacity:1}92%{transform:scale(1,1);opacity:1}100%{transform:scale(1,1);opacity:0}}
+.loaf{transform-box:fill-box;transform-origin:50% 100%;animation:loafSpring 7s cubic-bezier(.2,.8,.2,1) infinite}
+@keyframes ear{0%,8%{stroke-width:.6}60%{stroke-width:4.6}100%{stroke-width:4.6}}
+.ear{animation:ear 7s cubic-bezier(.2,.8,.2,1) infinite}
+@keyframes steam{0%{transform:translateY(4px);opacity:0}40%{opacity:.8}100%{transform:translateY(-6px);opacity:0}}
+.steam{animation:steam 3s ease-out infinite}.steam.d1{animation-delay:1.2s}
+@media (prefers-reduced-motion: reduce){.jar-rise,.bub,.dome,.loaf,.ear,.steam{animation:none}}
+a{color:#B4572B}a:hover{color:#7E3A19}
+</style>
+</helmet>
+<div dir="rtl" lang="he" style="width: 390px; height: 960px; box-sizing: border-box; background: #F5EEE2; font-family: 'Assistant', sans-serif; color: #2A1F16; display: flex; flex-direction: column; padding: 20px 20px 28px; gap: 22px">
+
+<div style="display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; align-items: center; justify-content: space-between">
+<div style="font-family: 'Frank Ruhl Libre', serif; font-weight: 500; font-size: 18px; direction: ltr">DoughMate</div>
+<div style="font-size: 14px; color: #8A7A68">שלב 4 מתוך 4</div>
+</div>
+<div style="display: flex; gap: 6px">
+<sc-for list="{{track}}" as="t" hint-placeholder-count="4">
+<div style="flex: 1; display: flex; flex-direction: column; gap: 6px">
+<div style="{{t.bar}}"></div>
+<div style="{{t.lab}}">{{t.name}}</div>
+</div>
+</sc-for>
+</div>
+</div>
+
+<div style="background: linear-gradient(160deg, #FFF8EC 0%, #F6E4D2 100%); border: 1px solid #EBCFB6; border-radius: 24px; padding: 22px; display: flex; flex-direction: column; gap: 4px; box-shadow: 0 10px 28px rgba(126,58,25,.10)">
+<div style="font-size: 15px; font-weight: 600; color: #8A7A68">הלחם יוצא מהתנור ב־</div>
+<div style="font-family: 'Frank Ruhl Libre', serif; font-weight: 300; font-size: 64px; line-height: 1.05; color: #B4572B; direction: ltr; text-align: right">14:40</div>
+<div style="font-size: 15px; color: #8A7A68">תנור הולנדי · 20 + 20 דק׳ · 230°</div>
+</div>
+
+<div style="display: flex; flex-direction: column">
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="5">
+<div style="display: flex; gap: 14px; padding: 14px 0; border-top: 1px solid #E7DCCB">
+<div style="{{r.dot}}">
+<sc-if value="{{r.isDone}}" hint-placeholder-val="{{ false }}">
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FFFCF6" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+</sc-if>
+<sc-if value="{{r.isRun}}" hint-placeholder-val="{{ false }}">
+<span style="width: 10px; height: 10px; border-radius: 5px; background: #B4572B"></span>
+</sc-if>
+</div>
+<div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px">
+<div style="{{r.title}}">{{r.text}}</div>
+<div style="font-size: 14px; color: #8A7A68">{{r.sub}}</div>
+<sc-if value="{{r.isRun}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; align-items: center; gap: 14px; margin-top: 8px">
+<div style="position: relative; width: 168px; height: 168px; flex: none">
+<svg width="168" height="168" viewBox="0 0 168 168" style="transform: rotate(-90deg)" aria-hidden="true"><circle cx="84" cy="84" r="76" fill="none" stroke="#EBCFB6" stroke-width="7"/><circle cx="84" cy="84" r="76" fill="none" stroke="#B4572B" stroke-width="7" stroke-linecap="round" stroke-dasharray="477.5" stroke-dashoffset="286.5"/></svg>
+<div style="position: absolute; top: 0; right: 0; bottom: 0; left: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px"><svg width="88" height="66" viewBox="0 0 88 66" aria-hidden="true"><path class="steam" d="M30 12q-4-4 0-8" fill="none" stroke="#B9A48C" stroke-width="2" stroke-linecap="round"/><path class="steam d1" d="M58 12q-4-4 0-8" fill="none" stroke="#B9A48C" stroke-width="2" stroke-linecap="round"/><g class="loaf"><path d="M12 54C12 28 30 14 44 14s32 14 32 40z" fill="#D0873F" stroke="#7E3A19" stroke-width="2.2" stroke-linejoin="round"/><ellipse cx="34" cy="30" rx="8" ry="4" fill="#FFFFFF" fill-opacity=".22" transform="rotate(-25 34 30)"/><path class="ear" d="M30 36C38 26 52 24 60 32" fill="none" stroke="#FFE9C2" stroke-linecap="round"/></g><rect x="6" y="54" width="76" height="6" rx="3" fill="#2A1F16"/></svg><span style="font-family: 'Frank Ruhl Libre', serif; font-weight: 400; font-size: 28px; line-height: 1.1; color: #7E3A19; direction: ltr; letter-spacing: -0.5px">12:08</span></div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 0">
+<div style="font-size: 15px; font-weight: 600; color: #7E3A19; line-height: 1.3">נשאר עד Oven Spring</div>
+<div style="font-size: 13px; color: #8A7A68">מסתיים ב־14:20</div>
+<div style="display: flex; gap: 8px; margin-top: 4px"><button type="button" aria-label="השהה" style="width: 44px; height: 44px; border-radius: 22px; border: 1.5px solid #B4572B; background: transparent; color: #7E3A19; padding: 0; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5v14M15 5v14"/></svg></button><button type="button" aria-label="אפס" style="width: 44px; height: 44px; border-radius: 22px; border: 1.5px solid #B4572B; background: transparent; color: #7E3A19; padding: 0; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.6-5.9M4 4v4.5h4.5"/></svg></button></div>
+</div>
+</div>
+</sc-if>
+</div>
+</div>
+</sc-for>
+</div>
+
+<div style="margin-top: auto; display: flex; flex-direction: column; gap: 10px">
+<div style="background: #F6E4D2; border-radius: 14px; padding: 12px 16px; font-size: 15px; color: #7E3A19; text-align: center">בתיאבון, ואל תחתכו לפני שהלחם התקרר</div>
+<a href="Main.dc.html" style="display: flex; align-items: center; justify-content: center; gap: 8px; background: #FFFCF6; color: #7E3A19; border: 1.5px solid #B4572B; border-radius: 16px; min-height: 56px; font-size: 17px; font-weight: 700; text-decoration: none">אפייה חדשה</a>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":960}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const A = '#B4572B', LINE = '#E7DCCB', MUTED = '#8A7A68';
+    const stage = 3;
+    const track = ['תכנון', 'האכלה', 'בצק', 'אפייה'].map((name, i) => ({
+      name,
+      bar: 'height: 3px; border-radius: 2px; background: ' + (i <= stage ? A : LINE),
+      lab: 'font-size: 12px; font-weight: ' + (i === stage ? 700 : 400) + '; color: ' + (i === stage ? '#2A1F16' : MUTED)
+    }));
+    const rows = [
+      { text: 'מחממים תנור הולנדי', sub: '230° · כ־30 דק׳ לפני האפייה', state: 'done' },
+      { text: 'חריצה ומעבירים לסיר', sub: 'מכסים', state: 'done' },
+      { text: '20 דק׳ מכוסה, עד Oven Spring', sub: 'מתחיל ב־14:00', state: 'run' },
+      { text: '20 דק׳ נוספות, בלי מכסה', sub: 'עד קרום זהוב', state: 'todo' },
+      { text: 'בדיקת טמפרטורה פנימית', sub: '95° במרכז הלחם', state: 'todo' },
+      { text: 'מניחים על רשת להתקרר', sub: 'לפחות שעה', state: 'todo' }
+    ].map(r => ({
+      text: r.text,
+      sub: r.sub,
+      isDone: r.state === 'done',
+      isRun: r.state === 'run',
+      dot: 'flex: none; width: 28px; height: 28px; border-radius: 14px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; ' +
+        (r.state === 'done' ? 'background: ' + A : r.state === 'run' ? 'border: 2px solid ' + A : 'border: 2px solid ' + LINE),
+      title: 'font-size: 17px; font-weight: 700; line-height: 1.35; color: ' + (r.state === 'done' ? MUTED : '#2A1F16')
+    }));
+    return { track, rows };
+  }
+}
+</script>
+</body>
+</html>
