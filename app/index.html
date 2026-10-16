@@ -1,0 +1,817 @@
+<title>DoughMate</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700&family=Frank+Ruhl+Libre:wght@300;400;500;700&display=swap">
+<style>
+/* Layout: one phone-width column. Stage track on top, one view at a time (plan, feed, dough, bake, recipes, settings). Warm bakery palette, serif numerals, ring timers with a small animated scene per stage. */
+:root {
+  --bg: #F5EEE2; --card: #FFFCF6; --ink: #2A1F16; --mut: #6F5F4E; --line: #E7DCCB;
+  --acc: #B4572B; --acc-ink: #FFFCF6; --deep: #7E3A19; --tint: #F6E4D2; --tint2: #EBCFB6;
+  --dough: #F2D3A0; --dough-edge: #E3BE86; --crust: #D0873F; --bubble: #FFF3DC; --ear: #FFE9C2; --stone: #2A1F16;
+  --warn-bg: #F8DDD0; --warn: #8A2F12;
+  --shadow: 0 1px 2px rgba(60,40,20,.05), 0 6px 18px rgba(60,40,20,.05);
+  --f-disp: 'Frank Ruhl Libre', Georgia, serif;
+  --f-body: 'Assistant', system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #1C1510; --card: #261C15; --ink: #F3E9DC; --mut: #BBA992; --line: #3A2D22;
+    --acc: #E58A55; --acc-ink: #1C1510; --deep: #F0B48E; --tint: #3A281C; --tint2: #5A3D29;
+    --dough: #D9B27C; --dough-edge: #B98F58; --crust: #C47A38; --bubble: #F6DDB0; --stone: #6B5644;
+    --warn-bg: #4A241A; --warn: #F2A98A; --shadow: 0 1px 2px rgba(0,0,0,.3), 0 6px 18px rgba(0,0,0,.25);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #1C1510; --card: #261C15; --ink: #F3E9DC; --mut: #BBA992; --line: #3A2D22;
+  --acc: #E58A55; --acc-ink: #1C1510; --deep: #F0B48E; --tint: #3A281C; --tint2: #5A3D29;
+  --dough: #D9B27C; --dough-edge: #B98F58; --crust: #C47A38; --bubble: #F6DDB0; --stone: #6B5644;
+  --warn-bg: #4A241A; --warn: #F2A98A; --shadow: 0 1px 2px rgba(0,0,0,.3), 0 6px 18px rgba(0,0,0,.25);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 16px; line-height: 1.45;
+  padding-block: 16px 64px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+button, input, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 3px solid var(--acc); outline-offset: 2px; }
+.app { max-width: 480px; margin: 0 auto; display: flex; flex-direction: column; gap: 22px; }
+.ltr { direction: ltr; unicode-bidi: isolate; display: inline-block; }
+h1, h2, h3, p { margin: 0; }
+.disp { font-family: var(--f-disp); }
+.mut { color: var(--mut); }
+
+/* header and track */
+.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.brand { font-family: var(--f-disp); font-size: 21px; font-weight: 500; direction: ltr; letter-spacing: -.3px; }
+.brand b { color: var(--acc); font-weight: 500; }
+.icons { display: flex; gap: 4px; }
+.ib { width: 44px; height: 44px; border-radius: 22px; border: 1px solid var(--line); background: var(--card); display: grid; place-items: center; color: var(--ink); }
+.ib[aria-pressed="true"] { border-color: var(--acc); color: var(--acc); }
+.track { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+.tk { background: none; border: 0; padding: 6px 0 2px; display: flex; flex-direction: column; gap: 6px; text-align: start; min-height: 44px; }
+.tk i { display: block; height: 3px; border-radius: 2px; background: var(--line); }
+.tk span { font-size: 12px; color: var(--mut); }
+.tk.on i, .tk.past i { background: var(--acc); }
+.tk.on span { color: var(--ink); font-weight: 700; }
+.back { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.backbtn { display: flex; align-items: center; gap: 6px; min-height: 44px; border: 0; background: none; color: var(--acc); font-weight: 700; padding: 0; }
+
+/* sections */
+.sec { display: flex; flex-direction: column; gap: 12px; }
+.sec h2 { font-family: var(--f-disp); font-weight: 500; font-size: 24px; line-height: 1.2; }
+.sec .sub { color: var(--mut); font-size: 14px; margin-top: -8px; }
+.ttl { font-family: var(--f-disp); font-weight: 500; font-size: 30px; line-height: 1.15; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); }
+.pad { padding: 16px; }
+.rowx { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.seg { display: grid; grid-template-columns: repeat(var(--c, 2), minmax(0, 1fr)); gap: 8px; }
+.seg button { min-height: 46px; border-radius: 14px; border: 1px solid var(--line); background: var(--card); font-weight: 700; font-size: 15px; padding: 4px 6px; line-height: 1.2; }
+.seg button[aria-pressed="true"] { background: var(--acc); border-color: var(--acc); color: var(--acc-ink); }
+.seg button.dflt:not([aria-pressed="true"]) { color: var(--mut); border-style: dashed; }
+.stp { display: flex; align-items: center; gap: 2px; flex: none; }
+.stp button { width: 44px; height: 44px; border-radius: 22px; border: 1px solid var(--line); background: var(--card); font-size: 22px; line-height: 1; display: grid; place-items: center; padding: 0; }
+.stp button:disabled { opacity: .35; cursor: default; }
+.stp output { min-width: 66px; text-align: center; font-family: var(--f-disp); font-size: 19px; font-weight: 500; color: var(--acc); font-variant-numeric: tabular-nums; }
+.stp output.dflt { color: var(--mut); }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; font-size: 14px; font-weight: 600; }
+.link { background: none; border: 0; color: var(--acc); font-weight: 700; padding: 0 4px; min-height: 44px; display: inline-flex; align-items: center; gap: 6px; }
+.btn { min-height: 44px; padding: 0 20px; border-radius: 12px; border: 1.5px solid var(--acc); background: transparent; color: var(--deep); font-weight: 700; }
+.btn.pri { background: var(--acc); color: var(--acc-ink); }
+.btn.ghost { border-color: var(--line); color: var(--mut); font-weight: 600; }
+.cta { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 56px; border-radius: 16px; border: 0; background: var(--acc); color: var(--acc-ink); font-size: 17px; font-weight: 700; }
+.cta.alt { background: var(--card); color: var(--deep); border: 1.5px solid var(--acc); }
+.cta:disabled { opacity: .45; cursor: default; }
+.notice { background: var(--warn-bg); color: var(--warn); border-radius: 14px; padding: 12px 14px; font-size: 14px; }
+.empty { text-align: center; padding: 28px 18px; display: flex; flex-direction: column; gap: 14px; align-items: center; }
+.empty b { font-family: var(--f-disp); font-size: 22px; font-weight: 500; }
+
+/* plan */
+.recipe-pick { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 8px 6px 18px; min-height: 60px; border: 1.5px solid var(--acc); }
+.recipe-pick b { font-size: 18px; }
+.anchors { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.anchors button { min-height: 48px; border-radius: 14px; border: 1px solid var(--line); background: var(--card); font-weight: 700; font-size: 15px; }
+.anchors button[aria-pressed="true"] { background: var(--acc); border-color: var(--acc); color: var(--acc-ink); }
+.when { position: relative; display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; min-height: 80px; cursor: pointer; }
+.when small { display: block; color: var(--mut); font-size: 13px; }
+.when .big { font-family: var(--f-disp); font-weight: 300; font-size: 36px; line-height: 1.1; }
+.when input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; font-size: 16px; }
+.strip { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.strip > div { padding: 12px 14px; min-width: 0; }
+.strip > div + div { border-inline-start: 1px solid var(--line); }
+.strip small { display: block; color: var(--mut); font-size: 13px; }
+.strip b { display: block; font-family: var(--f-disp); font-weight: 400; font-size: 24px; line-height: 1.2; }
+.strip.warn b.w { color: var(--warn); }
+
+/* hero */
+.hero { border-radius: 24px; padding: 22px; background: linear-gradient(160deg, var(--card) 0%, var(--tint) 100%); border: 1px solid var(--tint2); box-shadow: 0 10px 28px rgba(126,58,25,.10); display: flex; flex-direction: column; gap: 4px; }
+.hero .l { font-size: 15px; font-weight: 600; color: var(--mut); display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.hero .t { font-family: var(--f-disp); font-weight: 300; font-size: 76px; line-height: 1.02; color: var(--acc); direction: ltr; text-align: start; }
+.hero .t.m { font-size: 64px; }
+.hero .s { font-size: 15px; color: var(--mut); }
+.pill { background: var(--tint); color: var(--deep); border-radius: 999px; padding: 3px 12px; font-size: 13px; font-weight: 700; direction: ltr; }
+.amts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.amts div { background: var(--tint); border-radius: 14px; padding: 12px 6px; text-align: center; }
+.amts b { display: block; font-family: var(--f-disp); font-weight: 300; font-size: 40px; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.amts span { font-size: 13px; color: var(--mut); }
+.bar { height: 4px; border-radius: 2px; background: var(--line); overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--acc); }
+.meta2 { display: flex; justify-content: space-between; gap: 12px; font-size: 14px; color: var(--mut); }
+
+/* timeline */
+.tl { list-style: none; margin: 0; padding: 0; }
+.tl li { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 8px; padding: 10px 0; border-top: 1px solid var(--line); }
+.dotb { width: 44px; height: 44px; border: 0; background: none; padding: 0; display: grid; place-items: center; }
+.dotb span { width: 28px; height: 28px; border-radius: 14px; border: 2px solid var(--line); display: grid; place-items: center; color: var(--acc-ink); }
+.dotb span.run { border-color: var(--acc); }
+.dotb span.run::after { content: ""; width: 10px; height: 10px; border-radius: 5px; background: var(--acc); }
+.dotb span.ok { background: var(--acc); border-color: var(--acc); }
+.tl .b { padding-top: 10px; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.tl .st { font-size: 17px; font-weight: 700; line-height: 1.35; }
+.tl .wt .st { font-size: 15px; font-weight: 600; color: var(--mut); }
+.tl .done .st, .tl .done .sx { color: var(--mut); }
+.tl .done .st { font-weight: 600; }
+.tl .sx { font-size: 14px; color: var(--mut); }
+
+/* timer card */
+.tcard { display: flex; align-items: center; gap: 14px; margin-top: 8px; }
+.ring { position: relative; width: 168px; height: 168px; flex: none; }
+.ring > svg.r { display: block; transform: rotate(-90deg); }
+.ring .in { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; }
+.ring .rd { font-family: var(--f-disp); font-size: 28px; line-height: 1.1; color: var(--deep); direction: ltr; letter-spacing: -.5px; font-variant-numeric: tabular-nums; }
+.ring .rd.long { font-size: 21px; }
+.tside { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 0; }
+.tside .tl1 { font-size: 15px; font-weight: 600; color: var(--deep); line-height: 1.3; }
+.tside .tm { font-size: 13px; color: var(--mut); }
+.tbtns { display: flex; gap: 8px; margin-top: 4px; flex-wrap: wrap; }
+.rb { width: 44px; height: 44px; border-radius: 22px; border: 1.5px solid var(--acc); background: transparent; color: var(--deep); display: grid; place-items: center; padding: 0; }
+.rb.fill { background: var(--acc); color: var(--acc-ink); width: auto; padding: 0 20px; font-weight: 700; display: flex; gap: 6px; align-items: center; }
+
+/* recipes and settings */
+.rlist { display: flex; flex-direction: column; gap: 12px; }
+.rhead { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; min-height: 60px; background: none; border: 0; text-align: start; }
+.rhead b { font-size: 17px; display: block; }
+.rhead small { color: var(--mut); font-size: 13px; }
+.rbody { padding: 0 16px 16px; display: flex; flex-direction: column; gap: 22px; }
+.fld { display: flex; flex-direction: column; gap: 8px; }
+.fld > label, .fld > .lb { font-size: 14px; font-weight: 700; color: var(--mut); }
+.fld .sx { font-size: 13px; color: var(--mut); }
+.inp { width: 100%; min-height: 46px; padding: 6px 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--bg); }
+.ingrow { display: grid; grid-template-columns: minmax(0, 1fr) 84px 44px; gap: 8px; align-items: center; }
+.ingrow input[type=number] { direction: ltr; text-align: center; }
+.sgroup { padding: 0 8px 0 12px; padding-inline-start: 16px; display: flex; flex-direction: column; }
+.sgroup .sr { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 60px; }
+.sgroup .sr + .sr { border-top: 1px solid var(--line); }
+.sgroup .sr > span { font-weight: 600; }
+.sgroup .sr small { display: block; font-size: 12px; color: var(--mut); font-weight: 400; }
+.rstep { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 60px; background: var(--bg); border-radius: 14px; padding: 0 8px 0 12px; padding-inline-start: 14px; }
+.rstep + .rstep { margin-top: 8px; }
+
+/* calc tables */
+.ctable { overflow-x: auto; padding: 4px 6px; }
+.ctable table { border-collapse: collapse; width: 100%; min-width: 360px; }
+.ctable th { font-size: 12px; font-weight: 700; color: var(--mut); padding: 6px 2px; text-align: center; }
+.ctable th.rl { text-align: start; padding-inline-start: 6px; white-space: nowrap; color: var(--ink); }
+.ctable td { padding: 3px 2px; }
+.ci { width: 100%; min-width: 46px; height: 44px; text-align: center; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); font-variant-numeric: tabular-nums; direction: ltr; }
+
+/* toasts */
+.toasts { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; display: flex; flex-direction: column; gap: 8px; align-items: center; pointer-events: none;
+  padding: 12px max(16px, env(safe-area-inset-right, 0px)) calc(12px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
+.toast { pointer-events: auto; width: 100%; max-width: 480px; background: var(--ink); color: var(--bg); border-radius: 14px; padding: 12px 14px; display: flex; gap: 12px; align-items: center; justify-content: space-between; box-shadow: 0 8px 28px rgba(0,0,0,.28); }
+.toast b { display: block; }
+.toast span { font-size: 14px; opacity: .85; }
+.toast button { flex: none; min-height: 40px; padding: 0 14px; border-radius: 10px; border: 1.5px solid currentColor; background: transparent; font-weight: 700; color: inherit; }
+
+/* scenes */
+@keyframes jarRise { 0% { transform: translateY(14px); opacity: 0 } 10% { transform: translateY(14px); opacity: 1 } 78% { transform: translateY(0); opacity: 1 } 92% { transform: translateY(0); opacity: 1 } 100% { transform: translateY(0); opacity: 0 } }
+.jar-rise { animation: jarRise 10s cubic-bezier(.4,0,.2,1) infinite; }
+@keyframes bub { 0% { transform: translateY(0); opacity: 0 } 25% { opacity: 1 } 100% { transform: translateY(-9px); opacity: 0 } }
+.bub { animation: bub 2.6s ease-in infinite; } .bub.d1 { animation-delay: .8s; } .bub.d2 { animation-delay: 1.6s; }
+@keyframes doughRise { 0% { transform: translateY(26px); opacity: 0 } 10% { transform: translateY(26px); opacity: 1 } 80% { transform: translateY(0); opacity: 1 } 92% { transform: translateY(0); opacity: 1 } 100% { transform: translateY(0); opacity: 0 } }
+.dough-rise { animation: doughRise 10s cubic-bezier(.4,0,.2,1) infinite; }
+@keyframes loafSpring { 0% { transform: scale(.9,.58); opacity: 0 } 8% { transform: scale(.9,.58); opacity: 1 } 60% { transform: scale(1,1); opacity: 1 } 92% { transform: scale(1,1); opacity: 1 } 100% { transform: scale(1,1); opacity: 0 } }
+.loaf { transform-box: fill-box; transform-origin: 50% 100%; animation: loafSpring 7s cubic-bezier(.2,.8,.2,1) infinite; }
+@keyframes ear { 0%, 8% { stroke-width: .6 } 60% { stroke-width: 4.6 } 100% { stroke-width: 4.6 } }
+.ear { animation: ear 7s cubic-bezier(.2,.8,.2,1) infinite; }
+@keyframes steam { 0% { transform: translateY(4px); opacity: 0 } 40% { opacity: .8 } 100% { transform: translateY(-6px); opacity: 0 } }
+.steam { animation: steam 3s ease-out infinite; } .steam.d1 { animation-delay: 1.2s; }
+.paused .jar-rise, .paused .dough-rise, .paused .loaf, .paused .ear, .paused .bub, .paused .steam { animation-play-state: paused; }
+@media (prefers-reduced-motion: reduce) { .jar-rise, .bub, .dough-rise, .loaf, .ear, .steam { animation: none; } }
+</style>
+
+<div class="app" id="app" dir="rtl" lang="he"></div>
+<div class="toasts" id="toasts" dir="rtl" lang="he" role="status"></div>
+
+<script>
+(function () {
+'use strict';
+var KEY = 'doughmate-v1';
+var app = document.getElementById('app');
+var pad = function (n) { return String(n).padStart(2, '0'); };
+var hhmm = function (t) { var d = new Date(t); return pad(d.getHours()) + ':' + pad(d.getMinutes()); };
+function dayOf(t, now) {
+  now = now || Date.now();
+  var a = new Date(t), b = new Date(now);
+  var da = new Date(a.getFullYear(), a.getMonth(), a.getDate()), db = new Date(b.getFullYear(), b.getMonth(), b.getDate());
+  var diff = Math.round((da - db) / 864e5);
+  if (diff === 0) return 'היום'; if (diff === 1) return 'מחר'; if (diff === -1) return 'אתמול';
+  return a.toLocaleDateString('he-IL', { weekday: 'long' }).replace('יום ', '');
+}
+function localInput(t) { var d = new Date(t); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + 'T' + pad(d.getHours()) + ':' + pad(d.getMinutes()); }
+function daysAt(n, h) { var d = new Date(); d.setDate(d.getDate() + n); d.setHours(h, 0, 0, 0); return d.getTime(); }
+function round15(t) { return Math.round(t / 9e5) * 9e5; }
+function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+function ltr(s) { return '<bdi class="ltr">' + s + '</bdi>'; }
+
+/* ---------- options and defaults ---------- */
+var PEAK_TABLE = [[3, 4], [5, 6], [7, 7.5], [11, 9.5], [21, 12], [41, 14.5]];
+var METHOD = { auto: 'אוטוליזה', ferment: 'פרמנטוליזה' };
+var MIX = { hand: 'ידני', kneader: 'מלוש', mixer: 'מיקסר' };
+var SHAPE = { dutch: 'תנור הולנדי', pan: 'קסטן', stone: 'אבן שמוט', tray: 'תבנית תנור' };
+var PROOF = { warm: 'חמה', cold: 'קרה' };
+var RATIOS = ['1:1:1', '1:2:2', '1:3:3', '1:5:5', '1:10:10'];
+var ANCH = { bakeEnd: 'סוף אפייה', bakeStart: 'תחילת אפייה', proofEnd: 'סוף תפיחה', peak: 'מחמצת בשיא' };
+var ORD = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי'];
+var DEFAULTS = { feeds: 3, ratio: '1:10:10', reserve: 50, cold: false, temp: 24, method: 'ferment', mix: 'hand', folds: 3, gap: 30,
+  toShape: null, saltWait: 10, bench: 15, shape: 'dutch', bakeSplit: true, bake1: 20, bake2: 20, bakeOne: 25, proof: 'warm', warmH: null, coldH: 12 };
+/* [min, max, step, formatter] */
+var BOUNDS = {
+  feeds: [0, 6, 1, function (v) { return v === 0 ? 'ללא' : String(v); }], reserve: [0, 200, 10, function (v) { return v + ' ג׳'; }],
+  temp: [16, 32, 1, function (v) { return v + '°'; }], folds: [0, 6, 1, String], gap: [10, 90, 5, function (v) { return v + ' דק׳'; }],
+  toShape: [2, 12, 0.5, function (v) { return v + ' שעות'; }], saltWait: [0, 60, 5, function (v) { return v + ' דק׳'; }], bench: [0, 45, 5, function (v) { return v + ' דק׳'; }],
+  bake1: [5, 60, 5, function (v) { return v + ' דק׳'; }], bake2: [5, 60, 5, function (v) { return v + ' דק׳'; }], bakeOne: [10, 90, 5, function (v) { return v + ' דק׳'; }],
+  warmH: [0.5, 6, 0.5, function (v) { return v + ' שעות'; }], coldH: [6, 24, 1, function (v) { return v + ' שעות'; }],
+  starter: [10, 600, 10, function (v) { return v + ' ג׳'; }], qty: [1, 10, 1, String]
+};
+function seedRecipes() {
+  var W = 'white', P = 'spelt';
+  function R(id, name, starter, sType, ing, over, unit) { return { id: id, name: name, unit: unit || 'כיכרות', starter: starter, sType: sType, ing: ing.map(function (x) { return { n: x[0], a: x[1] }; }), over: over || {} }; }
+  return [
+    R('plain', 'לבן רגיל', 150, W, [['קמח לבן', 350], ['מים', 225], ['מלח', 8]]),
+    R('gouda', 'גאודה-טימין/אורגנו', 150, W, [['קמח לבן', 350], ['מים', 225], ['מלח', 8], ['גאודה', 50], ['טימין', 5], ['אורגנו', 5]]),
+    R('cheddar', 'צ׳דר-שיפקה', 150, W, [['קמח לבן', 350], ['מים', 225], ['מלח', 8], ['צ׳דר', 50], ['שיפקה', 50]]),
+    R('matbucha', 'מטבוחה', 150, W, [['קמח לבן', 350], ['מים', 155], ['מלח', 8], ['מטבוחה', 70]]),
+    R('kalamata', 'זיתי קלמטה', 150, W, [['קמח לבן', 350], ['מים', 225], ['מלח', 8], ['זיתי קלמטה', 60]]),
+    R('oregano', 'אורגנו טרי', 150, W, [['קמח לבן', 350], ['מים', 225], ['מלח', 8], ['אורגנו טרי', 5]]),
+    R('spelt70', 'כוסמין 70%', 150, P, [['קמח כוסמין מלא', 245], ['קמח לבן', 105], ['מים', 225], ['מלח', 8]]),
+    R('french', 'כפרי צרפתי', 160, W, [['קמח לבן', 210], ['קמח מלא', 80], ['קמח שיפון', 32], ['מים', 210], ['מלח', 8]]),
+    R('frenchg', 'כפרי צרפתי-שום ירוק', 160, W, [['קמח לבן', 210], ['קמח מלא', 80], ['קמח שיפון', 32], ['מים', 210], ['מלח', 8], ['שום ירוק', 20]]),
+    R('focaccia', 'פוקצ׳ה', 300, W, [['קמח לבן', 850], ['מים', 650], ['מלח', 24], ['סוכר', 30], ['שמן זית', 50], ['גאודה', 150], ['טימין', 5], ['אורגנו', 5]],
+      { shape: 'tray', bakeSplit: false, bakeOne: 25, proof: 'cold' }, 'תבניות')
+  ];
+}
+function q4(x) { return Math.max(0.25, Math.round(x * 4) / 4); }
+function defCalc() {
+  var temps = [20, 22, 24, 26, 28, 30], types = {};
+  ['white', 'spelt'].forEach(function (ty) {
+    var k = ty === 'spelt' ? 0.9 : 1, T = { peak: {}, toShape: {}, warmH: {} };
+    RATIOS.forEach(function (rk) {
+      var rt = rk.split(':').map(Number), R = 1 + rt[1] + rt[2]; T.peak[rk] = {};
+      temps.forEach(function (t) { T.peak[rk][t] = q4(baseHours(R) * Math.pow(2, (24 - t) / 8) * k); });
+    });
+    temps.forEach(function (t) { T.toShape[t] = q4((ty === 'spelt' ? 4.5 : 5) * Math.pow(2, (24 - t) / 8)); T.warmH[t] = q4((ty === 'spelt' ? 1.25 : 1.5) * Math.pow(2, (24 - t) / 8)); });
+    types[ty] = T;
+  });
+  return { temps: temps, types: types };
+}
+function fresh() {
+  return { settings: Object.assign({}, DEFAULTS), recipes: seedRecipes(), plan: { rid: 'plain', qty: 2, anchor: 'bakeStart', at: daysAt(2, 14) }, brew: null, view: 'plan', open: null, calc: defCalc(), calcType: 'white' };
+}
+var S = (function () {
+  var s = fresh();
+  try {
+    var sv = JSON.parse(localStorage.getItem(KEY) || 'null');
+    if (sv) {
+      if (sv.settings) s.settings = Object.assign({}, DEFAULTS, sv.settings);
+      if (sv.recipes && sv.recipes.length) s.recipes = sv.recipes;
+      if (sv.plan) s.plan = Object.assign(s.plan, sv.plan);
+      if (sv.brew) s.brew = sv.brew;
+      if (sv.view) s.view = sv.view;
+      if (sv.calc && sv.calc.types && sv.calc.temps) s.calc = sv.calc;
+      if (sv.calcType) s.calcType = sv.calcType;
+    }
+  } catch (e) {}
+  if (!s.plan.at || s.plan.at < Date.now() - 36e5) s.plan.at = daysAt(2, 14);
+  if (!s.recipes.some(function (r) { return r.id === s.plan.rid; })) s.plan.rid = s.recipes[0].id;
+  if (s.view === 'settings' || s.view === 'calc') s.view = 'plan';
+  return s;
+})();
+var draft = null, delArm = null;
+function save() { try { localStorage.setItem(KEY, JSON.stringify({ settings: S.settings, recipes: S.recipes, plan: S.plan, brew: S.brew, view: S.view, calc: S.calc, calcType: S.calcType })); } catch (e) {} }
+function recipeById(id) { return S.recipes.filter(function (r) { return r.id === id; })[0]; }
+function interp(map, temps, t) {
+  var xs = temps.slice().sort(function (a, b) { return a - b; }), ys = xs.map(function (x) { var v = parseFloat(map[x]); return isNaN(v) ? 0 : v; });
+  var i = 0; while (i < xs.length - 2 && t > xs[i + 1]) i++;
+  var y = ys[i] + (ys[i + 1] - ys[i]) * (t - xs[i]) / (xs[i + 1] - xs[i]);
+  return Math.max(0.25, y);
+}
+function calcOf(type) { return S.calc.types[type] || S.calc.types.white; }
+function autoVal(key, temp, type) { return Math.round(interp(calcOf(type || 'white')[key], S.calc.temps, temp) * 100) / 100; }
+function peakTbl(type, ratio, temp) {
+  var m = calcOf(type).peak[ratio];
+  if (!m) { var rt = ratio.split(':').map(Number); return baseHours(1 + rt[1] + rt[2]) * Math.pow(2, (24 - temp) / 8); }
+  return interp(m, S.calc.temps, temp);
+}
+function eff(r) {
+  var c = Object.assign({}, S.settings, r ? r.over : {}), ty = r ? r.sType : 'white';
+  if (c.toShape == null) c.toShape = autoVal('toShape', c.temp, ty);
+  if (c.warmH == null) c.warmH = autoVal('warmH', c.temp, ty);
+  return c;
+}
+
+/* ---------- calculation ---------- */
+function baseHours(R) {
+  var t = PEAK_TABLE;
+  if (R <= t[0][0]) return t[0][1];
+  if (R >= t[t.length - 1][0]) return t[t.length - 1][1];
+  for (var i = 1; i < t.length; i++) if (R <= t[i][0]) return t[i - 1][1] + (t[i][1] - t[i - 1][1]) * (R - t[i - 1][0]) / (t[i][0] - t[i - 1][0]);
+}
+function offsets(c) {
+  var shape = Math.max(c.toShape * 60, c.saltWait + c.gap * c.folds + 10);
+  var proofStart = shape + c.bench + 10;
+  var proofEnd = proofStart + (c.proof === 'warm' ? c.warmH : c.coldH) * 60;
+  var bakeStart = proofEnd + 10;
+  var bakeMin = c.bakeSplit ? c.bake1 + c.bake2 : c.bakeOne;
+  return { shape: shape, proofStart: proofStart, proofEnd: proofEnd, bakeStart: bakeStart, bakeEnd: bakeStart + bakeMin, bakeMin: bakeMin };
+}
+function computePlan(r, qty, anchor, at) {
+  var c = eff(r), o = offsets(c);
+  var back = { peak: 0, proofEnd: o.proofEnd, bakeStart: o.bakeStart, bakeEnd: o.bakeEnd }[anchor] || 0;
+  var mix = at - back * 6e4, min = 6e4;
+  var rt = c.ratio.split(':').map(Number), fa = rt[1], wa = rt[2], R = 1 + fa + wa;
+  var base = peakTbl(r.sType, c.ratio, c.temp);
+  var N = c.feeds, need = r.starter * qty + c.reserve, am = [];
+  for (var k = N - 1; k >= 0; k--) {
+    var seed = Math.max(1, Math.ceil(need / R)), fl = Math.round(seed * fa), wt = Math.round(seed * wa);
+    am[k] = { seed: seed, flour: fl, water: wt, total: seed + fl + wt };
+    need = seed + c.reserve;
+  }
+  var feeds = [], t = mix;
+  for (var j = N - 1; j >= 0; j--) {
+    var P = (base + (j === 0 && c.cold ? 1 : 0)) * 3600;
+    t = t - P * 1000;
+    feeds[j] = Object.assign({ t: round15(t), P: P }, am[j]);
+  }
+  var folds = [];
+  for (var f = 1; f <= c.folds; f++) folds.push(mix + (c.saltWait + c.gap * f) * min);
+  return { c: c, o: o, mix: mix, feeds: feeds, folds: folds, saltAt: mix + c.saltWait * min, shapeAt: mix + o.shape * min, proofStart: mix + o.proofStart * min,
+    proofEnd: mix + o.proofEnd * min, bakeStart: mix + o.bakeStart * min, bakeEnd: mix + o.bakeEnd * min, preheat: mix + o.bakeStart * min - 30 * min, yieldKeep: N ? am[N - 1].total - r.starter * qty : 0 };
+}
+function planNow() {
+  var r = recipeById(S.plan.rid);
+  return { r: r, p: computePlan(r, S.plan.qty, S.plan.anchor, S.plan.at) };
+}
+
+/* ---------- scenes ---------- */
+var uid = 0;
+var ART = {
+  jar: function () {
+    var id = 'jc' + (++uid), body = 'M26 13c-6 3-8 8-8 14v28a6 6 0 0 0 6 6h40a6 6 0 0 0 6-6V27c0-6-2-11-8-14z';
+    return '<svg width="88" height="66" viewBox="0 0 88 66" aria-hidden="true"><defs><clipPath id="' + id + '"><path d="' + body + '"/></clipPath></defs>' +
+      '<path d="' + body + '" style="fill:var(--card);fill-opacity:.7"/><g clip-path="url(#' + id + ')"><g class="jar-rise"><path d="M10 34q6-4 12 0t12 0t12 0t12 0t12 0V70H10z" style="fill:var(--dough)"/>' +
+      '<circle class="bub" cx="30" cy="52" r="2.2" style="fill:var(--bubble)"/><circle class="bub d1" cx="44" cy="58" r="1.6" style="fill:var(--bubble)"/><circle class="bub d2" cx="56" cy="50" r="2" style="fill:var(--bubble)"/><circle class="bub d1" cx="38" cy="44" r="1.4" style="fill:var(--bubble)"/></g></g>' +
+      '<path d="' + body + '" fill="none" style="stroke:var(--deep)" stroke-width="2.4" stroke-linejoin="round"/><rect x="24" y="4" width="40" height="7" rx="2.5" style="fill:var(--acc)"/><rect x="18" y="47" width="52" height="3" style="fill:var(--acc);fill-opacity:.85"/></svg>';
+  },
+  bowl: function () {
+    var id = 'bc' + (++uid), b = 'M10 28h68c0 22-14 36-34 36S10 50 10 28z';
+    return '<svg width="88" height="66" viewBox="0 0 88 66" aria-hidden="true"><defs><clipPath id="' + id + '"><path d="M10 6H78V28c0 22-14 36-34 36S10 50 10 28z"/></clipPath></defs>' +
+      '<path d="' + b + '" style="fill:var(--card)"/><g clip-path="url(#' + id + ')"><g class="dough-rise"><path d="M10 26Q44 8 78 26V90H10z" style="fill:var(--dough)"/><path d="M10 26Q44 8 78 26" fill="none" style="stroke:var(--dough-edge)" stroke-width="2" stroke-linecap="round"/>' +
+      '<circle class="bub" cx="28" cy="44" r="2" style="fill:var(--bubble)"/><circle class="bub d1" cx="46" cy="40" r="1.6" style="fill:var(--bubble)"/><circle class="bub d2" cx="58" cy="50" r="2.2" style="fill:var(--bubble)"/><circle class="bub d1" cx="38" cy="56" r="1.6" style="fill:var(--bubble)"/></g></g>' +
+      '<path d="' + b + '" fill="none" style="stroke:var(--deep)" stroke-width="2.4" stroke-linejoin="round"/><path d="M7 28h74" style="stroke:var(--deep)" stroke-width="3" stroke-linecap="round"/></svg>';
+  },
+  loaf: function () {
+    return '<svg width="88" height="66" viewBox="0 0 88 66" aria-hidden="true"><path class="steam" d="M30 12q-4-4 0-8" fill="none" style="stroke:var(--mut)" stroke-width="2" stroke-linecap="round"/><path class="steam d1" d="M58 12q-4-4 0-8" fill="none" style="stroke:var(--mut)" stroke-width="2" stroke-linecap="round"/>' +
+      '<g class="loaf"><path d="M12 54C12 28 30 14 44 14s32 14 32 40z" style="fill:var(--crust);stroke:var(--deep)" stroke-width="2.2" stroke-linejoin="round"/><ellipse cx="34" cy="30" rx="8" ry="4" fill="#fff" fill-opacity=".22" transform="rotate(-25 34 30)"/>' +
+      '<path class="ear" d="M30 36C38 26 52 24 60 32" fill="none" style="stroke:var(--ear)" stroke-linecap="round"/></g><rect x="6" y="54" width="76" height="6" rx="3" style="fill:var(--stone)"/></svg>';
+  }
+};
+var IC = {
+  book: '<path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11"/>',
+  gear: '<circle cx="12" cy="12" r="3"/><path d="M12 3v2.5M12 18.5V21M3 12h2.5M18.5 12H21M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M18.4 5.6l-1.8 1.8M7.4 16.6l-1.8 1.8"/>',
+  back: '<path d="M9 6l6 6-6 6"/>', fwd: '<path d="M15 6l-6 6 6 6"/>', check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+  pause: '<path d="M9 5v14M15 5v14"/>', play: '<path d="M8 5l11 7-11 7z"/>', reset: '<path d="M4 12a8 8 0 1 0 2.6-5.9M4 4v4.5h4.5"/>', plus: '<path d="M12 5v14M5 12h14"/>', x: '<path d="M6 6l12 12M18 6L6 18"/>'
+};
+function ic(n, s, w) { return '<svg width="' + (s || 20) + '" height="' + (s || 20) + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="' + (w || 2) + '" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + IC[n] + '</svg>'; }
+
+/* ---------- helpers for controls ---------- */
+function ctxObj(ctx) {
+  if (ctx === 'draft') return draft;
+  if (ctx === 'plan') return S.plan;
+  if (ctx.indexOf('rec:') === 0) { var r = recipeById(ctx.slice(4)); return r ? r.over : null; }
+  if (ctx === 'recmeta') return null;
+  return null;
+}
+function seg(ctx, key, opts, cur, o) {
+  o = o || {};
+  var keys = Object.keys(opts), btns = '';
+  if (o.dflt) btns += '<button type="button" class="dflt" data-act="set" data-ctx="' + ctx + '" data-k="' + key + '" data-v="" aria-pressed="' + (cur === undefined) + '">' + esc(o.dflt) + '</button>';
+  keys.forEach(function (k) { btns += '<button type="button" data-act="set" data-ctx="' + ctx + '" data-k="' + key + '" data-v="' + k + '" aria-pressed="' + (cur === k) + '">' + esc(opts[k]) + '</button>'; });
+  return '<div class="seg" style="--c:' + (keys.length + (o.dflt ? 1 : 0)) + '" role="group">' + btns + '</div>';
+}
+function stepper(ctx, key, val, o) {
+  var b = BOUNDS[key]; o = o || {};
+  return '<span class="stp"><button type="button" data-act="step" data-ctx="' + ctx + '" data-k="' + key + '" data-d="-1" aria-label="פחות"' + (val <= b[0] ? ' disabled' : '') + '>−</button>' +
+    '<output class="' + (o.dflt ? 'dflt' : '') + '">' + esc(b[3](val)) + '</output>' +
+    '<button type="button" data-act="step" data-ctx="' + ctx + '" data-k="' + key + '" data-d="1" aria-label="עוד"' + (val >= b[1] ? ' disabled' : '') + '>+</button></span>';
+}
+function srow(ctx, key, label, val, sub) { return '<div class="sr"><span>' + label + (sub ? '<small>' + sub + '</small>' : '') + '</span>' + stepper(ctx, key, val) + '</div>'; }
+function rstep(r, key, label) {
+  var has = r.over[key] !== undefined, v = has ? r.over[key] : S.settings[key];
+  return '<div class="rstep"><span style="font-weight:600">' + label + '</span><span style="display:flex;align-items:center;gap:2px">' + stepper('rec:' + r.id, key, v, { dflt: !has }) +
+    (has ? '<button type="button" class="rb" style="width:36px;height:36px;border-color:var(--line);color:var(--mut)" data-act="rclear" data-ctx="rec:' + r.id + '" data-k="' + key + '" aria-label="חזרה להגדרות">' + ic('reset', 16) + '</button>' : '') + '</span></div>';
+}
+
+/* ---------- brew items (feed, dough, bake) ---------- */
+function ingScaled(b) {
+  var r = recipeById(b.rid) || b.snap; var q = b.qty;
+  var rows = r.ing.map(function (i) { return [i.n, Math.round(i.a * q)]; });
+  rows.unshift([r.sType === 'spelt' ? 'מחמצת כוסמין מלא' : 'מחמצת חיטה לבן', r.starter * q]);
+  return rows;
+}
+function feedItems(b) {
+  var p = b.plan, N = p.feeds.length, items = [];
+  p.feeds.forEach(function (f, k) {
+    items.push({ id: 'feed' + k, title: 'האכלה ' + (k + 1) + ' · ' + dayOf(f.t) + ' ' + hhmm(f.t), sub: f.seed + ' ג׳ מחמצת + ' + f.flour + ' ג׳ קמח + ' + f.water + ' ג׳ מים', starts: 'w' + k });
+    var last = k === N - 1, peakAt = f.t + f.P * 1000;
+    items.push({ id: 'wait' + k, wait: true, autoDone: true, title: last ? 'המתנה לשיא' : 'המתנה להאכלה ' + (k + 2),
+      sub: last ? 'שיא צפוי ב־' + hhmm(peakAt) + ', ואז מתחילים ללוש' : 'עד ' + dayOf(p.feeds[k + 1].t) + ' ' + hhmm(p.feeds[k + 1].t),
+      timer: { id: 'w' + k, total: f.P, label: last ? 'נשאר עד שיא' : 'נשאר עד האכלה ' + (k + 2), art: 'jar', msg: last ? 'המחמצת בשיא. אפשר ללוש.' : 'זמן להאכיל את המחמצת שוב.' } });
+  });
+  return items;
+}
+function doughItems(b) {
+  var p = b.plan, c = b.c, items = [];
+  var verb = { hand: 'ללוש ידנית', kneader: 'ללוש במלוש', mixer: 'ללוש במיקסר' }[c.mix];
+  items.push({ id: 'mix', title: c.method === 'auto' ? 'Autolyse: קמח ומים' : 'Fermentolyse: קמח, מים ומחמצת', sub: verb + ' עד שאין קמח יבש. בלי מלח.', starts: 'salt' });
+  items.push({ id: 'salt', title: 'עד הוספת מלח', sub: c.method === 'auto' ? 'מוסיפים את המחמצת ואת המלח ולשים עד שנטמעו.' : 'מוסיפים את המלח ומטמיעים בבצק.', starts: c.folds ? 'fold1' : 'shapewait',
+    timer: { id: 'salt', total: c.saltWait * 60, label: 'עד הוספת מלח', art: 'bowl', msg: 'עברו ' + c.saltWait + ' דקות. מוסיפים את המלח.' } });
+  for (var k = 1; k <= c.folds; k++) {
+    items.push({ id: 'fold' + k, title: 'קיפול ' + (ORD[k - 1] || k), sub: 'Stretch and Fold או Coil Fold, ' + c.gap + ' דקות אחרי הקודם.', starts: k < c.folds ? 'fold' + (k + 1) : 'shapewait',
+      timer: { id: 'fold' + k, total: c.gap * 60, label: 'קיפול ' + (ORD[k - 1] || k) + ' בעוד', art: 'bowl', msg: 'זמן לקיפול ' + (ORD[k - 1] || k) + '.' } });
+  }
+  items.push({ id: 'shapewait', wait: true, autoDone: true, title: 'התפחה ראשונה עד העיצוב', sub: 'עיצוב מתוכנן ב־' + hhmm(p.shapeAt),
+    timer: { id: 'shapewait', dyn: function () { return Math.max(60, (p.shapeAt - Date.now()) / 1000); }, total: Math.max(60, (p.shapeAt - Date.now()) / 1000), label: 'עד Poke Test ועיצוב', art: 'bowl', msg: 'הבצק מוכן לבדיקה. עושים Poke Test.' } });
+  items.push({ id: 'poke', title: 'Poke Test', sub: 'לוחצים בעדינות באצבע מקומחת. חוזר לאט ולא עד הסוף: מוכן. חוזר מהר: עוד קצת זמן.' });
+  items.push({ id: 'pre', title: 'Pre-shaping', sub: 'מרכזים את הבצק לכדור רופף.', starts: 'bench' });
+  items.push({ id: 'bench', title: 'Bench Rest', sub: c.bench + ' דקות מנוחה.', starts: null, timer: { id: 'bench', total: c.bench * 60, label: 'מנוחת ספסל', art: 'bowl', msg: 'המנוחה נגמרה. מעצבים.' } });
+  var wh = c.proof === 'warm';
+  items.push({ id: 'shape', title: 'Shaping', sub: 'מעצבים סופית ומותחים את פני הבצק.', starts: 'proof' });
+  items.push({ id: 'proof', choice: true, wait: true, autoDone: true, title: wh ? 'תפיחה חמה' : 'תפיחה קרה', sub: wh ? 'בטמפרטורת החדר, כ־' + c.warmH + ' שעות.' : 'במקרר, כ־' + c.coldH + ' שעות.',
+    timer: { id: 'proof', total: (wh ? c.warmH : c.coldH) * 3600, label: wh ? 'נשאר עד סוף התפיחה' : 'נשאר בתפיחה במקרר', art: 'bowl', msg: 'התפיחה הסתיימה. עוברים לאפייה.' } });
+  return items;
+}
+function bakeItems(b) {
+  var p = b.plan, c = b.c, items = [], dutch = c.shape === 'dutch';
+  items.push({ id: 'preheat', title: dutch ? 'מחממים תנור עם התנור ההולנדי' : 'מחממים תנור', sub: '230° · מתחילים כ־30 דקות לפני, בערך ב־' + hhmm(p.preheat) + '.' });
+  var loadT = { dutch: 'חריצה והעברה לסיר', stone: 'חריצה והעברה לאבן', pan: 'מעבירים לקסטן', tray: 'מניחים בתבנית ומכניסים לתנור' }[c.shape];
+  items.push({ id: 'load', title: loadT, sub: dutch ? 'סוגרים את המכסה.' : '', starts: c.bakeSplit ? 'bake1' : 'bake' });
+  if (c.bakeSplit) {
+    items.push({ id: 'bake1', title: dutch ? 'מכוסה, עד Oven Spring' : c.shape === 'stone' ? 'עם קיטור, עד Oven Spring' : 'שלב ראשון, עד Oven Spring', sub: c.bake1 + ' דקות.', starts: 'bake2',
+      timer: { id: 'bake1', total: c.bake1 * 60, label: 'נשאר עד Oven Spring', art: 'loaf', msg: dutch ? 'עברו ' + c.bake1 + ' דקות. מורידים את המכסה.' : 'עברו ' + c.bake1 + ' דקות. ממשיכים באפייה.' } });
+    items.push({ id: 'bake2', title: dutch ? 'בלי מכסה, עד קרום זהוב' : 'המשך אפייה, עד קרום זהוב', sub: c.bake2 + ' דקות.',
+      timer: { id: 'bake2', total: c.bake2 * 60, label: 'נשאר עד שמוכן', art: 'loaf', msg: 'עברו ' + c.bake2 + ' דקות. בודקים אם מוכן.' } });
+  } else {
+    items.push({ id: 'bake', title: 'אפייה', sub: c.bakeOne + ' דקות.', timer: { id: 'bake', total: c.bakeOne * 60, label: 'נשאר עד שמוכן', art: 'loaf', msg: 'האפייה הסתיימה. בודקים אם מוכן.' } });
+  }
+  if (c.shape !== 'tray') items.push({ id: 'temp', title: 'בדיקת טמפרטורה פנימית', sub: 'מוכן ב־95 מעלות במרכז הכיכר.' });
+  items.push({ id: 'rack', title: 'מניחים על רשת להתקרר', sub: 'לפחות שעה לפני החיתוך.' });
+  return items;
+}
+function allItems(b) { return feedItems(b).concat(doughItems(b), bakeItems(b)); }
+function timerItem(b, id) { var a = allItems(b); for (var i = 0; i < a.length; i++) if (a[i].timer && a[i].timer.id === id) return a[i]; return null; }
+
+/* ---------- timers ---------- */
+function tstate(b, it) {
+  var T = b.timers[it.timer.id], total = it.timer.total, now = Date.now();
+  if (!T) return { mode: 'idle', left: total, total: total };
+  if (T.end) { var left = (T.end - now) / 1000; return left > 0 ? { mode: 'run', left: left, total: T.total, end: T.end } : { mode: 'done', left: 0, total: T.total, end: T.end }; }
+  return { mode: 'pause', left: T.left, total: T.total };
+}
+function startTimer(b, id) {
+  var it = timerItem(b, id); if (!it) return;
+  var T = b.timers[id], total = it.timer.dyn ? it.timer.dyn() : it.timer.total;
+  var left = T && T.left != null && !T.end ? T.left : total;
+  b.timers[id] = { total: T && T.total && !T.end ? T.total : total, end: Date.now() + left * 1000, notified: false };
+  wake();
+}
+function isDone(b, it) {
+  if (b.done[it.id]) return true;
+  return !!(it.autoDone && it.timer && tstate(b, it).mode === 'done');
+}
+function fmt(sec) {
+  var s = Math.max(0, Math.ceil(sec)), h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = s % 60;
+  return h > 0 ? h + ':' + pad(m) + ':' + pad(x) : pad(m) + ':' + pad(x);
+}
+var C = 2 * Math.PI * 76;
+function timerCard(b, it) {
+  var st = tstate(b, it), t = it.timer, prog = st.mode === 'idle' ? 0 : Math.min(1, Math.max(0, 1 - st.left / st.total));
+  var meta = st.mode === 'idle' ? 'משך ' + (t.total >= 3600 ? Math.round(t.total / 360) / 10 + ' שעות' : Math.round(t.total / 60) + ' דקות')
+    : st.mode === 'run' ? 'מסתיים ב־' + ltr(hhmm(st.end)) : st.mode === 'pause' ? 'מושהה' : 'הסתיים ב־' + ltr(hhmm(st.end));
+  var btns = st.mode === 'idle' ? '<button type="button" class="rb fill" data-act="tstart" data-id="' + t.id + '">' + ic('play', 16) + 'התחל</button>'
+    : st.mode === 'run' ? '<button type="button" class="rb" data-act="tpause" data-id="' + t.id + '" aria-label="השהה">' + ic('pause', 18, 2.2) + '</button><button type="button" class="rb" data-act="treset" data-id="' + t.id + '" aria-label="אפס">' + ic('reset', 18, 2.2) + '</button>'
+    : st.mode === 'pause' ? '<button type="button" class="rb" data-act="tstart" data-id="' + t.id + '" aria-label="המשך">' + ic('play', 18, 2.2) + '</button><button type="button" class="rb" data-act="treset" data-id="' + t.id + '" aria-label="אפס">' + ic('reset', 18, 2.2) + '</button>'
+    : '<button type="button" class="rb" data-act="treset" data-id="' + t.id + '" aria-label="אפס">' + ic('reset', 18, 2.2) + '</button>';
+  return '<div class="tcard"><div class="ring ' + (st.mode === 'run' ? '' : 'paused') + '" data-tid="' + t.id + '"><svg class="r" width="168" height="168" viewBox="0 0 168 168" aria-hidden="true">' +
+    '<circle cx="84" cy="84" r="76" fill="none" style="stroke:var(--tint2)" stroke-width="7"/><circle class="rp" cx="84" cy="84" r="76" fill="none" style="stroke:var(--acc)" stroke-width="7" stroke-linecap="round" stroke-dasharray="' + C.toFixed(1) + '" stroke-dashoffset="' + (C * (1 - prog)).toFixed(1) + '"/></svg>' +
+    '<div class="in">' + ART[t.art]() + '<span class="rd' + (st.left >= 3600 ? ' long' : '') + '">' + fmt(st.left) + '</span></div></div>' +
+    '<div class="tside"><div class="tl1">' + esc(t.label) + '</div><div class="tm">' + meta + '</div><div class="tbtns">' + btns + '</div></div></div>';
+}
+function listHTML(b, items) {
+  var active = -1;
+  for (var i = 0; i < items.length; i++) if (!isDone(b, items[i])) { active = i; break; }
+  return '<ol class="tl">' + items.map(function (it, i) {
+    var done = isDone(b, it), act = i === active;
+    var dot = '<span class="' + (done ? 'ok' : act ? 'run' : '') + '">' + (done ? ic('check', 14, 3) : '') + '</span>';
+    var extra = '';
+    if (act && it.timer) extra += timerCard(b, it);
+    if (act && it.choice && tstate(b, it).mode === 'idle') extra += '<div style="margin-top:8px">' + seg('brew', 'proof', PROOF, b.c.proof) + '</div>';
+    return '<li class="' + (done ? 'done ' : '') + (it.wait ? 'wt' : '') + '"><button type="button" class="dotb" data-act="tick" data-id="' + it.id + '" aria-pressed="' + done + '" aria-label="סימון כהושלם: ' + esc(it.title) + '">' + dot + '</button>' +
+      '<div class="b"><div class="st">' + esc(it.title) + '</div>' + (it.sub ? '<div class="sx">' + esc(it.sub) + '</div>' : '') + extra + '</div></li>';
+  }).join('') + '</ol>';
+}
+function progressOf(b, items) { var d = items.filter(function (i) { return isDone(b, i); }).length; return { d: d, n: items.length }; }
+
+/* ---------- views ---------- */
+var STAGES = [['plan', 'תכנון'], ['feed', 'האכלה'], ['dough', 'בצק'], ['bake', 'אפייה']];
+function headHTML() {
+  var v = S.view;
+  if (v === 'recipes' || v === 'settings' || v === 'calc') {
+    return '<div class="back"><button type="button" class="backbtn" data-act="nav" data-v="' + (v === 'calc' ? 'settings' : 'plan') + '">' + ic('back', 18, 2.4) + 'חזרה</button><div class="brand">Dough<b>Mate</b></div></div>';
+  }
+  var idx = Math.max(0, STAGES.map(function (s) { return s[0]; }).indexOf(v));
+  return '<div class="top"><div class="brand">Dough<b>Mate</b></div><div class="icons"><button type="button" class="ib" data-act="nav" data-v="recipes" aria-label="המתכונים שלי">' + ic('book') + '</button><button type="button" class="ib" data-act="nav" data-v="settings" aria-label="הגדרות">' + ic('gear') + '</button></div></div>' +
+    '<nav class="track" aria-label="שלבים">' + STAGES.map(function (s, i) { return '<button type="button" class="tk ' + (i === idx ? 'on' : i < idx ? 'past' : '') + '" data-act="nav" data-v="' + s[0] + '"' + (i === idx ? ' aria-current="step"' : '') + '><i></i><span>' + s[1] + '</span></button>'; }).join('') + '</nav>';
+}
+function chipsFor(c) {
+  var out = [];
+  if (c.feeds > 0) out.push(c.feeds + ' האכלות בשיא');
+  out.push(METHOD[c.method], 'לישה ' + MIX[c.mix]);
+  if (c.folds > 0) out.push(c.folds + ' קיפולים, כל ' + c.gap + ' דק׳');
+  out.push('כ־' + c.toShape + ' שעות עד עיצוב', 'תפיחה ' + PROOF[c.proof], SHAPE[c.shape]);
+  out.push(c.bakeSplit ? 'אפייה ' + c.bake1 + ' + ' + c.bake2 + ' דק׳' : 'אפייה ' + c.bakeOne + ' דק׳', 'חדר ' + c.temp + '°');
+  return out;
+}
+function planView() {
+  var x = planNow(), r = x.r, p = x.p, now = Date.now();
+  var warn = '';
+  if (p.feeds.length && p.feeds[0].t < now) warn = 'ההאכלה הראשונה כבר עברה. אפשר לדחות את התאריך, או להפחית את מספר ההאכלות בהגדרות.';
+  else if (p.feeds.some(function (f) { var h = new Date(f.t).getHours(); return h < 6 || h >= 23; })) warn = 'אחת ההאכלות יוצאת בלילה. אפשר להזיז את הזמן או לשנות את מספר ההאכלות.';
+  var firstFeed = p.feeds.length ? hhmm(p.feeds[0].t) : '—';
+  var rec = '<div class="sec"><h2>מה אופים?</h2><div class="card recipe-pick"><b>' + esc(r.name) + '</b>' + stepper('plan', 'qty', S.plan.qty).replace(/<output class="">([^<]*)<\/output>/, '<output class="">$1 ' + esc(r.unit) + '</output>') + '</div>' +
+    '<button type="button" class="cta alt" style="min-height:48px;font-size:15px;border-radius:14px;border-width:1px;border-color:var(--line)" data-act="nav" data-v="recipes">מתכונים נוספים</button></div>';
+  var when = '<div class="sec"><h2>מתי?</h2><div class="sub">לפי מה נקבע את כל זמני התהליך?</div><div class="anchors">' +
+    Object.keys(ANCH).map(function (k) { return '<button type="button" data-act="anchor" data-v="' + k + '" aria-pressed="' + (S.plan.anchor === k) + '">' + ANCH[k] + '</button>'; }).join('') + '</div>' +
+    '<label class="card when"><span><small>' + ANCH[S.plan.anchor] + '</small><span class="big">' + dayOf(S.plan.at) + ' · ' + hhmm(S.plan.at) + '</span></span><span class="mut">' + ic('fwd', 20, 1.8) + '</span><input type="datetime-local" id="atInput" value="' + localInput(S.plan.at) + '" aria-label="תאריך ושעה"></label></div>';
+  var how = '<div class="sec"><div class="rowx" style="align-items:flex-start"><div style="display:flex;flex-direction:column;gap:2px"><h2 style="font-family:var(--f-disp);font-weight:500;font-size:24px">איך?</h2><div class="sub" style="margin-top:0">כל שלבי ההכנה של המתכון, לפי ההגדרות שלו</div></div><button type="button" class="link" data-act="nav" data-v="settings">עריכה</button></div>' +
+    '<div class="chips">' + chipsFor(p.c).map(function (c) { return '<span class="chip">' + esc(c) + '</span>'; }).join('') + '</div></div>';
+  var strip = '<div class="card strip"><div><small>' + (p.feeds.length ? 'האכלה ראשונה' : 'האכלות') + '</small><b>' + firstFeed + '</b><small>' + (p.feeds.length ? dayOf(p.feeds[0].t) : 'ללא') + '</small></div>' +
+    '<div><small>לישה</small><b>' + hhmm(p.mix) + '</b><small>' + dayOf(p.mix) + '</small></div><div><small>אפייה</small><b>' + hhmm(p.bakeStart) + '</b><small>' + dayOf(p.bakeStart) + '</small></div></div>';
+  return rec + when + how + '<div class="sec" style="gap:14px">' + (warn ? '<div class="notice">' + warn + '</div>' : '') + strip +
+    '<button type="button" class="cta" data-act="build">בנה לוח זמנים' + ic('fwd', 18, 2) + '</button></div>';
+}
+function emptyBrew(what) {
+  return '<div class="card empty"><b>עוד אין לוח זמנים</b><p class="mut">בחר מה אופים ומתי, ואז נבנה את ' + what + '.</p><button type="button" class="cta" data-act="nav" data-v="plan">לתכנון</button></div>';
+}
+function feedView() {
+  var b = S.brew; if (!b) return emptyBrew('ההאכלות');
+  var p = b.plan, items = feedItems(b), now = Date.now();
+  if (!p.feeds.length) {
+    return '<div class="card empty"><b>בלי האכלות</b><p class="mut">הוגדר שהמחמצת כבר בשיא. אפשר ללכת ללישה.</p><button type="button" class="cta" data-act="nav" data-v="dough">להכנת הבצק</button></div>';
+  }
+  var N = p.feeds.length, next = 0;
+  while (next < N && b.done['feed' + next]) next++;
+  var hero;
+  if (next < N) {
+    var f = p.feeds[next], flourName = (b.sType === 'spelt' ? 'קמח כוסמין מלא' : 'קמח חיטה לבן');
+    var late = f.t < now ? ' · עבר הזמן' : '';
+    hero = '<div class="hero"><div class="l"><span>האכלה הבאה · ' + (next + 1) + ' מתוך ' + N + '</span><span class="pill">' + esc(b.c.ratio) + '</span></div><div class="t">' + hhmm(f.t) + '</div><div class="s">' + dayOf(f.t) + ' · שיא צפוי ב־' + hhmm(f.t + f.P * 1000) + late + '</div></div>' +
+      '<div class="sec" style="gap:8px"><div class="amts"><div><b>' + f.seed + '</b><span>ג׳ מחמצת</span></div><div><b>' + f.flour + '</b><span>ג׳ ' + flourName + '</span></div><div><b>' + f.water + '</b><span>ג׳ מים</span></div></div>' +
+      (next === N - 1 ? '<div class="sx mut" style="font-size:14px">אחרי הלישה נשארים בצנצנת כ־' + p.yieldKeep + ' ג׳</div>' : '') + '</div>';
+  } else {
+    hero = '<div class="hero"><div class="l"><span>כל ההאכלות בוצעו</span></div><div class="t m">' + hhmm(p.feeds[N - 1].t + p.feeds[N - 1].P * 1000) + '</div><div class="s">שיא צפוי, ואז מתחילים ללוש</div></div>';
+  }
+  var pr = progressOf(b, items);
+  return hero + '<div class="sec" style="gap:8px"><div class="bar"><i style="width:' + Math.round(pr.d / pr.n * 100) + '%"></i></div><div class="meta2"><span>לישה מתוכננת ב־' + ltr(hhmm(p.mix)) + '</span><span>הושלמו ' + pr.d + ' מתוך ' + pr.n + '</span></div></div>' +
+    listHTML(b, items) + '<button type="button" class="cta" data-act="nav" data-v="dough">המחמצת בשיא, מתחילים ללוש' + ic('fwd', 18, 2) + '</button>';
+}
+function doughView() {
+  var b = S.brew; if (!b) return emptyBrew('הכנת הבצק');
+  var items = doughItems(b), pr = progressOf(b, items);
+  var ing = ingScaled(b).map(function (i) { return '<div class="rowx" style="padding:8px 0;border-top:1px solid var(--line)"><span>' + esc(i[0]) + '</span><b class="ltr">' + i[1] + ' ג׳</b></div>'; }).join('');
+  return '<div class="sec" style="gap:6px"><div class="ttl">' + esc(b.name) + '</div><div class="mut">' + b.qty + ' ' + esc(b.unit) + ' · לישה ' + dayOf(b.plan.mix) + ' ' + ltr(hhmm(b.plan.mix)) + '</div></div>' +
+    '<div class="sec" style="gap:8px"><div class="bar"><i style="width:' + Math.round(pr.d / pr.n * 100) + '%"></i></div><div class="meta2"><span>' + METHOD[b.c.method] + ' · ' + MIX[b.c.mix] + '</span><span>הושלמו ' + pr.d + ' מתוך ' + pr.n + '</span></div></div>' +
+    '<details class="card pad"><summary style="cursor:pointer;font-weight:700;min-height:28px">מצרכים ל־' + b.qty + ' ' + esc(b.unit) + '</summary><div style="margin-top:8px">' + ing + '</div></details>' +
+    listHTML(b, items) + '<button type="button" class="cta" data-act="nav" data-v="bake">לאפייה' + ic('fwd', 18, 2) + '</button>';
+}
+function bakeView() {
+  var b = S.brew; if (!b) return emptyBrew('האפייה');
+  var items = bakeItems(b), pr = progressOf(b, items), c = b.c, p = b.plan;
+  var all = pr.d === pr.n;
+  var hero = all ? '<div class="hero"><div class="l"><span>הלחם מוכן</span></div><div class="t m" style="font-size:44px">בתיאבון</div><div class="s">כדאי לחכות שהכיכר תתקרר לפני החיתוך.</div></div>' :
+    '<div class="hero"><div class="l"><span>הלחם יוצא מהתנור ב־</span></div><div class="t m">' + hhmm(p.bakeEnd) + '</div><div class="s">' + SHAPE[c.shape] + ' · ' + (c.bakeSplit ? c.bake1 + ' + ' + c.bake2 : c.bakeOne) + ' דק׳ · 230°</div></div>';
+  return hero + '<div class="sec" style="gap:8px"><div class="bar"><i style="width:' + Math.round(pr.d / pr.n * 100) + '%"></i></div><div class="meta2"><span>' + esc(b.name) + '</span><span>הושלמו ' + pr.d + ' מתוך ' + pr.n + '</span></div></div>' +
+    listHTML(b, items) + '<button type="button" class="cta' + (all ? '' : ' alt') + '" data-act="newbrew">אפייה חדשה</button>';
+}
+function recipesView() {
+  var cards = S.recipes.map(function (r) {
+    var open = S.open === r.id, c = eff(r), sel = S.plan.rid === r.id;
+    var head = '<button type="button" class="rhead" data-act="ropen" data-id="' + r.id + '" aria-expanded="' + open + '"><span><b>' + esc(r.name || 'מתכון חדש') + (sel ? ' ✓' : '') + '</b><small>' + METHOD[c.method] + ' · ' + SHAPE[c.shape] + ' · ' + (c.bakeSplit ? c.bake1 + '+' + c.bake2 : c.bakeOne) + ' דק׳</small></span><span class="mut" style="transform:rotate(' + (open ? 90 : 0) + 'deg)">' + ic('fwd', 18, 2) + '</span></button>';
+    if (!open) return '<div class="card">' + head + '</div>';
+    var rid = 'rec:' + r.id;
+    var ings = r.ing.map(function (i, k) { return '<div class="ingrow"><input class="inp" data-ing="' + r.id + ':' + k + ':n" value="' + esc(i.n) + '" aria-label="שם מצרך"><input class="inp" type="number" min="0" inputmode="decimal" data-ing="' + r.id + ':' + k + ':a" value="' + i.a + '" aria-label="כמות בגרמים"><button type="button" class="rb" style="border-color:var(--line);color:var(--mut)" data-act="ingdel" data-id="' + r.id + '" data-k="' + k + '" aria-label="הסרת מצרך">' + ic('x', 16) + '</button></div>'; }).join('');
+    var body = '<div class="rbody">' +
+      '<div class="fld"><label for="rn-' + r.id + '">שם המתכון</label><input id="rn-' + r.id + '" class="inp" data-rname="' + r.id + '" value="' + esc(r.name) + '"></div>' +
+      '<div class="fld"><div class="lb">1 · מצרכים ל־1 ' + (r.unit === 'תבניות' ? 'תבנית' : 'כיכר') + ' (בגרמים)</div>' + ings +
+      '<button type="button" class="link" style="align-self:flex-start" data-act="ingadd" data-id="' + r.id + '">' + ic('plus', 16, 2.4) + 'הוספת מצרך</button></div>' +
+      '<div class="fld"><div class="lb">מחמצת</div><div class="rstep" style="margin:0"><span style="font-weight:600">כמות ליחידה</span>' + stepper('rec:' + r.id, 'starter', r.starter) + '</div>' + seg('recmeta:' + r.id, 'sType', { white: 'חיטה לבן', spelt: 'כוסמין מלא' }, r.sType) + '</div>' +
+      '<div class="fld"><div class="lb">יחידה</div>' + seg('recmeta:' + r.id, 'unit', { 'כיכרות': 'כיכרות', 'תבניות': 'תבניות' }, r.unit) + '</div>' +
+      '<div><div style="font-family:var(--f-disp);font-weight:500;font-size:19px">2 · אופן הכנה</div><div class="sx mut" style="font-size:13px;margin-top:2px">ערך שלא שינית כאן נלקח מההגדרות</div></div>' +
+      '<div class="fld"><div class="lb">שיטה</div>' + seg(rid, 'method', METHOD, r.over.method, { dflt: 'כמו בהגדרות' }) + '</div>' +
+      '<div class="fld"><div class="lb">לישה</div>' + seg(rid, 'mix', MIX, r.over.mix, { dflt: 'כמו בהגדרות' }) + '</div>' +
+      '<div class="fld"><div class="lb">קיפולים</div><div>' + rstep(r, 'folds', 'מספר קיפולים') + rstep(r, 'gap', 'זמן בין קיפולים') + '</div></div>' +
+      '<div class="fld"><div class="lb">צורת אפייה</div>' + seg(rid, 'shape', SHAPE, r.over.shape, { dflt: 'כמו בהגדרות' }) + '</div>' +
+      '<div class="fld"><div class="lb">זמן אפייה</div>' + seg(rid, 'bakeSplit', { 'false': 'זמן אחד', 'true': 'מחולק' }, r.over.bakeSplit === undefined ? undefined : String(r.over.bakeSplit), { dflt: 'כמו בהגדרות' }) +
+      '<div>' + (c.bakeSplit ? rstep(r, 'bake1', 'שלב ראשון (מכוסה)') + rstep(r, 'bake2', 'שלב שני (פתוח)') : rstep(r, 'bakeOne', 'זמן אפייה')) + '</div></div>' +
+      '<div class="fld"><div class="lb">תפיחה סופית</div>' + seg(rid, 'proof', PROOF, r.over.proof, { dflt: 'כמו בהגדרות' }) + '</div>' +
+      '<div class="rowx" style="gap:8px;flex-wrap:wrap"><button type="button" class="btn pri" data-act="rpick" data-id="' + r.id + '">אפה את זה</button>' +
+      '<button type="button" class="btn ghost" data-act="rdel" data-id="' + r.id + '">' + (delArm === r.id ? 'בטוח? לחץ שוב למחיקה' : 'מחיקה') + '</button></div></div>';
+    return '<div class="card" style="border-color:var(--acc)">' + head + body + '</div>';
+  }).join('');
+  return '<div class="sec" style="gap:6px"><h1 class="ttl">המתכונים שלי</h1></div><div class="rlist">' + cards + '</div>' +
+    '<button type="button" class="cta" data-act="radd">' + ic('plus', 18, 2.4) + 'מתכון חדש</button>';
+}
+function settingsView() {
+  if (!draft) draft = Object.assign({}, S.settings);
+  var d = draft, dirty = JSON.stringify(d) !== JSON.stringify(S.settings);
+  function group(rows) { return '<div class="card sgroup">' + rows + '</div>'; }
+  function autoRow(key, label) {
+    var has = d[key] != null, v = has ? d[key] : autoVal(key, d.temp);
+    return '<div class="sr"><span>' + label + '<small>' + (has ? 'ערך קבוע' : 'לפי טבלת החישוב') + '</small></span><span style="display:flex;align-items:center;gap:2px">' + stepper('draft', key, v, { dflt: !has }) +
+      (has ? '<button type="button" class="rb" style="width:36px;height:36px;border-color:var(--line);color:var(--mut)" data-act="rclear" data-ctx="draft" data-k="' + key + '" aria-label="חזרה לטבלת החישוב">' + ic('reset', 16) + '</button>' : '') + '</span></div>';
+  }
+  function sec(t, body) { return '<div class="sec" style="gap:10px"><div style="font-size:13px;font-weight:700;color:var(--mut)">' + t + '</div>' + body + '</div>'; }
+  return '<div class="sec" style="gap:6px"><h1 class="ttl">ההגדרות שלי</h1><div class="mut" style="font-size:15px">הערכים כאן חלים על כל המתכונים, אלא אם מתכון קובע ערך משלו</div></div>' +
+    sec('האכלות לפני התהליך', group(srow('draft', 'feeds', 'מספר האכלות', d.feeds, 'כל האכלה בשיא, עם טיימר המתנה ביניהן')) +
+      '<div class="fld">' + seg('draft', 'ratio', RATIOS.reduce(function (o, k) { o[k] = k; return o; }, {}), d.ratio).replace('--c:5', '--c:3') + '</div>' +
+      group(srow('draft', 'reserve', 'להשאיר בצנצנת', d.reserve) + '<div class="sr"><span>זרע ישר מהמקרר<small>מוסיף כשעה להאכלה הראשונה</small></span><div class="seg" style="--c:2;width:132px">' +
+        '<button type="button" data-act="set" data-ctx="draft" data-k="cold" data-v="false" aria-pressed="' + !d.cold + '">לא</button><button type="button" data-act="set" data-ctx="draft" data-k="cold" data-v="true" aria-pressed="' + d.cold + '">כן</button></div></div>')) +
+    sec('הבצק', '<div class="fld"><div class="lb">שיטה</div>' + seg('draft', 'method', METHOD, d.method) + '</div><div class="fld"><div class="lb">לישה</div>' + seg('draft', 'mix', MIX, d.mix) + '</div>' +
+      group(srow('draft', 'folds', 'קיפולים', d.folds) + srow('draft', 'gap', 'זמן בין קיפולים', d.gap) + autoRow('toShape', 'זמן מוערך עד עיצוב') + srow('draft', 'saltWait', 'המתנה עד המלח', d.saltWait) + srow('draft', 'bench', 'מנוחת ספסל', d.bench))) +
+    sec('אפייה', '<div class="fld"><div class="lb">צורת אפייה</div>' + seg('draft', 'shape', SHAPE, d.shape).replace('--c:4', '--c:2') + '</div>' +
+      '<div class="fld"><div class="lb">זמן אפייה</div>' + seg('draft', 'bakeSplit', { 'false': 'זמן אחד', 'true': 'מחולק' }, String(d.bakeSplit)) + '</div>' +
+      group(d.bakeSplit ? srow('draft', 'bake1', 'שלב ראשון (מכוסה)', d.bake1) + srow('draft', 'bake2', 'שלב שני (פתוח)', d.bake2) : srow('draft', 'bakeOne', 'זמן אפייה', d.bakeOne))) +
+    sec('תפיחה סופית', seg('draft', 'proof', PROOF, d.proof) + group(autoRow('warmH', 'תפיחה חמה') + srow('draft', 'coldH', 'תפיחה קרה', d.coldH))) +
+    sec('הסביבה', group(srow('draft', 'temp', 'טמפרטורת החדר', d.temp))) +
+    '<div class="sec" style="gap:10px"><button type="button" class="cta alt" style="min-height:50px;font-size:15px" data-act="nav" data-v="calc">טבלאות חישוב: שעות לפי טמפרטורה וקמח</button>' + (dirty ? '<div class="notice">יש שינויים שעוד לא נקבעו.</div>' : '') + '<button type="button" class="cta" data-act="commit"' + (dirty ? '' : ' disabled') + '>' + (dirty ? 'קבע לכל המתכונים' : 'הכול מעודכן') + '</button></div>';
+}
+function calcView() {
+  var ty = S.calcType || 'white', T = calcOf(ty), temps = S.calc.temps;
+  var head = '<tr><th></th>' + temps.map(function (t) { return '<th>' + t + '°</th>'; }).join('') + '</tr>';
+  function cell(path, v) { return '<td><input class="ci" type="number" min="0.25" step="0.25" inputmode="decimal" data-cal="' + path + '" value="' + v + '" aria-label="שעות"></td>'; }
+  function table(title, sub, rows) { return '<div class="sec" style="gap:8px"><div><div style="font-family:var(--f-disp);font-weight:500;font-size:19px">' + title + '</div><div class="sx mut" style="font-size:13px">' + sub + '</div></div><div class="ctable card"><table>' + head + rows + '</table></div></div>'; }
+  var peakRows = RATIOS.map(function (rk) { return '<tr><th class="rl">' + ltr(rk) + '</th>' + temps.map(function (t) { return cell(ty + '|peak|' + rk + '|' + t, T.peak[rk][t]); }).join('') + '</tr>'; }).join('');
+  var one = function (key) { return '<tr><th class="rl">שעות</th>' + temps.map(function (t) { return cell(ty + '|' + key + '|x|' + t, T[key][t]); }).join('') + '</tr>'; };
+  return '<div class="sec" style="gap:6px"><h1 class="ttl">טבלאות חישוב</h1><div class="mut" style="font-size:15px">שעות לפי טמפרטורת החדר וסוג הקמח. לוח הזמנים מחושב מהטבלאות האלה, ובין שתי טמפרטורות החישוב ממוצע ביניהן.</div></div>' +
+    '<div class="fld"><div class="lb">סוג קמח</div><div class="seg" style="--c:2">' + [['white', 'חיטה לבן'], ['spelt', 'כוסמין מלא']].map(function (x) { return '<button type="button" data-act="calctype" data-v="' + x[0] + '" aria-pressed="' + (ty === x[0]) + '">' + x[1] + '</button>'; }).join('') + '</div></div>' +
+    table('שיא המחמצת', 'שעות מההאכלה עד השיא, לפי יחס האכלה (מחמצת:קמח:מים)', peakRows) +
+    table('זמן עד עיצוב', 'שעות מתחילת הלישה עד העיצוב', one('toShape')) +
+    table('תפיחה חמה', 'שעות מהעיצוב עד שהבצק מוכן לתנור', one('warmH')) +
+    '<button type="button" class="btn ghost" style="align-self:flex-start" data-act="calcreset">' + (delArm === 'calc' ? 'בטוח? לחץ שוב לאיפוס' : 'איפוס לברירת מחדל') + '</button>';
+}
+function render() {
+  var v = S.view, body = { plan: planView, feed: feedView, dough: doughView, bake: bakeView, recipes: recipesView, settings: settingsView, calc: calcView }[v]();
+  var y = window.scrollY;
+  app.innerHTML = headHTML() + body;
+  window.scrollTo(0, y);
+  save();
+}
+
+/* ---------- toasts and sound ---------- */
+var ac = null;
+function unlockAudio() { try { if (!ac) ac = new (window.AudioContext || window.webkitAudioContext)(); if (ac.state === 'suspended') ac.resume(); } catch (e) {} }
+function beep() {
+  try { if (!ac) return; [0, 0.28, 0.56].forEach(function (d) { var o = ac.createOscillator(), g = ac.createGain(); o.frequency.value = 880; o.connect(g); g.connect(ac.destination); var t = ac.currentTime + d; g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.25, t + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.22); o.start(t); o.stop(t + 0.24); }); } catch (e) {}
+  try { if (navigator.vibrate) navigator.vibrate([200, 100, 200]); } catch (e) {}
+}
+function toast(title, text) {
+  var el = document.createElement('div'); el.className = 'toast';
+  el.innerHTML = '<div><b>' + esc(title) + '</b><span>' + esc(text) + '</span></div><button type="button">אישור</button>';
+  el.querySelector('button').onclick = function () { el.remove(); };
+  document.getElementById('toasts').appendChild(el);
+}
+var lock = null;
+function wake() { try { if (navigator.wakeLock && !lock) navigator.wakeLock.request('screen').then(function (l) { lock = l; l.addEventListener('release', function () { lock = null; }); }).catch(function () {}); } catch (e) {} }
+
+/* ---------- actions ---------- */
+function clamp(key, v) { var b = BOUNDS[key]; return Math.min(b[1], Math.max(b[0], Math.round(v * 100) / 100)); }
+function startBrew() {
+  var x = planNow(), r = x.r;
+  S.brew = { rid: r.id, name: r.name, unit: r.unit, sType: r.sType, qty: S.plan.qty, snap: JSON.parse(JSON.stringify(r)), plan: x.p, c: Object.assign({}, x.p.c), done: {}, timers: {}, created: Date.now() };
+  S.view = S.brew.plan.feeds.length ? 'feed' : 'dough';
+  wake();
+}
+function tick(id) {
+  var b = S.brew; if (!b) return;
+  var it = allItems(b).filter(function (i) { return i.id === id; })[0]; if (!it) return;
+  if (b.done[id]) { delete b.done[id]; return; }
+  b.done[id] = true;
+  if (it.starts) startTimer(b, it.starts);
+}
+function onAct(a, el) {
+  var d = el.dataset, b = S.brew;
+  switch (a) {
+    case 'nav': if (d.v === 'settings') draft = Object.assign({}, S.settings); S.view = d.v; window.scrollTo(0, 0); break;
+    case 'anchor': S.plan.anchor = d.v; break;
+    case 'build': startBrew(); window.scrollTo(0, 0); break;
+    case 'newbrew': S.brew = null; S.view = 'plan'; window.scrollTo(0, 0); break;
+    case 'tick': tick(d.id); break;
+    case 'tstart': startTimer(b, d.id); break;
+    case 'tpause': { var T = b.timers[d.id]; if (T && T.end) { b.timers[d.id] = { total: T.total, left: Math.max(1, (T.end - Date.now()) / 1000) }; } break; }
+    case 'treset': delete b.timers[d.id]; break;
+    case 'ropen': S.open = S.open === d.id ? null : d.id; delArm = null; break;
+    case 'rpick': S.plan.rid = d.id; S.view = 'plan'; window.scrollTo(0, 0); break;
+    case 'radd': { var id = 'r' + Date.now().toString(36); S.recipes.push({ id: id, name: 'מתכון חדש', unit: 'כיכרות', starter: 150, sType: 'white', ing: [{ n: 'קמח לבן', a: 500 }, { n: 'מים', a: 350 }, { n: 'מלח', a: 10 }], over: {} }); S.open = id; break; }
+    case 'rdel': if (delArm === d.id) { if (S.recipes.length > 1) { S.recipes = S.recipes.filter(function (r) { return r.id !== d.id; }); if (S.plan.rid === d.id) S.plan.rid = S.recipes[0].id; S.open = null; } delArm = null; } else delArm = d.id; break;
+    case 'ingadd': recipeById(d.id).ing.push({ n: '', a: 0 }); break;
+    case 'ingdel': recipeById(d.id).ing.splice(+d.k, 1); break;
+    case 'rclear': if (d.ctx === 'draft') draft[d.k] = null; else delete ctxObj(d.ctx)[d.k]; break;
+    case 'calctype': S.calcType = d.v; break;
+    case 'calcreset': if (delArm === 'calc') { S.calc = defCalc(); delArm = null; toast('אופס', 'הטבלאות חזרו לברירת המחדל.'); } else delArm = 'calc'; break;
+    case 'commit': S.settings = Object.assign({}, draft); toast('נקבע', 'ההגדרות חלות על כל המתכונים שלא קבעו ערך משלהם.'); break;
+    case 'set': {
+      var v = d.v;
+      if (v === 'true') v = true; else if (v === 'false') v = false;
+      if (d.ctx === 'brew') { b.c[d.k] = v; var pit = timerItem(b, 'proof'); if (!b.timers.proof) { /* idle: duration follows the choice */ } break; }
+      if (d.ctx.indexOf('recmeta:') === 0) { recipeById(d.ctx.slice(8))[d.k] = v; break; }
+      var o = ctxObj(d.ctx); if (!o) break;
+      if (v === '') delete o[d.k]; else o[d.k] = v;
+      break;
+    }
+    case 'step': {
+      var dd = +d.d, key = d.k, ctx = d.ctx, bd = BOUNDS[key];
+      if (ctx === 'plan') { S.plan[key] = clamp(key, S.plan[key] + dd * bd[2]); break; }
+      if (key === 'starter') { var rr = recipeById(ctx.slice(4)); rr.starter = clamp(key, rr.starter + dd * bd[2]); break; }
+      var obj = ctxObj(ctx); if (!obj) break;
+      var cur = obj[key] != null ? obj[key] : (key === 'toShape' || key === 'warmH' ? autoVal(key, ctx === 'draft' ? draft.temp : S.settings.temp) : S.settings[key]);
+      obj[key] = clamp(key, cur + dd * bd[2]);
+      break;
+    }
+  }
+  render();
+}
+app.addEventListener('click', function (e) {
+  var el = e.target.closest('[data-act]'); if (!el || !app.contains(el)) return;
+  unlockAudio(); onAct(el.dataset.act, el);
+});
+var saveT = null;
+app.addEventListener('input', function (e) {
+  var t = e.target;
+  if (t.dataset.cal) {
+    var cp = t.dataset.cal.split('|'), ct = calcOf(cp[0]), val = parseFloat(t.value);
+    if (!isNaN(val) && val > 0) { if (cp[1] === 'peak') ct.peak[cp[2]][cp[3]] = val; else ct[cp[1]][cp[3]] = val; }
+  } else if (t.dataset.ing) { var p = t.dataset.ing.split(':'), r = recipeById(p[0]); if (r && r.ing[+p[1]]) r.ing[+p[1]][p[2]] = p[2] === 'a' ? (parseFloat(t.value) || 0) : t.value; }
+  else if (t.dataset.rname) { var rr = recipeById(t.dataset.rname); if (rr) rr.name = t.value; }
+  clearTimeout(saveT); saveT = setTimeout(save, 300);
+});
+app.addEventListener('change', function (e) {
+  if (e.target.id === 'atInput') {
+    var t = new Date(e.target.value).getTime();
+    if (!isNaN(t)) { S.plan.at = t; render(); }
+  }
+});
+
+/* ---------- ticking ---------- */
+function updRings() {
+  var b = S.brew; if (!b) return;
+  var rings = app.querySelectorAll('.ring[data-tid]');
+  for (var i = 0; i < rings.length; i++) {
+    var id = rings[i].getAttribute('data-tid'), it = timerItem(b, id); if (!it) continue;
+    var st = tstate(b, it); if (st.mode === 'idle') continue;
+    var rd = rings[i].querySelector('.rd'), rp = rings[i].querySelector('.rp');
+    if (rd) { rd.textContent = fmt(st.left); rd.classList.toggle('long', st.left >= 3600); }
+    if (rp) rp.setAttribute('stroke-dashoffset', (C * (1 - Math.min(1, Math.max(0, 1 - st.left / st.total)))).toFixed(1));
+  }
+}
+function loop() {
+  var b = S.brew; if (!b) return;
+  var now = Date.now(), fired = false;
+  Object.keys(b.timers).forEach(function (id) {
+    var T = b.timers[id];
+    if (T.end && T.end <= now && !T.notified) {
+      T.notified = true; fired = true;
+      var it = timerItem(b, id);
+      if (it) toast(it.title, it.timer.msg);
+      beep();
+    }
+  });
+  if (fired) { render(); return; }
+  updRings();
+}
+setInterval(loop, 500);
+document.addEventListener('visibilitychange', function () { if (!document.hidden) { loop(); render(); wake(); } });
+render();
+})();
+</script>
