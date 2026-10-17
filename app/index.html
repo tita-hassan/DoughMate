@@ -778,13 +778,14 @@ function listHTML(b, items) {
   function gOpen(g) { var o = (S.gc || {})[g]; return o === undefined ? gs[g].act : o; }
   return '<ol class="tl">' + items.map(function (it, i) {
     var done = isDone(b, it), act = i === active;
-    if (gk[i] && !it.group && !gOpen(gk[i])) return '';
+    var gHead = it.group ? '<li class="grp"><button type="button" class="grpb" data-act="grp" data-g="' + esc(it.group) + '" data-open="' + (gOpen(it.group) ? 1 : 0) + '" aria-expanded="' + gOpen(it.group) + '"><span>' + esc(it.group) + '</span><small>' + gs[it.group].d + '/' + gs[it.group].n + '</small>' + CHEV + '</button></li>' : '';
+    if (gk[i] && !gOpen(gk[i])) return gHead;
     var dot = '<span class="' + (done ? 'ok' : act ? 'run' : '') + '">' + (done ? ic('check', 14, 3) : '') + '</span>';
     var extra = '';
     if (act && it.timer) extra += timerCard(b, it);
     if (act && it.anim) extra += '<div class="animbox">' + ART[it.anim]() + '</div>';
     if (act && it.choice && tstate(b, it).mode === 'idle') extra += '<div style="margin-top:8px">' + seg('brew', 'proof', PROOF, b.c.proof) + '</div>';
-    return (it.group ? '<li class="grp"><button type="button" class="grpb" data-act="grp" data-g="' + esc(it.group) + '" data-open="' + (gOpen(it.group) ? 1 : 0) + '" aria-expanded="' + gOpen(it.group) + '"><span>' + esc(it.group) + '</span><small>' + gs[it.group].d + '/' + gs[it.group].n + '</small>' + CHEV + '</button></li>' : '') + '<li class="' + (done ? 'done ' : '') + (it.wait && !it.bold ? 'wt' : '') + '"><button type="button" class="dotb" data-act="tick" data-id="' + it.id + '" aria-pressed="' + done + '" aria-label="סימון כהושלם: ' + esc(it.title) + '">' + dot + '</button>' +
+    return gHead + '<li class="' + (done ? 'done ' : '') + (it.wait && !it.bold ? 'wt' : '') + '"><button type="button" class="dotb" data-act="tick" data-id="' + it.id + '" aria-pressed="' + done + '" aria-label="סימון כהושלם: ' + esc(it.title) + '">' + dot + '</button>' +
       '<div class="b"><div class="st">' + esc(it.title) + '</div>' + (it.sub ? '<div class="sx">' + esc(it.sub).split('\n').map(function (l) { return '<div dir="auto">' + l + '</div>'; }).join('') + '</div>' : '') + extra + '</div></li>';
   }).join('') + '</ol>';
 }
