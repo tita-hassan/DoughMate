@@ -179,6 +179,7 @@ h1, h2, h3, p { margin: 0; }
 .amts div { background: var(--tint); border-radius: 14px; padding: 12px 6px; text-align: center; }
 .amts b { display: block; font-family: var(--f-disp); font-weight: 300; font-size: 40px; line-height: 1.1; font-variant-numeric: tabular-nums; }
 .amts span { font-size: 13px; color: var(--mut); }
+.amts b .u { display: inline; font-family: var(--f-body); font-size: 16px; line-height: 1; font-weight: 600; color: var(--mut); margin-inline-start: 3px; }
 .bar { height: 4px; border-radius: 2px; background: var(--line); overflow: hidden; }
 .bar i { display: block; height: 100%; background: var(--acc); }
 .meta2 { display: flex; justify-content: space-between; gap: 12px; font-size: 14px; color: var(--mut); }
@@ -1320,7 +1321,7 @@ function feedView() {
     var f = p.feeds[next], flourName = (b.sType === 'spelt' ? 'קמח כוסמין מלא' : 'קמח חיטה לבן');
     var late = f.t < now ? ' · עבר הזמן' : '';
     hero = '<div class="hero"><div class="l"><span>האכלה הבאה · ' + (next + 1) + ' מתוך ' + N + '</span><span class="pill">' + esc(b.c.ratio) + '</span></div><div class="t">' + hhmm(f.t) + '</div><div class="s">' + dayOf(f.t) + ' · שיא צפוי ב־' + hhmm(f.t + f.P * 1000) + late + '</div></div>' +
-      '<div class="sec" style="gap:8px"><div class="amts"><div><b>' + f.seed + '</b><span>ג׳ מחמצת</span></div><div><b>' + f.flour + '</b><span>ג׳ ' + flourName + '</span></div><div><b>' + f.water + '</b><span>ג׳ מים</span></div></div>' +
+      '<div class="sec" style="gap:8px"><div class="amts"><div><b>' + f.seed + '<small class="u">ג׳</small></b><span>מחמצת</span></div><div><b>' + f.flour + '<small class="u">ג׳</small></b><span>' + flourName + '</span></div><div><b>' + f.water + '<small class="u">ג׳</small></b><span>מים</span></div></div>' +
       (next === N - 1 ? '<div class="sx mut" style="font-size:14px">אחרי הלישה נשארים בצנצנת כ־' + p.yieldKeep + ' ג׳</div>' : '') + '</div>';
   } else {
     hero = '<div class="hero"><div class="l"><span>כל ההאכלות בוצעו</span></div><div class="t m">' + hhmm(p.feeds[N - 1].t + p.feeds[N - 1].P * 1000) + '</div><div class="s">שיא צפוי, ואז מתחילים ללוש</div></div>';
