@@ -1018,8 +1018,8 @@ ART.saltS = function () {
 };
 function inTool(scene, tool) {
   var m = scene.match(/^<svg([^>]*)>/), cls = (m[1].match(/class="([^"]*)"/) || [0, ''])[1], inner = scene.replace(/^<svg[^>]*>/, '').replace(/<\/svg>$/, '');
-  return '<svg' + (cls ? ' class="' + cls + '"' : '') + ' style="overflow:visible" width="170" height="113" viewBox="-2 0 140 90" aria-hidden="true">' + toolBase(tool) +
-    '<g transform="translate(4 -14.3) scale(1.167)">' + inner + '</g>' + toolHead(tool) + '</svg>';
+  return '<svg' + (cls ? ' class="' + cls + '"' : '') + ' style="overflow:visible" width="170" height="113" viewBox="-2 0 140 90" aria-hidden="true">' + toolBase(tool) + toolHead(tool) +
+    '<g transform="translate(4 -14.3) scale(1.167)">' + inner + '</g></svg>';
 }
 ['k', 'm'].forEach(function (t) {
   ART['salt' + t] = function () { return inTool(ART.salt(), t); };
