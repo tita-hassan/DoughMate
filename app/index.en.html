@@ -637,8 +637,10 @@ function doughItems(b) {
   var p = b.plan, c = b.c, items = [];
   var verb = { hand: 'Knead by hand', kneader: 'Knead in the kneader', mixer: 'Mix in the stand mixer' }[c.mix];
   items.push({ id: 'mix', anim: (c.method === 'auto' ? 'mixA' : 'mixF') + ({ hand: '', kneader: 'k', mixer: 'm' }[c.mix] || ''), title: c.method === 'auto' ? 'Autolyse: flour and water' : 'Fermentolyse: flour, water and starter', sub: verb + ' until no dry flour is left. No salt yet.', starts: 'salt' });
-  items.push({ id: 'salt', title: 'Until salt is added', sub: c.method === 'auto' ? 'Add the starter and the salt and knead until incorporated.' : 'Add the salt and work it into the dough.', starts: c.folds ? 'fold1' : 'shapewait',
-    timer: { id: 'salt', total: c.saltWait * 60, label: 'Until salt', art: c.method === 'auto' ? 'saltS' : 'salt', msg: c.saltWait + ' minutes have passed. Add the salt.' } });
+  var A = c.method === 'auto', nextS = c.folds ? 'fold1' : 'shapewait';
+  items.push({ id: 'salt', title: A ? 'Autolyse: rest' : 'Until salt is added', sub: A ? 'The dough rests, with no starter and no salt.' : 'Add the salt and work it into the dough.', starts: A ? 'addss' : nextS,
+    timer: { id: 'salt', total: c.saltWait * 60, label: A ? 'Autolyse left' : 'Until salt', art: A ? 'bowl' : 'salt', msg: A ? 'Autolyse is over. Add the starter and salt.' : c.saltWait + ' minutes have passed. Add the salt.' } });
+  if (A) items.push({ id: 'addss', anim: 'saltS', title: 'Add starter and salt', sub: 'Add the starter and the salt, and knead until fully incorporated.', starts: nextS });
   for (var k = 1; k <= c.folds; k++) {
     items.push({ id: 'fold' + k, title: 'Fold ' + (ORD[k - 1] || k), sub: 'Stretch and fold or coil fold. ' + c.gap + ' minutes after the previous one.', starts: k < c.folds ? 'fold' + (k + 1) : 'shapewait',
       timer: { id: 'fold' + k, total: c.gap * 60, label: 'Fold ' + (ORD[k - 1] || k) + ' in', art: 'fold', msg: 'Time for fold ' + (ORD[k - 1] || k) + '.' } });

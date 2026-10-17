@@ -637,8 +637,10 @@ function doughItems(b) {
   var p = b.plan, c = b.c, items = [];
   var verb = { hand: 'ללוש ידנית', kneader: 'ללוש במלוש', mixer: 'ללוש במיקסר' }[c.mix];
   items.push({ id: 'mix', anim: (c.method === 'auto' ? 'mixA' : 'mixF') + ({ hand: '', kneader: 'k', mixer: 'm' }[c.mix] || ''), title: c.method === 'auto' ? 'Autolyse: קמח ומים' : 'Fermentolyse: קמח, מים ומחמצת', sub: verb + ' עד שאין קמח יבש. בלי מלח.', starts: 'salt' });
-  items.push({ id: 'salt', title: 'עד הוספת מלח', sub: c.method === 'auto' ? 'מוסיפים את המחמצת ואת המלח ולשים עד שנטמעו.' : 'מוסיפים את המלח ומטמיעים בבצק.', starts: c.folds ? 'fold1' : 'shapewait',
-    timer: { id: 'salt', total: c.saltWait * 60, label: 'עד הוספת מלח', art: c.method === 'auto' ? 'saltS' : 'salt', msg: 'עברו ' + c.saltWait + ' דקות. מוסיפים את המלח.' } });
+  var A = c.method === 'auto', nextS = c.folds ? 'fold1' : 'shapewait';
+  items.push({ id: 'salt', title: A ? 'Autolyse: מנוחה' : 'עד הוספת מלח', sub: A ? 'הבצק נח, בלי מחמצת ובלי מלח.' : 'מוסיפים את המלח ומטמיעים בבצק.', starts: A ? 'addss' : nextS,
+    timer: { id: 'salt', total: c.saltWait * 60, label: A ? 'נשאר באוטוליזה' : 'עד הוספת מלח', art: A ? 'bowl' : 'salt', msg: A ? 'האוטוליזה נגמרה. מוסיפים מחמצת ומלח.' : 'עברו ' + c.saltWait + ' דקות. מוסיפים את המלח.' } });
+  if (A) items.push({ id: 'addss', anim: 'saltS', title: 'הוספת מחמצת ומלח', sub: 'מוסיפים את המחמצת ואת המלח, ולשים עד שנטמעו היטב.', starts: nextS });
   for (var k = 1; k <= c.folds; k++) {
     items.push({ id: 'fold' + k, title: 'קיפול ' + (ORD[k - 1] || k), sub: 'Stretch and fold או coil fold. ' + c.gap + ' דקות אחרי הקודם.', starts: k < c.folds ? 'fold' + (k + 1) : 'shapewait',
       timer: { id: 'fold' + k, total: c.gap * 60, label: 'קיפול ' + (ORD[k - 1] || k) + ' בעוד', art: 'fold', msg: 'זמן לקיפול ' + (ORD[k - 1] || k) + '.' } });
