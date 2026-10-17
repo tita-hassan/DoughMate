@@ -902,26 +902,42 @@ function calcView() {
 }
 /* ---------- first-run questionnaire: a few questions instead of the full settings screen ---------- */
 function obSteps() {
-  var s = S.settings, ratios = RATIOS.reduce(function (o, k) { o[k] = k; return o; }, {});
-  return [
-    { q: 'כמה חם אצלך בבית בדרך כלל?', why: 'החום קובע כמה מהר המחמצת והבצק מתפיחים. אפשר לתקן לפני כל אפייה.',
-      ctl: '<div class="rowx" style="justify-content:center">' + stepper('ob', 'temp', s.temp) + '</div>' },
-    { q: 'איך אתה מאכיל את המחמצת?', why: 'מחמצת : קמח : מים. ככל שהמספרים גדולים יותר המחמצת מגיעה לשיא לאט יותר, ואפשר לחכות יותר בין האכלות.',
-      ctl: seg('ob', 'ratio', ratios, s.ratio).replace('--c:5', '--c:3') },
-    { q: 'המחמצת גרה במקרר?', why: 'אם כן, ההאכלה הראשונה לוקחת בערך שעה יותר, ואנחנו נחשב את זה בשבילך.',
-      ctl: seg('ob', 'cold', { 'false': 'לא, על השיש', 'true': 'כן, במקרר' }, String(s.cold)) },
-    { q: 'איך אתה לש?', why: 'נתאים לזה את ההוראות בשלב הבצק.',
-      ctl: seg('ob', 'mix', MIX, s.mix) },
-    { q: 'באיזה כלי אתה אופה?', why: 'זה משנה את ההוראות בשלב האפייה.',
-      ctl: seg('ob', 'shape', SHAPE, s.shape).replace('--c:4', '--c:2') }
-  ];
+  var s = S.settings, own = S.ob.mode === 'own', ratios = RATIOS.reduce(function (o, k) { o[k] = k; return o; }, {});
+  function one(key) { return '<div class="rowx" style="justify-content:center">' + stepper('ob', key, s[key]) + '</div>'; }
+  function grp(rows) { return '<div class="card sgroup">' + rows + '</div>'; }
+  var Q = {
+    temp: { q: 'כמה חם אצלך בבית בדרך כלל?', why: 'החום קובע כמה מהר המחמצת והבצק מתפיחים. אפשר לתקן לפני כל אפייה.', ctl: one('temp') },
+    feeds: { q: 'כמה האכלות לפני שמתחילים ללוש?', why: 'כל האכלה נעשית כשהמחמצת בשיא, ובין האכלות יש טיימר המתנה. אפס אם המחמצת שלך כבר בשיא.', ctl: one('feeds') },
+    ratio: { q: 'איך אתה מאכיל את המחמצת?', why: 'מחמצת : קמח : מים. ככל שהמספרים גדולים יותר המחמצת מגיעה לשיא לאט יותר, ואפשר לחכות יותר בין האכלות.', ctl: seg('ob', 'ratio', ratios, s.ratio).replace('--c:5', '--c:3') },
+    reserve: { q: 'כמה מחמצת להשאיר בצנצנת?', why: 'הכמות שנשארת בצנצנת אחרי שלוקחים מהמחמצת למתכון. ממנה ממשיכים להאכיל בפעם הבאה.', ctl: one('reserve') },
+    cold: { q: 'המחמצת גרה במקרר?', why: 'אם כן, ההאכלה הראשונה לוקחת בערך שעה יותר, ואנחנו נחשב את זה בשבילך.', ctl: seg('ob', 'cold', { 'false': 'לא, על השיש', 'true': 'כן, במקרר' }, String(s.cold)) },
+    method: { q: 'איך מתחילים את הבצק?', why: 'אוטוליזה: קודם קמח ומים, ורק אחר כך מחמצת ומלח. פרמנטוליזה: קמח, מים ומחמצת ביחד, והמלח אחר כך.', ctl: seg('ob', 'method', METHOD, s.method) },
+    mix: { q: 'איך אתה לש?', why: 'נתאים לזה את ההוראות בשלב הבצק.', ctl: seg('ob', 'mix', MIX, s.mix) },
+    folds: { q: 'כמה קיפולים?', why: 'קיפולים מחזקים את הבצק במהלך התפיחה הראשונה. אפס אם אתה לא מקפל.', ctl: one('folds') },
+    gap: { q: 'כמה זמן בין קיפולים?', why: 'הזמן בין קיפול לקיפול, בדקות.', ctl: one('gap') },
+    saltWait: { q: 'כמה זמן מחכים עד המלח?', why: 'מתחילת הלישה ועד הוספת המלח. אפס אם מוסיפים אותו מיד.', ctl: one('saltWait') },
+    bench: { q: 'כמה זמן מנוחת ספסל?', why: 'מנוחה קצרה של הבצק על השיש.', ctl: one('bench') },
+    shape: { q: 'באיזה כלי אתה אופה?', why: 'זה משנה את ההוראות בשלב האפייה.', ctl: seg('ob', 'shape', SHAPE, s.shape).replace('--c:4', '--c:2') },
+    bakeSplit: { q: 'האפייה בשלב אחד או בשניים?', why: 'בשניים: קודם מכוסה עד שהכיכר מתנפחת, ואז פתוח עד שהיא משחימה.', ctl: seg('ob', 'bakeSplit', { 'false': 'שלב אחד', 'true': 'שני שלבים' }, String(s.bakeSplit)) },
+    bakeT: { q: 'כמה זמן אופים?', why: 'בדקות, בחום שהתנור כבר הגיע אליו.', ctl: grp(s.bakeSplit ? srow('ob', 'bake1', 'שלב ראשון (מכוסה)', s.bake1) + srow('ob', 'bake2', 'שלב שני (פתוח)', s.bake2) : srow('ob', 'bakeOne', 'זמן אפייה', s.bakeOne)) },
+    proof: { q: 'תפיחה סופית חמה או קרה?', why: 'חמה: כמה שעות בטמפרטורת החדר. קרה: במקרר, לרוב ללילה.', ctl: seg('ob', 'proof', PROOF, s.proof) },
+    coldH: { q: 'כמה שעות בתפיחה קרה?', why: 'כמה זמן הבצק נשאר במקרר.', ctl: one('coldH') }
+  };
+  var first = { id: 'mode', q: 'יש לך כבר שיטת עבודה שאתה רגיל אליה, או שאתה צריך עזרה?',
+    why: 'אם יש לך שיטה, נשאל על כל פרט ונתאים הכול אליך. אם אתה צריך עזרה, נשאל רק כמה שאלות כלליות ואת השאר נמלא בשבילך.',
+    ctl: '<div class="seg" style="--c:1" role="group">' + [['own', 'יש לי שיטה משלי'], ['help', 'אשמח לעזרה']].map(function (x) {
+      return '<button type="button" style="min-height:64px;font-size:17px" data-act="obmode" data-v="' + x[0] + '" aria-pressed="' + (S.ob.mode === x[0]) + '">' + x[1] + '</button>'; }).join('') + '</div>' };
+  var keys = own
+    ? ['temp', 'feeds', 'ratio', 'reserve', 'cold', 'method', 'mix', 'folds'].concat(s.folds > 0 ? ['gap'] : [], ['saltWait', 'bench', 'shape', 'bakeSplit', 'bakeT', 'proof'], s.proof === 'cold' ? ['coldH'] : [])
+    : ['temp', 'cold', 'mix', 'shape'];
+  return [first].concat(keys.map(function (k) { return Q[k]; }));
 }
 function obView() {
-  var st = obSteps(), i = Math.min(S.ob.i, st.length - 1), q = st[i], last = i === st.length - 1;
+  var st = obSteps(), i = Math.min(S.ob.i, st.length - 1), q = st[i], last = i === st.length - 1, isMode = q.id === 'mode';
   return '<div class="obwrap"><div class="obdots" aria-label="שאלה ' + (i + 1) + ' מתוך ' + st.length + '">' + st.map(function (x, k) { return '<i class="' + (k === i ? 'on' : '') + '"></i>'; }).join('') + '</div>' +
     '<div class="sec" style="gap:8px"><h1 class="ttl">' + q.q + '</h1><div class="mut" style="font-size:15px">' + q.why + '</div></div>' +
     '<div class="sec">' + q.ctl + '</div>' +
-    '<div class="sec" style="gap:6px"><button type="button" class="cta" data-act="obnext">' + (last ? 'סיימנו' : 'הבא') + '</button>' +
+    '<div class="sec" style="gap:6px">' + (isMode ? '' : '<button type="button" class="cta" data-act="obnext">' + (last ? 'סיימנו' : 'הבא') + '</button>') +
     '<div class="rowx" style="justify-content:space-between">' + (i > 0 ? '<button type="button" class="link" data-act="obback">חזרה</button>' : '<span></span>') +
     '<button type="button" class="link" style="color:var(--mut)" data-act="obskip">' + (last ? '' : 'דלג, אסדר אחר כך') + '</button></div></div></div>';
 }
@@ -978,7 +994,8 @@ function onAct(a, el) {
   var d = el.dataset, b = B();
   switch (a) {
     case 'nav': if (d.v === 'settings') draft = Object.assign({}, S.settings); S.view = d.v; window.scrollTo(0, 0); break;
-    case 'obnext': if (S.ob.i >= obSteps().length - 1) { S.ob = null; S.view = 'plan'; toast('מוכן', 'שאר ההגדרות קיבלו ברירת מחדל. אפשר לשנות אותן בכל רגע בגלגל השיניים.'); } else S.ob.i++; window.scrollTo(0, 0); break;
+    case 'obmode': S.ob.mode = d.v; S.ob.i = 1; window.scrollTo(0, 0); break;
+    case 'obnext': if (S.ob.i >= obSteps().length - 1) { var own = S.ob.mode === 'own'; S.ob = null; S.view = 'plan'; toast('מוכן', own ? 'ההגדרות שלך נשמרו. אפשר לשנות אותן בכל רגע בגלגל השיניים.' : 'שאר ההגדרות קיבלו ברירת מחדל מומלצת. אפשר לשנות אותן בכל רגע בגלגל השיניים.'); } else S.ob.i++; window.scrollTo(0, 0); break;
     case 'obback': S.ob.i = Math.max(0, S.ob.i - 1); window.scrollTo(0, 0); break;
     case 'obskip': S.ob = null; S.view = 'plan'; window.scrollTo(0, 0); break;
     case 'acc': S.acc = S.acc || {}; S.acc[d.k] = !S.acc[d.k]; S.jo = S.acc[d.k] ? d.k : null; break;
