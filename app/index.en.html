@@ -198,6 +198,7 @@ h1, h2, h3, p { margin: 0; }
 .tl .done .st, .tl .done .sx { color: var(--mut); }
 .tl .done .st { font-weight: 600; }
 .tl .sx { font-size: 14px; color: var(--mut); }
+.tl li.grp { display: block; padding: 18px 4px 0; font-size: 13px; font-weight: 700; color: var(--acc); letter-spacing: .3px; border: 0; }
 
 /* timer card */
 .tcard { display: flex; align-items: center; gap: 14px; margin-top: 8px; }
@@ -275,6 +276,10 @@ h1, h2, h3, p { margin: 0; }
 @keyframes brnG { 0% { opacity: 0; } 5% { opacity: 1; } 93% { opacity: 1; } 100% { opacity: 0; } }
 .brn-c { animation: brn 8s ease-in-out infinite; } .brn-g { animation: brnG 8s linear infinite; }
 @keyframes steam { 0% { transform: translateY(4px); opacity: 0 } 40% { opacity: .8 } 100% { transform: translateY(-6px); opacity: 0 } }
+@keyframes lidUp { 0%, 3% { transform: translate(0, 0) rotate(0) } 11%, 100% { transform: rotate(-58deg) } }
+.lid-up { transform-origin: 12px 38px; animation: lidUp 8s ease-in-out infinite; }
+.paused .lid-up { animation-play-state: paused; }
+@media (prefers-reduced-motion: reduce) { .lid-up { animation: none; } }
 .steam { animation: steam 3s ease-out infinite; } .steam.d1 { animation-delay: 1.2s; }
 .paused .jar-rise, .paused .dough-rise, .paused .loaf, .paused .ear, .paused .bub, .paused .steam, .paused .brn-c, .paused .brn-g { animation-play-state: paused; }
 @media (prefers-reduced-motion: reduce) { .jar-rise, .bub, .dough-rise, .loaf, .ear, .steam, .brn-c, .brn-g { animation: none; } }
@@ -453,7 +458,7 @@ function baseHours(R) {
   for (var i = 1; i < t.length; i++) if (R <= t[i][0]) return t[i - 1][1] + (t[i][1] - t[i - 1][1]) * (R - t[i - 1][0]) / (t[i][0] - t[i - 1][0]);
 }
 function offsets(c) {
-  var shape = Math.max(c.toShape * 60, c.saltWait + c.gap * c.folds + 10);
+  var shape = Math.max(c.toShape * 60, c.saltWait + c.gap * Math.max(0, c.folds - 1) + 10);
   var proofStart = shape + c.bench + 10;
   var proofEnd = proofStart + (c.proof === 'warm' ? c.warmH : c.coldH) * 60;
   var bakeStart = proofEnd + 10;
@@ -469,7 +474,7 @@ function computePlan(items, anchor, at) {
   var N = c.feeds, Ps = [];
   for (var j = 0; j < N; j++) Ps[j] = (base + (j === 0 && c.cold ? 1 : 0)) * 3600;
   var spanMin = Ps.reduce(function (a, x) { return a + x; }, 0) / 60, lastMin = N ? Ps[N - 1] / 60 : 0;
-  var back = { peak: 0, mix: 0, bulkEnd: o.shape, bakeStart: o.bakeStart, bakeEnd: o.bakeEnd + (R - 1) * stepB, salt: c.saltWait, fold1: c.saltWait + c.gap, proofStart: o.proofStart, proofEnd: o.proofEnd, preheat: o.bakeStart - 30, feed1: -spanMin, feedLast: -lastMin }[anchor];
+  var back = { peak: 0, mix: 0, bulkEnd: o.shape, bakeStart: o.bakeStart, bakeEnd: o.bakeEnd + (R - 1) * stepB, salt: c.saltWait, fold1: c.saltWait, proofStart: o.proofStart, proofEnd: o.proofEnd, preheat: o.bakeStart - 30, feed1: -spanMin, feedLast: -lastMin }[anchor];
   if (back == null) back = 0;
   var mix = at - back * min;
   var need = starter + c.reserve, am = [];
@@ -484,7 +489,7 @@ function computePlan(items, anchor, at) {
     feeds[j2] = Object.assign({ t: round15(t), P: Ps[j2] }, am[j2]);
   }
   var folds = [];
-  for (var f = 1; f <= c.folds; f++) folds.push(mix + (c.saltWait + c.gap * f) * min);
+  for (var f = 1; f <= c.folds; f++) folds.push(mix + (c.saltWait + c.gap * (f - 1)) * min);
   var rounds = [];
   for (var q = 0; q < R; q++) { var st = mix + (o.bakeStart + q * stepB) * min; rounds.push({ i: q, n: Math.min(cap, L - q * cap), start: st, end: st + o.bakeMin * min, pull: st - (q ? lead : 10) * min }); }
   return { c: c, o: o, mix: mix, feeds: feeds, folds: folds, saltAt: mix + c.saltWait * min, shapeAt: mix + o.shape * min, proofStart: mix + o.proofStart * min,
@@ -639,14 +644,14 @@ function doughItems(b) {
   var verb = { hand: 'Knead by hand', kneader: 'Knead in the kneader', mixer: 'Mix in the stand mixer' }[c.mix];
   items.push({ id: 'mix', anim: (c.method === 'auto' ? 'mixA' : 'mixF') + ({ hand: '', kneader: 'k', mixer: 'm' }[c.mix] || ''), title: c.method === 'auto' ? 'Autolyse: flour and water' : 'Fermentolyse: flour, water and starter', sub: verb + ' until no dry flour is left. No salt yet.', starts: 'salt' });
   var A = c.method === 'auto', nextS = c.folds ? 'fold1' : 'shapewait';
-  items.push({ id: 'salt', title: A ? 'Autolyse: rest' : 'Until salt is added', sub: A ? 'The dough rests, with no starter and no salt.' : 'Add the salt and work it into the dough.', starts: A ? 'addss' : nextS,
-    timer: { id: 'salt', total: c.saltWait * 60, label: A ? 'Autolyse left' : 'Until salt', art: A ? 'bowl' : 'salt' + ({ hand: '', kneader: 'k', mixer: 'm' }[c.mix] || ''), msg: A ? 'Autolyse is over. Add the starter and salt.' : c.saltWait + ' minutes have passed. Add the salt.' } });
+  items.push({ id: 'salt', title: A ? 'Autolyse: rest' : 'Add the salt', sub: A ? 'The dough rests, with no starter and no salt.' : 'Add the salt and work it into the dough.', starts: A ? 'addss' : nextS,
+    timer: { id: 'salt', total: c.saltWait * 60, label: A ? 'Autolyse left' : 'Add the salt', art: A ? 'bowl' : 'salt' + ({ hand: '', kneader: 'k', mixer: 'm' }[c.mix] || ''), msg: A ? 'Autolyse is over. Add the starter and salt.' : c.saltWait + ' minutes have passed. Add the salt.' } });
   if (A) items.push({ id: 'addss', anim: 'saltS' + ({ hand: '', kneader: 'k', mixer: 'm' }[c.mix] || ''), title: 'Add starter and salt', sub: 'Add the starter and the salt, and knead until fully incorporated.', starts: nextS });
   for (var k = 1; k <= c.folds; k++) {
-    items.push({ id: 'fold' + k, title: 'Fold ' + (ORD[k - 1] || k), sub: 'Stretch and fold or coil fold. ' + c.gap + ' minutes after the previous one.', starts: k < c.folds ? 'fold' + (k + 1) : 'shapewait',
-      timer: { id: 'fold' + k, total: c.gap * 60, label: 'Fold ' + (ORD[k - 1] || k) + ' in', art: 'fold', msg: 'Time for fold ' + (ORD[k - 1] || k) + '.' } });
+    items.push({ id: 'fold' + k, title: 'Fold ' + (ORD[k - 1] || k), sub: (k === 1 ? 'Right after adding the salt' : c.gap + ' minutes after the previous one') + '\nStretch and fold or coil fold', starts: k < c.folds ? 'fold' + (k + 1) : 'shapewait',
+      timer: k === 1 ? undefined : { id: 'fold' + k, total: c.gap * 60, label: 'Fold ' + (ORD[k - 1] || k) + ' in', art: 'fold', msg: 'Time for fold ' + (ORD[k - 1] || k) + '.' } });
   }
-  items.push({ id: 'shapewait', wait: true, autoDone: true, title: 'Bulk rise until shaping', sub: 'Shaping planned at ' + hhmm(p.shapeAt),
+  items.push({ id: 'shapewait', wait: true, autoDone: true, title: 'Bulk rise', bold: true, sub: 'Shaping planned at ' + hhmm(p.shapeAt),
     timer: { id: 'shapewait', dyn: function () { return Math.max(60, (p.shapeAt - Date.now()) / 1000); }, total: Math.max(60, (p.shapeAt - Date.now()) / 1000), label: 'Until poke test and shaping', art: 'bowl', msg: 'The dough is ready to check. Do the poke test.' } });
   items.push({ id: 'poke', anim: 'poke', title: 'Jiggle Test + Poke Test', sub: 'Gently shake the bowl: dough that jiggles like jelly is ready. Then press with a floured finger: if it springs back slowly and not all the way, it is ready. If it springs back fast, give it a bit more time.' });
   items.push({ id: 'pre', anim: 'pre', title: 'Pre-shaping', sub: 'Gather the dough into a loose ball.', starts: 'bench' });
@@ -673,19 +678,19 @@ function bakeStages(c) {
 }
 function bakeItems(b) {
   var p = b.plan, c = b.c, items = [], dutch = c.shape === 'dutch', R = p.R || 1;
-  items.push({ id: 'preheat', anim: 'preheat_' + c.shape, title: dutch ? 'Preheat the oven with the Dutch oven inside' : 'Preheat the oven', sub: '230° · start about 30 minutes ahead, around ' + hhmm(p.preheat) + '.' });
+  items.push({ id: 'preheat', anim: 'preheat_' + c.shape, title: 'Preheat the oven with the ' + { dutch: 'Dutch oven', pan: 'loaf pan', stone: 'baking stone', tray: 'baking tray' }[c.shape], sub: '230° · start about 30 minutes ahead, around ' + hhmm(p.preheat) + '.' });
   var loadT = c.scoreMid ? { dutch: 'Transfer to the pot', stone: 'Transfer to the stone', pan: 'Transfer to the loaf pan', tray: 'Place in the tray and put in the oven' }[c.shape] : { dutch: 'Score and transfer to the pot', stone: 'Score and transfer to the stone', pan: 'Transfer to the loaf pan', tray: 'Place in the tray and put in the oven' }[c.shape];
   var stages = bakeStages(c);
   for (var r = 0; r < R; r++) {
-    var sx = r ? '_' + r : '', rd = p.rounds && p.rounds[r], nx = p.rounds && p.rounds[r + 1], lbl = R > 1 ? ' · Round ' + (r + 1) + ' of ' + R : '';
+    var sx = r ? '_' + r : '', rd = p.rounds && p.rounds[r], nx = p.rounds && p.rounds[r + 1], lbl = '';
     var starts = [stages[0].k + sx], note = '';
     if (nx) {
       starts.push('pull' + (r + 1));
       var T = b.timers['pull' + (r + 1)];
       note = 'Alert to take the next loaf out of the fridge at ' + hhmm(T && T.end ? T.end : nx.pull) + '.';
     }
-    var sub = [R > 1 && rd ? loavesTxt(rd.n) + '.' : '', r && !c.scoreMid ? 'Score right after taking it out of the fridge.' : '', dutch ? 'Close the lid.' : 'Pour a cup of boiling water into a hot tray at the bottom of the oven to make steam, and close the door quickly.', note].filter(Boolean).join(' ');
-    items.push({ id: 'load' + sx, anim: 'load_' + c.shape, title: (r ? (c.scoreMid ? 'Take out of the fridge and load in' : 'Take out of the fridge, score and load in') : loadT) + lbl, sub: sub, starts: starts });
+    var sub = [r && !c.scoreMid ? 'Score right after taking it out of the fridge.' : '', dutch ? 'Close the lid.' : 'Pour a cup of boiling water into a hot tray at the bottom of the oven to make steam, and close the door quickly.', note].filter(Boolean).join(' ');
+    items.push({ id: 'load' + sx, group: R > 1 ? 'Round ' + (r + 1) + ' of ' + R + (rd ? ' · ' + loavesTxt(rd.n) : '') : undefined, anim: 'load_' + c.shape, title: (r ? (c.scoreMid ? 'Take out of the fridge and load in' : 'Take out of the fridge, score and load in') : loadT) + lbl, sub: sub, starts: starts });
     stages.forEach(function (s, i) {
       var nxt = stages[i + 1];
       items.push({ id: s.k + sx, title: s.title + lbl, sub: s.mins + ' minutes.', starts: nxt ? nxt.k + sx : undefined,
@@ -753,8 +758,8 @@ function listHTML(b, items) {
     if (act && it.timer) extra += timerCard(b, it);
     if (act && it.anim) extra += '<div class="animbox">' + ART[it.anim]() + '</div>';
     if (act && it.choice && tstate(b, it).mode === 'idle') extra += '<div style="margin-top:8px">' + seg('brew', 'proof', PROOF, b.c.proof) + '</div>';
-    return '<li class="' + (done ? 'done ' : '') + (it.wait ? 'wt' : '') + '"><button type="button" class="dotb" data-act="tick" data-id="' + it.id + '" aria-pressed="' + done + '" aria-label="Mark as done: ' + esc(it.title) + '">' + dot + '</button>' +
-      '<div class="b"><div class="st">' + esc(it.title) + '</div>' + (it.sub ? '<div class="sx">' + esc(it.sub) + '</div>' : '') + extra + '</div></li>';
+    return (it.group ? '<li class="grp" aria-hidden="true">' + esc(it.group) + '</li>' : '') + '<li class="' + (done ? 'done ' : '') + (it.wait && !it.bold ? 'wt' : '') + '"><button type="button" class="dotb" data-act="tick" data-id="' + it.id + '" aria-pressed="' + done + '" aria-label="Mark as done: ' + esc(it.title) + '">' + dot + '</button>' +
+      '<div class="b"><div class="st">' + esc(it.title) + '</div>' + (it.sub ? '<div class="sx">' + esc(it.sub).split('\n').map(function (l) { return '<div dir="auto">' + l + '</div>'; }).join('') + '</div>' : '') + extra + '</div></li>';
   }).join('') + '</ol>';
 }
 function progressOf(b, items) { var d = items.filter(function (i) { return isDone(b, i); }).length; return { d: d, n: items.length }; }
@@ -1156,8 +1161,8 @@ function loafVariant(kind, shape) {
   var wrap = function (g) { return P ? '<g class="loaf">' + g + '</g>' : '<g class="brn-g">' + g + '</g>'; }, out;
   if (shape === 'dutch') {
     var body = '<path d="M12 40H76C76 54 66 61 44 61S12 54 12 40Z" stroke-width="2.2" stroke-linejoin="round" style="fill:#5a5a64;stroke:' + VS + '"/><rect x="8" y="37" width="72" height="5" rx="2.5" stroke-width="1.8" style="fill:#6a6a76;stroke:' + VS + '"/>';
-    out = P ? st + body + '<g class="loaf"><path d="M12 38Q44 2 76 38Q44 44 12 38Z" stroke-width="2.2" stroke-linejoin="round" style="fill:#6a6a76;stroke:' + VS + '"/><circle cx="44" cy="20" r="4" stroke-width="1.8" style="fill:#c98a4b;stroke:#7a4a1f"/></g>'
-      : st + wrap(loaf(26, 27, 44, 46)) + body;
+    var lid = '<path d="M12 38Q44 2 76 38Q44 44 12 38Z" stroke-width="2.2" stroke-linejoin="round" style="fill:#6a6a76;stroke:' + VS + '"/><circle cx="44" cy="20" r="4" stroke-width="1.8" style="fill:#c98a4b;stroke:#7a4a1f"/>';
+    out = P ? st + body + '<g>' + lid + '</g>' : st + wrap(loaf(26, 27, 44, 46)) + body + '<g class="lid-up">' + lid + '</g>';
   } else if (shape === 'pan') {
     out = st + wrap(loaf(25, 26, 44, 48)) + '<path d="M16 38H72L67 59Q44 62 21 59Z" stroke-width="2.2" stroke-linejoin="round" style="fill:#8a949c;stroke:' + VS + '"/><path d="M14 38H74" stroke-width="3" stroke-linecap="round" style="stroke:' + VS + '"/>';
   } else if (shape === 'tray') {
@@ -1165,7 +1170,7 @@ function loafVariant(kind, shape) {
   } else {
     out = st + wrap(loaf(33, 34, 44, 54)) + '<rect x="6" y="54" width="76" height="6" rx="3" style="fill:var(--stone)"/>';
   }
-  return '<svg width="88" height="66" viewBox="0 0 88 66" aria-hidden="true">' + out + '</svg>';
+  return '<svg width="88" height="66" viewBox="0 0 88 66" style="overflow:visible" aria-hidden="true">' + out + '</svg>';
 }
 function loadVariant(shape) {
   var pan = shape === 'pan', lf = pan ? '<g transform="scale(.78)">' + doughLoaf(23, 15) + '</g>' : doughLoaf(23, 15);
