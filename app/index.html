@@ -1340,7 +1340,7 @@ function settingsView() {
       group(d.bakeSplit ? srow('draft', 'bake1', stg1(d.shape), d.bake1) + srow('draft', 'bake2', stg2(d.shape), d.bake2) : srow('draft', 'bakeOne', 'זמן אפייה', d.bakeOne))) +
     sec('תפיחה סופית', seg('draft', 'proof', PROOF, d.proof) + group(autoRow('warmH', 'תפיחה חמה') + srow('draft', 'coldH', 'תפיחה קרה', d.coldH))) +
     sec('הסביבה', group(srow('draft', 'temp', 'טמפרטורת החדר', d.temp))) +
-    '<div class="sec" style="gap:10px"><button type="button" class="cta alt" style="min-height:50px;font-size:15px" data-act="nav" data-v="calc">טבלאות חישוב: שעות לפי טמפרטורה וקמח</button>' + (dirty ? '<div class="notice">יש שינויים שעוד לא נקבעו.</div>' : '') + '<button type="button" class="cta" data-act="commit"' + (dirty ? '' : ' disabled') + '>' + (dirty ? 'קבע לכל המתכונים' : 'הכול מעודכן') + '</button><button type="button" class="link" style="align-self:center" data-act="obrestart">להתחיל את השאלון מחדש</button></div>';
+    '<div class="sec" style="gap:10px"><button type="button" class="cta alt" style="min-height:50px;font-size:15px" data-act="nav" data-v="calc">טבלאות חישוב: שעות לפי טמפרטורה וקמח</button>' + (dirty ? '<div class="notice">יש שינויים שעוד לא נקבעו.</div>' : '') + '<button type="button" class="cta" data-act="commit"' + (dirty ? '' : ' disabled') + '>' + (dirty ? 'קבע לכל המתכונים' : 'הכול מעודכן') + '</button>' + (dirty && B() ? '<button type="button" class="cta alt" data-act="applybrew">החל על האפייה הנוכחית בלבד</button>' : '') + '<button type="button" class="link" style="align-self:center" data-act="obrestart">להתחיל את השאלון מחדש</button></div>';
 }
 function calcView() {
   var ty = S.calcType || 'white', T = calcOf(ty), temps = S.calc.temps;
@@ -1476,6 +1476,7 @@ function onAct(a, el) {
     case 'rclear': if (d.ctx === 'draft') draft[d.k] = null; else delete ctxObj(d.ctx)[d.k]; break;
     case 'calctype': S.calcType = d.v; break;
     case 'calcreset': if (delArm === 'calc') { S.calc = defCalc(); delArm = null; toast('אופס', 'הטבלאות חזרו לברירת המחדל.'); } else delArm = 'calc'; break;
+    case 'applybrew': { var bb = B(); if (!bb) break; ['method', 'mix', 'folds', 'gap', 'saltWait', 'bench', 'shape', 'bakeSplit', 'scoreMid', 'bake1', 'bake2', 'bakeOne', 'proof', 'warmH', 'coldH'].forEach(function (k) { if (draft[k] != null && draft[k] !== S.settings[k]) bb.c[k] = draft[k]; }); draft = Object.assign({}, S.settings); toast('נשמר לאפייה', 'השינויים חלים על האפייה הנוכחית בלבד. ההגדרות הכלליות לא השתנו.'); break; }
     case 'commit': S.settings = Object.assign({}, draft); toast('נקבע', 'ההגדרות חלות על כל המתכונים שלא קבעו ערך משלהם.'); break;
     case 'set': {
       var v = d.v;

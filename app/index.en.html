@@ -1340,7 +1340,7 @@ function settingsView() {
       group(d.bakeSplit ? srow('draft', 'bake1', stg1(d.shape), d.bake1) + srow('draft', 'bake2', stg2(d.shape), d.bake2) : srow('draft', 'bakeOne', 'Bake time', d.bakeOne))) +
     sec('Final proof', seg('draft', 'proof', PROOF, d.proof) + group(autoRow('warmH', 'Warm proof') + srow('draft', 'coldH', 'Cold proof', d.coldH))) +
     sec('Environment', group(srow('draft', 'temp', 'Room temperature', d.temp))) +
-    '<div class="sec" style="gap:10px"><button type="button" class="cta alt" style="min-height:50px;font-size:15px" data-act="nav" data-v="calc">Calculation tables: hours by temperature and flour</button>' + (dirty ? '<div class="notice">There are changes that have not been applied yet.</div>' : '') + '<button type="button" class="cta" data-act="commit"' + (dirty ? '' : ' disabled') + '>' + (dirty ? 'Apply to all recipes' : 'All up to date') + '</button><button type="button" class="link" style="align-self:center" data-act="obrestart">Restart the questionnaire</button></div>';
+    '<div class="sec" style="gap:10px"><button type="button" class="cta alt" style="min-height:50px;font-size:15px" data-act="nav" data-v="calc">Calculation tables: hours by temperature and flour</button>' + (dirty ? '<div class="notice">There are changes that have not been applied yet.</div>' : '') + '<button type="button" class="cta" data-act="commit"' + (dirty ? '' : ' disabled') + '>' + (dirty ? 'Apply to all recipes' : 'All up to date') + '</button>' + (dirty && B() ? '<button type="button" class="cta alt" data-act="applybrew">Apply to the current bake only</button>' : '') + '<button type="button" class="link" style="align-self:center" data-act="obrestart">Restart the questionnaire</button></div>';
 }
 function calcView() {
   var ty = S.calcType || 'white', T = calcOf(ty), temps = S.calc.temps;
@@ -1476,6 +1476,7 @@ function onAct(a, el) {
     case 'rclear': if (d.ctx === 'draft') draft[d.k] = null; else delete ctxObj(d.ctx)[d.k]; break;
     case 'calctype': S.calcType = d.v; break;
     case 'calcreset': if (delArm === 'calc') { S.calc = defCalc(); delArm = null; toast('Reset', 'The tables are back to the defaults.'); } else delArm = 'calc'; break;
+    case 'applybrew': { var bb = B(); if (!bb) break; ['method', 'mix', 'folds', 'gap', 'saltWait', 'bench', 'shape', 'bakeSplit', 'scoreMid', 'bake1', 'bake2', 'bakeOne', 'proof', 'warmH', 'coldH'].forEach(function (k) { if (draft[k] != null && draft[k] !== S.settings[k]) bb.c[k] = draft[k]; }); draft = Object.assign({}, S.settings); toast('Saved for this bake', 'The changes apply to the current bake only. Your general settings were not changed.'); break; }
     case 'commit': S.settings = Object.assign({}, draft); toast('Applied', 'The settings apply to all recipes that did not set their own value.'); break;
     case 'set': {
       var v = d.v;
