@@ -277,12 +277,6 @@ h1, h2, h3, p { margin: 0; }
 .sl-s { animation: slDust 3.6s ease-out infinite; } .sl-s.d1 { animation-delay: .5s; } .sl-s.d2 { animation-delay: 1s; }
 .fl-l { transform-origin: 48px 40px; animation: flFold 6.4s cubic-bezier(.45,.05,.4,1) infinite backwards; }
 @keyframes flFold { 0% { transform: scaleX(1); opacity: 0; } 1% { opacity: 1; } 5% { transform: translateX(7px) scaleX(1.15); } 14% { transform: translateX(0) scaleX(.04); } 21% { transform: scaleX(-1); } 24% { transform: scaleX(-1); opacity: 1; } 25%, 100% { transform: scaleX(-1); opacity: 0; } }
-.hd-d { transform-box: fill-box; transform-origin: 50% 50%; animation: hdLoaf 4.4s ease-in-out infinite; }
-@keyframes hdLoaf { 0% { transform: scale(1.15,1.25) rotate(-8deg); opacity: 0; } 6%, 20% { transform: scale(1.15,1.25) rotate(-8deg); opacity: 1; } 55% { transform: scale(1,.8) rotate(0deg); } 88% { transform: scale(1,.8); opacity: 1; } 100% { transform: scale(1,.8); opacity: 0; } }
-.hd-s { animation: hdSeam 4.4s ease-in-out infinite; }
-@keyframes hdSeam { 0%, 50% { opacity: 0; } 62%, 88% { opacity: 1; } 100% { opacity: 0; } }
-.hd-h { animation: hdHand 4.4s ease-in-out infinite; }
-@keyframes hdHand { 0% { transform: translate(130px,30px); opacity: 0; } 10% { transform: translate(110px,36px); opacity: 1; } 22% { transform: translate(90px,40px); } 55% { transform: translate(64px,54px); } 70% { transform: translate(104px,36px); opacity: 1; } 80%, 100% { transform: translate(130px,30px); opacity: 0; } }
 .mx-wv { animation: fjSwirl .3s ease-in-out infinite alternate; }
 .mx-dash { animation: mxDash .25s linear infinite; }
 @keyframes mxDash { to { stroke-dashoffset: -6; } }
@@ -298,18 +292,10 @@ h1, h2, h3, p { margin: 0; }
 .fjloop .fj-wave { animation: fjSwirl .3s ease-in-out infinite alternate; animation-delay: 0s; }
 .fjloop .fj-b { animation: fjBL 3.6s ease-out infinite; }
 @keyframes fjBL { 0%, 45% { transform: scale(0); opacity: 0; } 60%, 88% { transform: scale(1); opacity: 1; } 100% { transform: scale(0); opacity: 0; } }
-.pr-d { transform-box: fill-box; transform-origin: 50% 100%; animation: prBall 3.6s ease-in-out infinite; }
-@keyframes prBall { 0% { transform: scale(1,1); opacity: 0; } 6%, 8% { transform: scale(1,1); opacity: 1; } 50% { transform: scale(.6,1.9); } 56% { transform: scale(.64,1.8); } 62%, 84% { transform: scale(.6,1.9); opacity: 1; } 100% { transform: scale(.6,1.9); opacity: 0; } }
-.pr-s { animation: prScrape 3.6s ease-in-out infinite; }
-@keyframes prScrape { 0% { transform: translate(98px,76px); opacity: 0; } 8% { transform: translate(90px,76px); opacity: 1; } 50%, 62% { transform: translate(77px,76px); opacity: 1; } 78% { transform: translate(98px,76px); opacity: 1; } 86%, 100% { transform: translate(98px,76px); opacity: 0; } }
 .br-c { transform-box: fill-box; transform-origin: 50% 100%; animation: brCloth 6s ease-in-out infinite; }
 @keyframes brCloth { 0% { transform: translateY(-34px) scaleY(1); opacity: 0; } 12% { opacity: 1; } 24%, 30% { transform: translateY(0) scaleY(1); opacity: 1; } 55% { transform: translateY(0) scaleY(1.07); } 78% { transform: translateY(0) scaleY(1); opacity: 1; } 90% { transform: translateY(-34px) scaleY(1); opacity: 1; } 98%, 100% { transform: translateY(-34px) scaleY(1); opacity: 0; } }
 .br-f { animation: brFlour 6s ease-in-out infinite; }
 @keyframes brFlour { 0%, 18% { opacity: 0; } 30%, 100% { opacity: 1; } }
-.bn-d { transform-box: fill-box; transform-origin: 50% 50%; animation: bnDrop 3.8s ease-in-out infinite; }
-@keyframes bnDrop { 0% { transform: translate(34px,-34px) rotate(70deg) scale(.95); opacity: 0; } 10% { opacity: 1; } 42% { transform: translate(3px,-14px) rotate(10deg) scale(1); } 58% { transform: translate(0,4px) rotate(0deg) scale(1.07,.93); } 68% { transform: translate(0,0) rotate(0deg) scale(1,1); } 90% { opacity: 1; } 100% { transform: translate(0,0) rotate(0deg) scale(1,1); opacity: 0; } }
-.bn-p { transform-box: fill-box; transform-origin: 50% 50%; animation: bnPuff 3.8s ease-out infinite; }
-@keyframes bnPuff { 0%, 56% { opacity: 0; transform: translateY(0) scale(.4); } 62% { opacity: .95; } 82%, 100% { opacity: 0; transform: translateY(-9px) scale(1.3); } }
 .fr-d { transform-origin: 26px 40px; animation: frDoor 5s ease-in-out infinite; }
 @keyframes frDoor { 0%, 10% { transform: scaleX(1); } 26%, 58% { transform: scaleX(.2); } 72%, 100% { transform: scaleX(1); } }
 .fr-b { animation: frBowl 5s ease-in-out infinite; }
@@ -318,7 +304,7 @@ h1, h2, h3, p { margin: 0; }
 @keyframes frSnow { 0%, 70% { opacity: 0; transform: rotate(0deg) scale(.6); } 82%, 92% { opacity: 1; transform: rotate(40deg) scale(1); } 100% { opacity: 0; transform: rotate(70deg) scale(1); } }
 .animbox { margin-top: 8px; display: grid; place-items: center; background: var(--tint); border-radius: 16px; padding: 10px; }
 .paused .sl-shk, .paused .sl-g, .paused .sl-s, .paused .fl-l, .paused .br-c, .paused .br-f, .paused .fr-d, .paused .fr-b, .paused .fr-s { animation-play-state: paused; }
-@media (prefers-reduced-motion: reduce) { .hd-d, .hd-s, .hd-h, .mx-wv, .mx-dash, .sl-shk, .sl-g, .sl-s, .fl-l, .pk-f, .pk-d, .fjloop *, .pr-d, .pr-s, .br-c, .br-f, .bn-d, .bn-p, .fr-d, .fr-b, .fr-s { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .pre2 *, .shp *, .mx-wv, .mx-dash, .sl-shk, .sl-g, .sl-s, .fl-l, .pk-f, .pk-d, .fjloop *, .br-c, .br-f, .fr-d, .fr-b, .fr-s { animation: none; } }
 
 </style>
 
@@ -649,8 +635,7 @@ function doughItems(b) {
   items.push({ id: 'pre', anim: 'pre', title: 'Pre-shaping', sub: 'מרכזים את הבצק לכדור רופף.', starts: 'bench' });
   items.push({ id: 'bench', title: 'Bench Rest', sub: c.bench + ' דקות מנוחה.', starts: null, timer: { id: 'bench', total: c.bench * 60, label: 'מנוחת ספסל', art: 'rest', msg: 'המנוחה נגמרה. מעצבים.' } });
   var wh = c.proof === 'warm';
-  items.push({ id: 'shape', anim: 'hand', title: 'Shaping', sub: 'מעצבים סופית לכיכר ומותחים את פני הבצק.' });
-  items.push({ id: 'banneton', anim: 'banneton', title: 'הכנסה לבנטון', sub: 'מקמחים את הבנטון ומניחים בו את הכיכר, התפר כלפי מעלה.', starts: 'proof' });
+  items.push({ id: 'shape', anim: 'shape', title: 'Shaping', sub: 'מעצבים סופית לכיכר, מותחים את פני הבצק ומכניסים לבנטון מקומח, התפר כלפי מעלה.', starts: 'proof' });
   items.push({ id: 'proof', choice: true, wait: true, autoDone: true, title: wh ? 'תפיחה חמה' : 'תפיחה קרה', sub: wh ? 'בטמפרטורת החדר, כ־' + c.warmH + ' שעות.' : 'במקרר, כ־' + c.coldH + ' שעות.',
     timer: { id: 'proof', total: (wh ? c.warmH : c.coldH) * 3600, label: wh ? 'נשאר עד סוף התפיחה' : 'נשאר בתפיחה במקרר', art: wh ? 'bowl' : 'fridge', msg: 'התפיחה הסתיימה. עוברים לאפייה.' } });
   return items;
@@ -793,11 +778,6 @@ ART.poke = function () {
     '<g class="pk-f"><rect x="-5.5" y="-34" width="11" height="34" rx="5.5" stroke-width="1.8" style="fill:var(--tint2);stroke:var(--deep)"/><circle cx="-1.5" cy="-4" r="1" fill="#fff" fill-opacity=".8"/><circle cx="2" cy="-7" r=".8" fill="#fff" fill-opacity=".8"/></g></svg>';
 };
 ART.feed = function () { return OV.how().replace('<div class="ov ov-jar" aria-hidden="true">', '<div class="fjloop" style="display:grid;place-items:center">'); };
-ART.pre = function () {
-  return '<svg width="150" height="112" viewBox="0 0 120 90" aria-hidden="true"><rect x="8" y="76" width="104" height="6" rx="3" style="fill:var(--stone)"/>' +
-    '<ellipse class="pr-d" cx="56" cy="67" rx="30" ry="9" stroke-width="2.2" style="fill:var(--dough);stroke:var(--deep)"/>' +
-    '<g class="pr-s"><rect x="-2.2" y="-30" width="4.4" height="30" rx="1.2" stroke-width="1.6" style="fill:var(--tint2);stroke:var(--deep)"/><rect x="-1.5" y="-40" width="8" height="12" rx="4" style="fill:var(--acc)"/></g></svg>';
-};
 ART.rest = function () {
   var balls = [[24, 62, 11], [48, 61, 12], [72, 62, 11]].map(function (b) { return '<circle cx="' + b[0] + '" cy="' + b[1] + '" r="' + b[2] + '" stroke-width="2" style="fill:var(--dough);stroke:var(--deep)"/>'; }).join('');
   var flour = [[20, 52], [31, 48], [46, 47], [57, 50], [68, 52], [79, 57]].map(function (f) { return '<circle class="br-f" cx="' + f[0] + '" cy="' + f[1] + '" r="1.2" fill="#fff"/>'; }).join('');
@@ -805,19 +785,10 @@ ART.rest = function () {
     '<g class="br-c"><path d="M6 74C6 56 12 47 24 47C34 47 37 43 48 43C59 43 62 47 72 47C84 47 90 56 90 74Q85 77 80 74T70 74T60 74T50 74T40 74T30 74T20 74T10 74Z" stroke-width="1.8" stroke-linejoin="round" style="fill:#c3d4df;stroke:#8aa6b8"/>' +
     '<path d="M16 52Q15 63 14 73M36 46Q36 60 35 74M60 46Q60 60 61 74M80 52Q81 63 82 73" fill="none" stroke-width="1.4" style="stroke:#9db6c6"/>' + flour + '</g></svg>';
 };
-ART.banneton = function () {
-  var puffs = [[34, 44], [60, 36], [86, 44]].map(function (q, i) { return '<circle class="bn-p" style="animation-delay:' + (i * .06) + 's" cx="' + q[0] + '" cy="' + q[1] + '" r="2.4" fill="#fff"/>'; }).join('');
-  return '<svg width="150" height="112" viewBox="0 0 120 90" aria-hidden="true">' +
-    '<ellipse cx="60" cy="42" rx="40" ry="9" stroke-width="2.2" style="fill:#b8945f;stroke:var(--deep)"/>' +
-    '<g class="bn-d"><ellipse cx="60" cy="42" rx="27" ry="17" stroke-width="2.2" style="fill:var(--dough);stroke:var(--deep)"/><ellipse cx="50" cy="35" rx="8" ry="3.4" fill="#fff" fill-opacity=".28" transform="rotate(-18 50 35)"/></g>' + puffs +
-    '<path d="M20 42Q60 56 100 42L90 78Q60 86 30 78Z" stroke-width="2.2" stroke-linejoin="round" style="fill:#d9b98a;stroke:var(--deep)"/>' +
-    '<path d="M23 52Q60 66 97 52M26 61Q60 75 94 61M29 70Q60 83 91 70" fill="none" stroke-width="1.6" style="stroke:#b8945f"/>' +
-    '<path d="M20 42Q60 56 100 42" fill="none" stroke-width="3.2" stroke-linecap="round" style="stroke:var(--deep)"/></svg>';
-};
 ART.fridge = function () {
   return '<svg width="88" height="73" viewBox="0 0 96 80" aria-hidden="true"><rect x="26" y="4" width="44" height="72" rx="5" stroke-width="2.4" style="fill:#dcebf2;stroke:var(--deep)"/>' +
     '<path d="M30 30H66M30 50H66" stroke-width="1.6" style="stroke:#9db6c6"/>' +
-    '<g class="fr-b"><ellipse cx="0" cy="-12" rx="9.5" ry="6.5" stroke-width="1.8" style="fill:var(--dough);stroke:var(--deep)"/><path d="M-12-13Q0-9 12-13L9.5 0Q0 3-9.5 0Z" stroke-width="1.8" stroke-linejoin="round" style="fill:#d9b98a;stroke:var(--deep)"/><path d="M-10.5-8Q0-5 10.5-8M-9.8-4Q0-1 9.8-4" fill="none" stroke-width="1" style="stroke:#b8945f"/></g>' +
+    '<g class="fr-b"><path d="M-12-6Q0-3 12-6L9.5 0Q0 3-9.5 0Z" stroke-width="1.8" stroke-linejoin="round" style="fill:#d9b98a;stroke:var(--deep)"/><path d="M-14-5Q-12-20 0-21Q12-20 14-5Q8-1 0-1Q-8-1-14-5Z" stroke-width="1.8" stroke-linejoin="round" style="fill:#c3d4df;stroke:#8aa6b8"/><path d="M-6-8Q-5-15-3-19M3-19Q5-14 6-8" fill="none" stroke-width="1" style="stroke:#9db6c6"/></g>' +
     '<g class="fr-d"><rect x="26" y="4" width="44" height="72" rx="5" stroke-width="2.4" style="fill:var(--tint2);stroke:var(--deep)"/><rect x="62" y="34" width="3" height="14" rx="1.5" style="fill:var(--deep)"/>' +
     '<g class="fr-s" stroke-width="2" stroke-linecap="round" style="stroke:#4f9cc4"><path d="M46 30V50M37 35L55 45M37 45L55 35"/></g></g></svg>';
 };
@@ -887,12 +858,61 @@ ART.saltS = function () {
   var out = s.slice(0, i) + '<ellipse class="ss-bl" cx="50" cy="42" rx="10" ry="4" style="fill:var(--bubble)"/><g class="ss-sh">' + s.slice(i).replace('</svg>', '</g>' + starter + '</svg>');
   return out.replace('<svg ', '<svg class="ssS" style="overflow:visible" ');
 };
-ART.hand = function () {
-  var fingers = [[-30, -8.5], [-34, -3.6], [-33, 1.3], [-28, 6.2]].map(function (f) { return '<rect x="' + f[0] + '" y="' + f[1] + '" width="24" height="4.4" rx="2.2" stroke-width="1.3" style="fill:var(--tint2);stroke:var(--deep)"/>'; }).join('');
-  return '<svg width="150" height="112" viewBox="0 0 120 90" aria-hidden="true"><rect x="6" y="8" width="108" height="74" rx="10" stroke-width="2" style="fill:var(--card);stroke:var(--line)"/>' +
-    '<ellipse class="hd-d" cx="52" cy="46" rx="26" ry="20" stroke-width="2.2" style="fill:var(--dough);stroke:var(--deep)"/>' +
-    '<path class="hd-s" d="M32 47Q52 52 72 47" fill="none" stroke-width="1.8" stroke-linecap="round" style="stroke:var(--dough-edge)"/>' +
-    '<g class="hd-h"><rect x="6" y="-9" width="26" height="18" rx="3" style="fill:var(--acc)"/><rect x="-14" y="-10" width="24" height="20" rx="9" stroke-width="1.3" style="fill:var(--tint2);stroke:var(--deep)"/>' + fingers + '</g></svg>';
+function handSvg(rot) {
+  var sh = '<rect x="-16" y="-6" width="32" height="34" rx="12"/><rect x="-16" y="-34" width="7.4" height="34" rx="3.7"/><rect x="-8" y="-40" width="7.8" height="40" rx="3.9"/><rect x="0.2" y="-36" width="7.6" height="36" rx="3.8"/><rect x="8.2" y="-28" width="7.4" height="28" rx="3.7"/><rect x="-4" y="-24" width="8" height="26" rx="4" transform="translate(-15 14) rotate(-52)"/>';
+  return '<g transform="rotate(' + rot + ')"><rect x="-18" y="26" width="36" height="24" rx="4" stroke-width="1.8" style="fill:var(--acc);stroke:var(--deep)"/>' +
+    '<g stroke-width="3.6" stroke-linejoin="round" style="fill:var(--tint2);stroke:var(--deep)">' + sh + '</g><g style="fill:var(--tint2);stroke:none">' + sh + '</g>' +
+    '<path d="M-8.4-30V-8M-.1-32V-8M7.9-26V-8" fill="none" stroke-width="1" stroke-linecap="round" style="stroke:var(--deep);stroke-opacity:.4"/>' +
+    '<g fill="#fff" fill-opacity=".55"><rect x="-14.6" y="-32" width="4.6" height="6" rx="2.3"/><rect x="-6.6" y="-38" width="5" height="6.6" rx="2.5"/><rect x="1.6" y="-34" width="4.8" height="6.2" rx="2.4"/><rect x="9.6" y="-26" width="4.4" height="5.6" rx="2.2"/></g>' +
+    '<ellipse cx="-4" cy="12" rx="9" ry="6" fill="#fff" fill-opacity=".22"/></g>';
+}
+function sceneCss(root, P, defs) {
+  var css = '';
+  Object.keys(defs).forEach(function (cls) { var nm = root + '-' + cls; css += kfCss(nm, P, defs[cls]) + '.' + root + ' .' + cls + '{animation:' + nm + ' ' + P + 's linear infinite;}'; });
+  return css;
+}
+function preCss() {
+  var P = 4.8, o = function (x, y, op) { return tr(x, y, 0) + ';opacity:' + (op === undefined ? 1 : op); };
+  return sceneCss('pre2', P, {
+    pm: [[0, 'opacity:1'], [1.4, 'opacity:1'], [2.6, 'opacity:0'], [4.3, 'opacity:0'], [P, 'opacity:1']],
+    pb: [[0, 'opacity:0'], [1.4, 'opacity:0'], [2.6, 'opacity:1'], [4.3, 'opacity:1'], [P, 'opacity:0']],
+    ph: [[0, o(150, 56, 0)], [.3, o(130, 54)], [.8, o(112, 54)], [1.0, o(108, 52)], [1.3, o(110, 46)], [1.6, o(106, 52)], [1.9, o(110, 60)], [2.2, o(106, 54)], [2.5, o(110, 48)], [2.8, o(106, 54)], [3.1, o(112, 54)], [3.5, o(135, 54)], [3.8, o(150, 56, 0)], [P, o(150, 56, 0)]]
+  });
+}
+function shapeCss() {
+  var P = 6.8, o = function (x, y, op) { return tr(x, y, 0) + ';opacity:' + (op === undefined ? 1 : op); }, pu = 'transform:translateY(0px) scale(.4);opacity:0';
+  return sceneCss('shp', P, {
+    p1: [[0, 'opacity:1'], [2.8, 'opacity:1'], [3.1, 'opacity:0'], [6.4, 'opacity:0'], [P, 'opacity:1']],
+    d1: [[0, 'transform:scale(1,1)'], [.9, 'transform:scale(1,1)'], [2.2, 'transform:scale(1.4,.85)'], [3.2, 'transform:scale(1.4,.85)'], [3.3, 'transform:scale(1,1)'], [P, 'transform:scale(1,1)']],
+    sm: [[0, 'opacity:0'], [2.0, 'opacity:0'], [2.5, 'opacity:1'], [3.2, 'opacity:1'], [3.3, 'opacity:0'], [P, 'opacity:0']],
+    h1: [[0, o(150, 52, 0)], [.3, o(128, 50)], [.7, o(110, 44)], [1.2, o(100, 54)], [1.4, o(112, 46)], [1.9, o(100, 56)], [2.4, o(112, 50)], [2.7, o(140, 52)], [2.9, o(150, 52, 0)], [P, o(150, 52, 0)]],
+    p2: [[0, 'opacity:0'], [3.0, 'opacity:0'], [3.3, 'opacity:1'], [6.3, 'opacity:1'], [6.6, 'opacity:0'], [P, 'opacity:0']],
+    l2: [[0, 'transform:translate(0px,-24px) scale(1,1)'], [3.3, 'transform:translate(0px,-24px) scale(1,1)'], [4.3, 'transform:translate(0px,-8px) scale(1,1)'], [4.8, 'transform:translate(0px,4px) scale(1.06,.94)'], [5.1, 'transform:translate(0px,0px) scale(1,1)'], [P, 'transform:translate(0px,-24px) scale(1,1)']],
+    h2: [[0, o(60, -16, 0)], [3.0, o(60, -16, 0)], [3.3, o(60, -16)], [4.3, o(60, 0)], [4.8, o(60, 12)], [5.1, o(60, 12)], [5.7, o(60, -30)], [6.1, o(60, -40, 0)], [P, o(60, -16, 0)]],
+    pf: [[0, pu], [4.7, pu], [4.85, 'transform:translateY(0px) scale(.6);opacity:.95'], [5.6, 'transform:translateY(-9px) scale(1.3);opacity:0'], [P, pu]]
+  });
+}
+(function () { try { var st = document.createElement('style'); st.textContent = preCss() + shapeCss() + '.shp .l2, .shp .d1, .shp .pf, .pre2 .pm, .pre2 .pb { transform-box: fill-box; transform-origin: 50% 50%; }'; document.head.appendChild(st); } catch (e) {} })();
+ART.pre = function () {
+  return '<svg class="pre2" width="215" height="108" viewBox="0 0 172 86" aria-hidden="true"><rect x="6" y="8" width="108" height="74" rx="10" stroke-width="2" style="fill:var(--card);stroke:var(--line)"/>' +
+    '<path class="pm" d="M30 42C25 29 40 21 52 25C62 17 79 26 77 38C86 46 79 61 66 63C59 71 43 70 37 62C27 60 23 51 30 42Z" stroke-width="2.2" stroke-linejoin="round" style="fill:var(--dough);stroke:var(--deep)"/>' +
+    '<g class="pb"><circle cx="52" cy="46" r="21" stroke-width="2.2" style="fill:var(--dough);stroke:var(--deep)"/><ellipse cx="44" cy="38" rx="8" ry="4" fill="#fff" fill-opacity=".3" transform="rotate(-30 44 38)"/></g>' +
+    '<g class="ph">' + handSvg(-90) + '</g></svg>';
+};
+ART.shape = function () {
+  var wall = 'M20 42Q60 56 100 42L90 78Q60 86 30 78Z';
+  return '<svg class="shp" width="215" height="108" viewBox="-26 0 172 90" aria-hidden="true">' +
+    '<g class="p1"><rect x="6" y="8" width="108" height="74" rx="10" stroke-width="2" style="fill:var(--card);stroke:var(--line)"/>' +
+    '<ellipse class="d1" cx="52" cy="46" rx="20" ry="20" stroke-width="2.2" style="fill:var(--dough);stroke:var(--deep)"/>' +
+    '<path class="sm" d="M30 47Q52 52 74 47" fill="none" stroke-width="1.8" stroke-linecap="round" style="stroke:var(--dough-edge)"/>' +
+    '<g class="h1">' + handSvg(-90) + '</g></g>' +
+    '<g class="p2"><ellipse cx="60" cy="42" rx="40" ry="9" stroke-width="2.2" style="fill:#b8945f;stroke:var(--deep)"/>' +
+    '<g class="l2"><ellipse cx="60" cy="42" rx="27" ry="17" stroke-width="2.2" style="fill:var(--dough);stroke:var(--deep)"/><ellipse cx="50" cy="35" rx="8" ry="3.4" fill="#fff" fill-opacity=".28" transform="rotate(-18 50 35)"/></g>' +
+    [[34, 44], [60, 36], [86, 44]].map(function (q) { return '<circle class="pf" cx="' + q[0] + '" cy="' + q[1] + '" r="2.4" fill="#fff"/>'; }).join('') +
+    '<path d="' + wall + '" stroke-width="2.2" stroke-linejoin="round" style="fill:#d9b98a;stroke:var(--deep)"/>' +
+    '<path d="M23 52Q60 66 97 52M26 61Q60 75 94 61M29 70Q60 83 91 70" fill="none" stroke-width="1.6" style="stroke:#b8945f"/>' +
+    '<path d="M20 42Q60 56 100 42" fill="none" stroke-width="3.2" stroke-linecap="round" style="stroke:var(--deep)"/>' +
+    '<g class="h2">' + handSvg(180) + '</g></g></svg>';
 };
 var CHEV = '<svg class="chev" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
 var ICO = {
