@@ -640,7 +640,7 @@ function doughItems(b) {
   items.push({ id: 'salt', title: 'עד הוספת מלח', sub: c.method === 'auto' ? 'מוסיפים את המחמצת ואת המלח ולשים עד שנטמעו.' : 'מוסיפים את המלח ומטמיעים בבצק.', starts: c.folds ? 'fold1' : 'shapewait',
     timer: { id: 'salt', total: c.saltWait * 60, label: 'עד הוספת מלח', art: c.method === 'auto' ? 'saltS' : 'salt', msg: 'עברו ' + c.saltWait + ' דקות. מוסיפים את המלח.' } });
   for (var k = 1; k <= c.folds; k++) {
-    items.push({ id: 'fold' + k, title: 'קיפול ' + (ORD[k - 1] || k), sub: 'ארבעה קיפולים: מ־12 ל־6, מ־3 ל־9, מ־6 ל־12 ומ־9 ל־3. ' + c.gap + ' דקות אחרי הקודם.', starts: k < c.folds ? 'fold' + (k + 1) : 'shapewait',
+    items.push({ id: 'fold' + k, title: 'קיפול ' + (ORD[k - 1] || k), sub: 'Stretch and fold או coil fold. ' + c.gap + ' דקות אחרי הקודם.', starts: k < c.folds ? 'fold' + (k + 1) : 'shapewait',
       timer: { id: 'fold' + k, total: c.gap * 60, label: 'קיפול ' + (ORD[k - 1] || k) + ' בעוד', art: 'fold', msg: 'זמן לקיפול ' + (ORD[k - 1] || k) + '.' } });
   }
   items.push({ id: 'shapewait', wait: true, autoDone: true, title: 'התפחה ראשונה עד העיצוב', sub: 'עיצוב מתוכנן ב־' + hhmm(p.shapeAt),
