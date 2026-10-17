@@ -275,8 +275,17 @@ h1, h2, h3, p { margin: 0; }
 .sl-g { animation: slFall .9s ease-in infinite; } .sl-g.d1 { animation-delay: .18s; } .sl-g.d2 { animation-delay: .36s; } .sl-g.d3 { animation-delay: .54s; } .sl-g.d4 { animation-delay: .72s; }
 @keyframes slDust { 0%, 15% { opacity: 0; } 55%, 100% { opacity: 1; } }
 .sl-s { animation: slDust 3.6s ease-out infinite; } .sl-s.d1 { animation-delay: .5s; } .sl-s.d2 { animation-delay: 1s; }
-.fl-l { transform-origin: 48px 40px; animation: flFold 3.2s cubic-bezier(.45,.05,.4,1) infinite; }
-@keyframes flFold { 0% { transform: scaleX(1); opacity: 1; } 14% { transform: translateX(7px) scaleX(1.15); } 50% { transform: translateX(0) scaleX(.04); } 78% { transform: scaleX(-1); } 90% { transform: scaleX(-1); opacity: 1; } 100% { transform: scaleX(-1); opacity: 0; } }
+.fl-l { transform-origin: 48px 40px; animation: flFold 6.4s cubic-bezier(.45,.05,.4,1) infinite backwards; }
+@keyframes flFold { 0% { transform: scaleX(1); opacity: 0; } 1% { opacity: 1; } 5% { transform: translateX(7px) scaleX(1.15); } 14% { transform: translateX(0) scaleX(.04); } 21% { transform: scaleX(-1); } 24% { transform: scaleX(-1); opacity: 1; } 25%, 100% { transform: scaleX(-1); opacity: 0; } }
+.hd-d { transform-box: fill-box; transform-origin: 50% 50%; animation: hdLoaf 4.4s ease-in-out infinite; }
+@keyframes hdLoaf { 0% { transform: scale(1.15,1.25) rotate(-8deg); opacity: 0; } 6%, 20% { transform: scale(1.15,1.25) rotate(-8deg); opacity: 1; } 55% { transform: scale(1,.8) rotate(0deg); } 88% { transform: scale(1,.8); opacity: 1; } 100% { transform: scale(1,.8); opacity: 0; } }
+.hd-s { animation: hdSeam 4.4s ease-in-out infinite; }
+@keyframes hdSeam { 0%, 50% { opacity: 0; } 62%, 88% { opacity: 1; } 100% { opacity: 0; } }
+.hd-h { animation: hdHand 4.4s ease-in-out infinite; }
+@keyframes hdHand { 0% { transform: translate(130px,30px); opacity: 0; } 10% { transform: translate(110px,36px); opacity: 1; } 22% { transform: translate(90px,40px); } 55% { transform: translate(64px,54px); } 70% { transform: translate(104px,36px); opacity: 1; } 80%, 100% { transform: translate(130px,30px); opacity: 0; } }
+.mx-wv { animation: fjSwirl .3s ease-in-out infinite alternate; }
+.mx-dash { animation: mxDash .25s linear infinite; }
+@keyframes mxDash { to { stroke-dashoffset: -6; } }
 .pk-f { animation: pkFinger 4.4s ease-in-out infinite; }
 @keyframes pkFinger { 0% { transform: translate(60px,-4px); } 16% { transform: translate(60px,34px); } 34% { transform: translate(60px,34px); } 50%, 100% { transform: translate(60px,-4px); } }
 .pk-d { transform-box: fill-box; transform-origin: 50% 50%; animation: pkDent 4.4s ease-in-out infinite; }
@@ -309,7 +318,7 @@ h1, h2, h3, p { margin: 0; }
 @keyframes frSnow { 0%, 70% { opacity: 0; transform: rotate(0deg) scale(.6); } 82%, 92% { opacity: 1; transform: rotate(40deg) scale(1); } 100% { opacity: 0; transform: rotate(70deg) scale(1); } }
 .animbox { margin-top: 8px; display: grid; place-items: center; background: var(--tint); border-radius: 16px; padding: 10px; }
 .paused .sl-shk, .paused .sl-g, .paused .sl-s, .paused .fl-l, .paused .br-c, .paused .br-f, .paused .fr-d, .paused .fr-b, .paused .fr-s { animation-play-state: paused; }
-@media (prefers-reduced-motion: reduce) { .sl-shk, .sl-g, .sl-s, .fl-l, .pk-f, .pk-d, .fjloop *, .pr-d, .pr-s, .br-c, .br-f, .bn-d, .bn-p, .fr-d, .fr-b, .fr-s { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .hd-d, .hd-s, .hd-h, .mx-wv, .mx-dash, .sl-shk, .sl-g, .sl-s, .fl-l, .pk-f, .pk-d, .fjloop *, .pr-d, .pr-s, .br-c, .br-f, .bn-d, .bn-p, .fr-d, .fr-b, .fr-s { animation: none; } }
 
 </style>
 
@@ -627,11 +636,11 @@ function feedItems(b) {
 function doughItems(b) {
   var p = b.plan, c = b.c, items = [];
   var verb = { hand: 'ללוש ידנית', kneader: 'ללוש במלוש', mixer: 'ללוש במיקסר' }[c.mix];
-  items.push({ id: 'mix', title: c.method === 'auto' ? 'Autolyse: קמח ומים' : 'Fermentolyse: קמח, מים ומחמצת', sub: verb + ' עד שאין קמח יבש. בלי מלח.', starts: 'salt' });
+  items.push({ id: 'mix', anim: c.method === 'auto' ? 'mixA' : 'mixF', title: c.method === 'auto' ? 'Autolyse: קמח ומים' : 'Fermentolyse: קמח, מים ומחמצת', sub: verb + ' עד שאין קמח יבש. בלי מלח.', starts: 'salt' });
   items.push({ id: 'salt', title: 'עד הוספת מלח', sub: c.method === 'auto' ? 'מוסיפים את המחמצת ואת המלח ולשים עד שנטמעו.' : 'מוסיפים את המלח ומטמיעים בבצק.', starts: c.folds ? 'fold1' : 'shapewait',
-    timer: { id: 'salt', total: c.saltWait * 60, label: 'עד הוספת מלח', art: 'salt', msg: 'עברו ' + c.saltWait + ' דקות. מוסיפים את המלח.' } });
+    timer: { id: 'salt', total: c.saltWait * 60, label: 'עד הוספת מלח', art: c.method === 'auto' ? 'saltS' : 'salt', msg: 'עברו ' + c.saltWait + ' דקות. מוסיפים את המלח.' } });
   for (var k = 1; k <= c.folds; k++) {
-    items.push({ id: 'fold' + k, title: 'קיפול ' + (ORD[k - 1] || k), sub: 'Stretch and Fold או Coil Fold, ' + c.gap + ' דקות אחרי הקודם.', starts: k < c.folds ? 'fold' + (k + 1) : 'shapewait',
+    items.push({ id: 'fold' + k, title: 'קיפול ' + (ORD[k - 1] || k), sub: 'ארבעה קיפולים: מ־12 ל־6, מ־3 ל־9, מ־6 ל־12 ומ־9 ל־3. ' + c.gap + ' דקות אחרי הקודם.', starts: k < c.folds ? 'fold' + (k + 1) : 'shapewait',
       timer: { id: 'fold' + k, total: c.gap * 60, label: 'קיפול ' + (ORD[k - 1] || k) + ' בעוד', art: 'fold', msg: 'זמן לקיפול ' + (ORD[k - 1] || k) + '.' } });
   }
   items.push({ id: 'shapewait', wait: true, autoDone: true, title: 'התפחה ראשונה עד העיצוב', sub: 'עיצוב מתוכנן ב־' + hhmm(p.shapeAt),
@@ -640,7 +649,8 @@ function doughItems(b) {
   items.push({ id: 'pre', anim: 'pre', title: 'Pre-shaping', sub: 'מרכזים את הבצק לכדור רופף.', starts: 'bench' });
   items.push({ id: 'bench', title: 'Bench Rest', sub: c.bench + ' דקות מנוחה.', starts: null, timer: { id: 'bench', total: c.bench * 60, label: 'מנוחת ספסל', art: 'rest', msg: 'המנוחה נגמרה. מעצבים.' } });
   var wh = c.proof === 'warm';
-  items.push({ id: 'shape', anim: 'banneton', title: 'Shaping', sub: 'מעצבים סופית ומותחים את פני הבצק.', starts: 'proof' });
+  items.push({ id: 'shape', anim: 'hand', title: 'Shaping', sub: 'מעצבים סופית לכיכר ומותחים את פני הבצק.' });
+  items.push({ id: 'banneton', anim: 'banneton', title: 'הכנסה לבנטון', sub: 'מקמחים את הבנטון ומניחים בו את הכיכר, התפר כלפי מעלה.', starts: 'proof' });
   items.push({ id: 'proof', choice: true, wait: true, autoDone: true, title: wh ? 'תפיחה חמה' : 'תפיחה קרה', sub: wh ? 'בטמפרטורת החדר, כ־' + c.warmH + ' שעות.' : 'במקרר, כ־' + c.coldH + ' שעות.',
     timer: { id: 'proof', total: (wh ? c.warmH : c.coldH) * 3600, label: wh ? 'נשאר עד סוף התפיחה' : 'נשאר בתפיחה במקרר', art: wh ? 'bowl' : 'fridge', msg: 'התפיחה הסתיימה. עוברים לאפייה.' } });
   return items;
@@ -769,10 +779,11 @@ ART.salt = function () {
     '<rect x="-6" y="-3.2" width="12" height="3.8" rx="1.4" style="fill:var(--acc)"/><circle cx="-2.2" cy="-1.2" r=".7" fill="#fff"/><circle cx="0" cy="-1.2" r=".7" fill="#fff"/><circle cx="2.2" cy="-1.2" r=".7" fill="#fff"/></g></svg>';
 };
 ART.fold = function () {
+  var lobes = [[-90, 0], [0, 1], [90, 2], [180, 3]].map(function (x) {
+    return '<g transform="rotate(' + x[0] + ' 48 40)"><g class="fl-l" style="animation-delay:' + (x[1] * 1.6) + 's"><path d="M48 13A27 27 0 0 1 48 67Z" style="fill:var(--dough);stroke:var(--dough-edge)" stroke-width="2" stroke-linejoin="round"/><path d="M48 13A27 27 0 0 1 48 67Z" fill="#fff" fill-opacity=".3"/></g></g>';
+  }).join('');
   return '<svg width="88" height="73" viewBox="0 0 96 80" aria-hidden="true"><circle cx="48" cy="40" r="35" style="fill:var(--card);stroke:var(--deep)" stroke-width="2.4"/>' +
-    '<circle cx="48" cy="40" r="27" style="fill:var(--dough);stroke:var(--dough-edge)" stroke-width="2"/>' +
-    '<g class="fl-l"><path d="M48 13A27 27 0 0 1 48 67Z" style="fill:var(--dough);stroke:var(--dough-edge)" stroke-width="2" stroke-linejoin="round"/><path d="M48 13A27 27 0 0 1 48 67Z" fill="#fff" fill-opacity=".28"/>' +
-    '<ellipse cx="73" cy="31" rx="4.4" ry="2.7" stroke-width="1.4" style="fill:var(--tint2);stroke:var(--deep)"/><ellipse cx="74" cy="41" rx="4.4" ry="2.7" stroke-width="1.4" style="fill:var(--tint2);stroke:var(--deep)"/><ellipse cx="73" cy="51" rx="4.4" ry="2.7" stroke-width="1.4" style="fill:var(--tint2);stroke:var(--deep)"/></g></svg>';
+    '<circle cx="48" cy="40" r="27" style="fill:var(--dough);stroke:var(--dough-edge)" stroke-width="2"/>' + lobes + '</svg>';
 };
 ART.poke = function () {
   return '<svg width="150" height="112" viewBox="0 0 120 90" aria-hidden="true"><rect x="8" y="74" width="104" height="6" rx="3" style="fill:var(--stone)"/>' +
@@ -798,7 +809,7 @@ ART.banneton = function () {
   var puffs = [[34, 44], [60, 36], [86, 44]].map(function (q, i) { return '<circle class="bn-p" style="animation-delay:' + (i * .06) + 's" cx="' + q[0] + '" cy="' + q[1] + '" r="2.4" fill="#fff"/>'; }).join('');
   return '<svg width="150" height="112" viewBox="0 0 120 90" aria-hidden="true">' +
     '<ellipse cx="60" cy="42" rx="40" ry="9" stroke-width="2.2" style="fill:#b8945f;stroke:var(--deep)"/>' +
-    '<g class="bn-d"><circle cx="60" cy="42" r="22" stroke-width="2.2" style="fill:var(--dough);stroke:var(--deep)"/><ellipse cx="51" cy="34" rx="7" ry="3.4" fill="#fff" fill-opacity=".28" transform="rotate(-25 51 34)"/></g>' + puffs +
+    '<g class="bn-d"><ellipse cx="60" cy="42" rx="27" ry="17" stroke-width="2.2" style="fill:var(--dough);stroke:var(--deep)"/><ellipse cx="50" cy="35" rx="8" ry="3.4" fill="#fff" fill-opacity=".28" transform="rotate(-18 50 35)"/></g>' + puffs +
     '<path d="M20 42Q60 56 100 42L90 78Q60 86 30 78Z" stroke-width="2.2" stroke-linejoin="round" style="fill:#d9b98a;stroke:var(--deep)"/>' +
     '<path d="M23 52Q60 66 97 52M26 61Q60 75 94 61M29 70Q60 83 91 70" fill="none" stroke-width="1.6" style="stroke:#b8945f"/>' +
     '<path d="M20 42Q60 56 100 42" fill="none" stroke-width="3.2" stroke-linecap="round" style="stroke:var(--deep)"/></svg>';
@@ -806,9 +817,82 @@ ART.banneton = function () {
 ART.fridge = function () {
   return '<svg width="88" height="73" viewBox="0 0 96 80" aria-hidden="true"><rect x="26" y="4" width="44" height="72" rx="5" stroke-width="2.4" style="fill:#dcebf2;stroke:var(--deep)"/>' +
     '<path d="M30 30H66M30 50H66" stroke-width="1.6" style="stroke:#9db6c6"/>' +
-    '<g class="fr-b"><path d="M-9-14h18c0 9-4 14-9 14s-9-5-9-14z" stroke-width="2" style="fill:var(--card);stroke:var(--deep)"/><path d="M-10-14Q0-22 10-14Z" stroke-width="1.4" style="fill:#c3d4df;stroke:#8aa6b8"/></g>' +
+    '<g class="fr-b"><ellipse cx="0" cy="-12" rx="9.5" ry="6.5" stroke-width="1.8" style="fill:var(--dough);stroke:var(--deep)"/><path d="M-12-13Q0-9 12-13L9.5 0Q0 3-9.5 0Z" stroke-width="1.8" stroke-linejoin="round" style="fill:#d9b98a;stroke:var(--deep)"/><path d="M-10.5-8Q0-5 10.5-8M-9.8-4Q0-1 9.8-4" fill="none" stroke-width="1" style="stroke:#b8945f"/></g>' +
     '<g class="fr-d"><rect x="26" y="4" width="44" height="72" rx="5" stroke-width="2.4" style="fill:var(--tint2);stroke:var(--deep)"/><rect x="62" y="34" width="3" height="14" rx="1.5" style="fill:var(--deep)"/>' +
     '<g class="fr-s" stroke-width="2" stroke-linecap="round" style="stroke:#4f9cc4"><path d="M46 30V50M37 35L55 45M37 45L55 35"/></g></g></svg>';
+};
+function kfCss(name, P, stops) {
+  var s = stops.slice().sort(function (a, b) { return a[0] - b[0]; }), out = [], last = -1;
+  s.forEach(function (x) { var t = Math.min(P, Math.max(0, x[0])); if (t <= last) t = last + 0.002; last = t; out.push([t, x[1]]); });
+  if (out[0][0] > 0) out.unshift([0, out[0][1]]);
+  if (out[out.length - 1][0] < P) out.push([P, out[out.length - 1][1]]);
+  return '@keyframes ' + name + '{' + out.map(function (x) { return (x[0] / P * 100).toFixed(3) + '%{' + x[1] + '}'; }).join('') + '}';
+}
+function tr(x, y, r) { return 'transform:translate(' + x + 'px,' + y + 'px) rotate(' + (r || 0) + 'deg)'; }
+var MX = { F: { P: 7.2, st: 0, wa: 1.6, fl: 3.2, mx: 4.8, fade: 6.6 }, A: { P: 5.6, wa: 0, fl: 1.6, mx: 3.2, fade: 5.0 } };
+function mixCss(v) {
+  var T = MX[v], P = T.P, fade = T.fade, css = '', n = 0, hideP = tr(106, 8, 0) + ';opacity:0', hideS = tr(112, -10, 30) + ';opacity:0';
+  function add(cls, stops) { var nm = 'mx' + v + (n++); css += kfCss(nm, P, stops) + '.mx' + v + ' .' + cls + '{animation:' + nm + ' ' + P + 's linear infinite;}'; }
+  function pour(cls, t0) { add(cls, [[0, hideP], [t0, hideP], [t0 + .2, tr(106, 8, 0) + ';opacity:1'], [t0 + .45, tr(84, 20, 0) + ';opacity:1'], [t0 + .8, tr(84, 20, -42) + ';opacity:1'], [t0 + 1.2, tr(84, 20, -42) + ';opacity:1'], [t0 + 1.4, tr(84, 20, 0) + ';opacity:1'], [t0 + 1.6, hideP], [P, hideP]]); }
+  function stream(cls, t0) { add(cls, [[0, 'opacity:0'], [t0 + .8, 'opacity:0'], [t0 + .85, 'opacity:1'], [t0 + 1.2, 'opacity:1'], [t0 + 1.25, 'opacity:0'], [P, 'opacity:0']]); }
+  function layer(cls, t0, from, gone) {
+    var st = [[0, 'transform:translateY(' + from + 'px);opacity:0'], [t0 + .8, 'transform:translateY(' + from + 'px);opacity:0'], [t0 + .85, 'transform:translateY(' + from + 'px);opacity:1'], [t0 + 1.35, 'transform:translateY(0);opacity:1']];
+    if (gone) st.push([gone, 'transform:translateY(0);opacity:1'], [gone + .3, 'transform:translateY(0);opacity:0']); else st.push([fade, 'transform:translateY(0);opacity:1'], [P, 'transform:translateY(0);opacity:0']);
+    add(cls, st);
+  }
+  if (v === 'F') {
+    add('mx-sp', [[0, hideS], [T.st, hideS], [T.st + .2, tr(104, -4, 30) + ';opacity:1'], [T.st + .5, tr(82, 18, 28) + ';opacity:1'], [T.st + 1.2, tr(82, 18, 28) + ';opacity:1'], [T.st + 1.6, hideS], [P, hideS]]);
+    add('mx-dp', [[0, 'transform:translate(80px,26px);opacity:0'], [T.st + .55, 'transform:translate(80px,26px);opacity:0'], [T.st + .6, 'transform:translate(80px,26px);opacity:1'], [T.st + 1.0, 'transform:translate(64px,66px);opacity:1'], [T.st + 1.05, 'transform:translate(64px,68px) scale(.3);opacity:0'], [P, 'transform:translate(64px,68px) scale(.3);opacity:0']]);
+    layer('mx-ls', T.st, 24);
+  }
+  pour('mx-pw', T.wa); stream('mx-sw', T.wa); layer('mx-lw', T.wa, 18);
+  pour('mx-pf', T.fl); stream('mx-sf', T.fl); layer('mx-lf', T.fl, 16, T.mx + .2);
+  add('mx-lm', [[0, 'opacity:0'], [T.mx, 'opacity:0'], [T.mx + .5, 'opacity:1'], [fade, 'opacity:1'], [P, 'opacity:0']]);
+  add('mx-ss', [[0, hideS], [T.mx, hideS], [T.mx + .3, tr(70, 36, 10) + ';opacity:1'], [T.mx + .6, tr(54, 56, 6) + ';opacity:1'], [T.mx + .9, tr(82, 58, -6) + ';opacity:1'], [T.mx + 1.2, tr(54, 56, 6) + ';opacity:1'], [T.mx + 1.5, tr(82, 58, -6) + ';opacity:1'], [T.mx + 1.8, hideS], [P, hideS]]);
+  return css;
+}
+function saltStartCss() {
+  var P = 5, hideS = tr(100, -4, 30) + ';opacity:0', css = '', n = 0;
+  function add(cls, stops) { var nm = 'ss' + (n++); css += kfCss(nm, P, stops) + '.ssS .' + cls + '{animation:' + nm + ' ' + P + 's linear infinite;}'; }
+  add('ss-sp', [[0, hideS], [.2, tr(96, 0, 30) + ';opacity:1'], [.5, tr(70, 24, 28) + ';opacity:1'], [1.2, tr(70, 24, 28) + ';opacity:1'], [1.6, hideS], [P, hideS]]);
+  add('ss-dp', [[0, 'transform:translate(72px,30px);opacity:0'], [.55, 'transform:translate(72px,30px);opacity:0'], [.6, 'transform:translate(72px,30px);opacity:1'], [1.0, 'transform:translate(54px,42px);opacity:1'], [1.05, 'transform:translate(54px,44px) scale(.3);opacity:0'], [P, 'transform:translate(54px,44px) scale(.3);opacity:0']]);
+  add('ss-bl', [[0, 'opacity:0'], [1.0, 'opacity:0'], [1.2, 'opacity:1'], [4.6, 'opacity:1'], [P, 'opacity:0']]);
+  add('ss-sh', [[0, 'opacity:0'], [1.7, 'opacity:0'], [1.9, 'opacity:1'], [4.6, 'opacity:1'], [4.9, 'opacity:0'], [P, 'opacity:0']]);
+  return css;
+}
+(function () { try { var st = document.createElement('style'); st.textContent = mixCss('F') + mixCss('A') + saltStartCss() + '.paused .ss-sp, .paused .ss-dp, .paused .ss-bl, .paused .ss-sh { animation-play-state: paused; } @media (prefers-reduced-motion: reduce) { .mxF *, .mxA *, .ssS * { animation: none !important; } }'; document.head.appendChild(st); } catch (e) {} })();
+function spoonG(cls) { return '<g class="' + cls + '"><path d="M2-4L26-62" stroke-width="5" stroke-linecap="round" style="stroke:var(--deep)"/><ellipse cx="0" cy="2" rx="10" ry="6.5" transform="rotate(-24)" stroke-width="2" style="fill:var(--acc);stroke:var(--deep)"/></g>'; }
+function pourG(cls, inner) {
+  return '<g class="' + cls + '"><path d="M0 0H24V26a3 3 0 0 1-3 3H3a3 3 0 0 1-3-3Z" stroke-width="1.8" stroke-linejoin="round" style="fill:var(--card);fill-opacity:.92;stroke:var(--deep)"/><path d="M2 10H22V26a1.5 1.5 0 0 1-1.5 1.5h-17A1.5 1.5 0 0 1 2 26Z" style="fill:' + inner + '"/><path d="M24 6q9 0 9 8t-9 8" fill="none" stroke-width="1.8" stroke-linecap="round" style="stroke:var(--deep)"/><path d="M0 0l-4-2" stroke-width="1.8" stroke-linecap="round" style="stroke:var(--deep)"/></g>';
+}
+function mixSvg(v) {
+  var id = 'mc' + (++uid), bowl = 'M18 44h84c0 24-18 38-42 38S18 68 18 44z', F = v === 'F';
+  return '<svg class="mx' + v + '" width="150" height="112" viewBox="0 0 120 90" aria-hidden="true"><defs><clipPath id="' + id + '"><path d="M18 20H102V44c0 24-18 38-42 38S18 68 18 44z"/></clipPath></defs>' +
+    '<path d="' + bowl + '" style="fill:var(--card)"/><g clip-path="url(#' + id + ')">' +
+    '<rect class="mx-lw" x="10" y="56" width="100" height="40" style="fill:#9fcbe2;fill-opacity:.92"/>' +
+    (F ? '<rect class="mx-ls" x="10" y="72" width="100" height="30" style="fill:var(--dough)"/>' : '') +
+    '<path class="mx-lf" d="M44 56Q74 36 104 56V62H44Z" fill="#fff"/>' +
+    '<g class="mx-lm"><g class="mx-wv"><path d="M0 50q10-6 20 0t20 0t20 0t20 0t20 0t20 0t20 0V100H0z" style="fill:var(--dough)"/><path d="M0 50q10-6 20 0t20 0t20 0t20 0t20 0t20 0t20 0" fill="none" stroke-width="2" style="stroke:var(--dough-edge)"/></g></g></g>' +
+    '<path d="' + bowl + '" fill="none" style="stroke:var(--deep)" stroke-width="2.4" stroke-linejoin="round"/><path d="M15 44h90" style="stroke:var(--deep)" stroke-width="3" stroke-linecap="round"/>' +
+    (F ? spoonG('mx-sp') + '<g class="mx-dp"><circle r="7" stroke-width="1.6" style="fill:var(--bubble);stroke:var(--dough-edge)"/></g>' : '') +
+    pourG('mx-pw', '#8fc3de') + '<g class="mx-sw"><path class="mx-dash" d="M80 26Q77 42 73 57" fill="none" stroke-width="3" stroke-linecap="round" stroke-dasharray="3 3" stroke="#8fc3de"/></g>' +
+    pourG('mx-pf', '#fff') + '<g class="mx-sf"><path class="mx-dash" d="M80 26Q78 36 74 44" fill="none" stroke-width="3" stroke-linecap="round" stroke-dasharray="3 3" stroke="#fff"/></g>' +
+    spoonG('mx-ss') + '</svg>';
+}
+ART.mixF = function () { return mixSvg('F'); };
+ART.mixA = function () { return mixSvg('A'); };
+ART.saltS = function () {
+  var s = ART.salt(), i = s.indexOf('<circle class="sl-g');
+  var starter = spoonG('ss-sp') + '<g class="ss-dp"><circle r="6" stroke-width="1.6" style="fill:var(--bubble);stroke:var(--dough-edge)"/></g>';
+  var out = s.slice(0, i) + '<ellipse class="ss-bl" cx="50" cy="42" rx="10" ry="4" style="fill:var(--bubble)"/><g class="ss-sh">' + s.slice(i).replace('</svg>', '</g>' + starter + '</svg>');
+  return out.replace('<svg ', '<svg class="ssS" style="overflow:visible" ');
+};
+ART.hand = function () {
+  var fingers = [[-30, -8.5], [-34, -3.6], [-33, 1.3], [-28, 6.2]].map(function (f) { return '<rect x="' + f[0] + '" y="' + f[1] + '" width="24" height="4.4" rx="2.2" stroke-width="1.3" style="fill:var(--tint2);stroke:var(--deep)"/>'; }).join('');
+  return '<svg width="150" height="112" viewBox="0 0 120 90" aria-hidden="true"><rect x="6" y="8" width="108" height="74" rx="10" stroke-width="2" style="fill:var(--card);stroke:var(--line)"/>' +
+    '<ellipse class="hd-d" cx="52" cy="46" rx="26" ry="20" stroke-width="2.2" style="fill:var(--dough);stroke:var(--deep)"/>' +
+    '<path class="hd-s" d="M32 47Q52 52 72 47" fill="none" stroke-width="1.8" stroke-linecap="round" style="stroke:var(--dough-edge)"/>' +
+    '<g class="hd-h"><rect x="6" y="-9" width="26" height="18" rx="3" style="fill:var(--acc)"/><rect x="-14" y="-10" width="24" height="20" rx="9" stroke-width="1.3" style="fill:var(--tint2);stroke:var(--deep)"/>' + fingers + '</g></svg>';
 };
 var CHEV = '<svg class="chev" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
 var ICO = {
