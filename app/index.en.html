@@ -290,6 +290,14 @@ h1, h2, h3, p { margin: 0; }
 .sl-g { animation: slFall .9s ease-in infinite; } .sl-g.d1 { animation-delay: .18s; } .sl-g.d2 { animation-delay: .36s; } .sl-g.d3 { animation-delay: .54s; } .sl-g.d4 { animation-delay: .72s; }
 @keyframes slDust { 0%, 15% { opacity: 0; } 55%, 100% { opacity: 1; } }
 .sl-s { animation: slDust 3.6s ease-out infinite; } .sl-s.d1 { animation-delay: .5s; } .sl-s.d2 { animation-delay: 1s; }
+@keyframes foA { 0%, 8% { opacity: 0 } 12%, 26% { opacity: 1 } 30%, 100% { opacity: 0 } }
+@keyframes foB { 0%, 26% { opacity: 0 } 30%, 44% { opacity: 1 } 48%, 100% { opacity: 0 } }
+@keyframes foC { 0%, 44% { opacity: 0 } 48%, 62% { opacity: 1 } 66%, 100% { opacity: 0 } }
+@keyframes foD { 0%, 62% { opacity: 0 } 68%, 92% { opacity: 1 } 98%, 100% { opacity: 0 } }
+@keyframes foE { 0%, 8% { opacity: 0 } 14%, 40% { opacity: 1 } 46%, 100% { opacity: 0 } }
+.fo-1 { animation: foA 5s ease-in-out infinite; } .fo-2 { animation: foB 5s ease-in-out infinite; } .fo-3 { animation: foC 5s ease-in-out infinite; } .fo-4 { animation: foD 5s ease-in-out infinite; } .fo-ar { animation: foE 5s ease-in-out infinite; }
+.paused .fo-1, .paused .fo-2, .paused .fo-3, .paused .fo-4, .paused .fo-ar { animation-play-state: paused; }
+@media (prefers-reduced-motion: reduce) { .fo-1, .fo-2, .fo-3, .fo-4, .fo-ar { animation: none; opacity: 0; } }
 .fl-l { transform-origin: 48px 40px; animation: flFold 6.4s cubic-bezier(.45,.05,.4,1) infinite backwards; }
 @keyframes flFold { 0% { transform: scaleX(1); opacity: 0; } 1% { opacity: 1; } 5% { transform: translateX(7px) scaleX(1.15); } 14% { transform: translateX(0) scaleX(.04); } 21% { transform: scaleX(-1); } 24% { transform: scaleX(-1); opacity: 1; } 25%, 100% { transform: scaleX(-1); opacity: 0; } }
 .mx-wv { animation: fjSwirl .3s ease-in-out infinite alternate; }
@@ -643,13 +651,14 @@ function doughItems(b) {
   var p = b.plan, c = b.c, items = [];
   var verb = { hand: 'Knead by hand', kneader: 'Knead in the kneader', mixer: 'Mix in the stand mixer' }[c.mix];
   items.push({ id: 'mix', anim: (c.method === 'auto' ? 'mixA' : 'mixF') + ({ hand: '', kneader: 'k', mixer: 'm' }[c.mix] || ''), title: c.method === 'auto' ? 'Autolyse: flour and water' : 'Fermentolyse: flour, water and starter', sub: verb + ' until no dry flour is left. No salt yet.', starts: 'salt' });
-  var A = c.method === 'auto', nextS = c.folds ? 'fold1' : 'shapewait';
-  items.push({ id: 'salt', title: A ? 'Autolyse: rest' : 'Add the salt', sub: A ? 'The dough rests, with no starter and no salt.' : 'Add the salt and work it into the dough.', starts: A ? 'addss' : nextS,
-    timer: { id: 'salt', total: c.saltWait * 60, label: A ? 'Autolyse left' : 'Add the salt', art: A ? 'bowl' : 'salt' + ({ hand: '', kneader: 'k', mixer: 'm' }[c.mix] || ''), msg: A ? 'Autolyse is over. Add the starter and salt.' : c.saltWait + ' minutes have passed. Add the salt.' } });
-  if (A) items.push({ id: 'addss', anim: 'saltS' + ({ hand: '', kneader: 'k', mixer: 'm' }[c.mix] || ''), title: 'Add starter and salt', sub: 'Add the starter and the salt, and knead until fully incorporated.', starts: nextS });
+  var A = c.method === 'auto', nextS = c.folds ? 'fold1' : 'shapewait', tl = ({ hand: '', kneader: 'k', mixer: 'm' }[c.mix] || '');
+  items.push({ id: 'salt', wait: true, autoDone: true, title: A ? 'Autolyse: rest' : 'Rest before the salt', sub: A ? 'The dough rests, with no starter and no salt.' : c.saltWait + ' minutes',
+    timer: { id: 'salt', total: c.saltWait * 60, label: A ? 'Autolyse left' : 'Until the salt', art: 'bowl', msg: A ? 'Autolyse is over. Add the starter and salt.' : c.saltWait + ' minutes have passed. Add the salt.' } });
+  items.push({ id: 'addss', anim: (A ? 'saltS' : 'salt') + tl, title: A ? 'Add starter and salt' : 'Add the salt', sub: A ? 'Add the starter and the salt, and knead until fully incorporated.' : 'Add the salt and work it into the dough.', starts: c.folds ? undefined : 'shapewait' });
   for (var k = 1; k <= c.folds; k++) {
-    items.push({ id: 'fold' + k, title: 'Fold ' + (ORD[k - 1] || k), sub: (k === 1 ? 'Right after adding the salt' : c.gap + ' minutes after the previous one') + '\nStretch and fold or coil fold', starts: k < c.folds ? 'fold' + (k + 1) : 'shapewait',
-      timer: k === 1 ? undefined : { id: 'fold' + k, total: c.gap * 60, label: 'Fold ' + (ORD[k - 1] || k) + ' in', art: 'fold', msg: 'Time for fold ' + (ORD[k - 1] || k) + '.' } });
+    if (k > 1) items.push({ id: 'fw' + k, wait: true, autoDone: true, title: 'Rest', sub: c.gap + ' minutes',
+      timer: { id: 'fw' + k, total: c.gap * 60, label: 'Until fold ' + (ORD[k - 1] || k), art: 'bowl', msg: 'Time for fold ' + (ORD[k - 1] || k) + '.' } });
+    items.push({ id: 'fold' + k, anim: 'fold', title: 'Fold ' + (ORD[k - 1] || k), sub: (k === 1 ? 'Right after adding the salt' + '\n' : '') + 'Stretch and fold or coil fold', starts: k < c.folds ? 'fw' + (k + 1) : 'shapewait' });
   }
   items.push({ id: 'shapewait', wait: true, autoDone: true, title: 'Bulk rise', bold: true, sub: 'Shaping planned at ' + hhmm(p.shapeAt),
     timer: { id: 'shapewait', dyn: function () { return Math.max(60, (p.shapeAt - Date.now()) / 1000); }, total: Math.max(60, (p.shapeAt - Date.now()) / 1000), label: 'Until poke test and shaping', art: 'bowl', msg: 'The dough is ready to check. Do the poke test.' } });
@@ -817,11 +826,14 @@ ART.salt = function () {
     '<rect x="-6" y="-3.2" width="12" height="3.8" rx="1.4" style="fill:var(--acc)"/><circle cx="-2.2" cy="-1.2" r=".7" fill="#fff"/><circle cx="0" cy="-1.2" r=".7" fill="#fff"/><circle cx="2.2" cy="-1.2" r=".7" fill="#fff"/></g></svg>';
 };
 ART.fold = function () {
-  var lobes = [[-90, 0], [0, 1], [90, 2], [180, 3]].map(function (x) {
-    return '<g transform="rotate(' + x[0] + ' 48 40)"><g class="fl-l" style="animation-delay:' + (x[1] * 1.6) + 's"><path d="M48 13A27 27 0 0 1 48 67Z" style="fill:var(--dough);stroke:var(--dough-edge)" stroke-width="2" stroke-linejoin="round"/><path d="M48 13A27 27 0 0 1 48 67Z" fill="#fff" fill-opacity=".3"/></g></g>';
-  }).join('');
-  return '<svg width="88" height="73" viewBox="0 0 96 80" aria-hidden="true"><circle cx="48" cy="40" r="35" style="fill:var(--card);stroke:var(--deep)" stroke-width="2.4"/>' +
-    '<circle cx="48" cy="40" r="27" style="fill:var(--dough);stroke:var(--dough-edge)" stroke-width="2"/>' + lobes + '</svg>';
+  var id = 'fo' + (++uid), B = 'M14 54h92c0 22-18 34-46 34S14 76 14 54z', sh = function (cls, d) { return '<path class="' + cls + '" d="' + d + '" stroke-width="2" stroke-linejoin="round" style="fill:var(--dough);stroke:var(--dough-edge)"/>'; };
+  return '<svg class="fo" width="150" height="112" viewBox="0 0 120 90" aria-hidden="true" style="overflow:visible"><defs><clipPath id="' + id + '"><path d="' + B + '"/></clipPath></defs>' +
+    '<path d="' + B + '" style="fill:var(--card)"/><g clip-path="url(#' + id + ')"><rect x="10" y="50" width="100" height="42" style="fill:var(--dough)"/></g>' +
+    '<path d="M18 54Q60 30 102 54Z" stroke-width="2" stroke-linejoin="round" style="fill:var(--dough);stroke:var(--dough-edge)"/>' +
+    sh('fo-1', 'M20 52Q12 36 16 14Q30 26 40 44Z') + sh('fo-2', 'M20 52Q18 8 58 14Q48 30 36 44Z') + sh('fo-3', 'M20 52Q50 28 100 50Q72 56 38 50Z') +
+    '<path class="fo-4" d="M28 50Q60 38 92 52" fill="none" stroke-width="2.4" stroke-linecap="round" style="stroke:var(--dough-edge)"/>' +
+    '<g class="fo-ar" fill="none" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="stroke:var(--acc)"><path d="M26 18Q62 -6 98 28"/><path d="M90 26L99 30L97 20"/></g>' +
+    '<path d="' + B + '" fill="none" style="stroke:var(--deep)" stroke-width="2.4" stroke-linejoin="round"/><path d="M11 54h98" style="stroke:var(--deep)" stroke-width="3" stroke-linecap="round"/></svg>';
 };
 ART.poke = function () {
   var skin = 'fill:var(--tint2);stroke:var(--deep)', B = 'M12 72H108C108 96 92 110 60 110S12 96 12 72Z', B2 = 'M16 72H104C104 93 90 106 60 106S16 93 16 72Z', id = 'pb' + (++uid);
