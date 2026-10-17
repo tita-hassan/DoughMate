@@ -639,8 +639,8 @@ function doughItems(b) {
   items.push({ id: 'mix', anim: (c.method === 'auto' ? 'mixA' : 'mixF') + ({ hand: '', kneader: 'k', mixer: 'm' }[c.mix] || ''), title: c.method === 'auto' ? 'Autolyse: קמח ומים' : 'Fermentolyse: קמח, מים ומחמצת', sub: verb + ' עד שאין קמח יבש. בלי מלח.', starts: 'salt' });
   var A = c.method === 'auto', nextS = c.folds ? 'fold1' : 'shapewait';
   items.push({ id: 'salt', title: A ? 'Autolyse: מנוחה' : 'עד הוספת מלח', sub: A ? 'הבצק נח, בלי מחמצת ובלי מלח.' : 'מוסיפים את המלח ומטמיעים בבצק.', starts: A ? 'addss' : nextS,
-    timer: { id: 'salt', total: c.saltWait * 60, label: A ? 'נשאר באוטוליזה' : 'עד הוספת מלח', art: A ? 'bowl' : 'salt', msg: A ? 'האוטוליזה נגמרה. מוסיפים מחמצת ומלח.' : 'עברו ' + c.saltWait + ' דקות. מוסיפים את המלח.' } });
-  if (A) items.push({ id: 'addss', anim: 'saltS', title: 'הוספת מחמצת ומלח', sub: 'מוסיפים את המחמצת ואת המלח, ולשים עד שנטמעו היטב.', starts: nextS });
+    timer: { id: 'salt', total: c.saltWait * 60, label: A ? 'נשאר באוטוליזה' : 'עד הוספת מלח', art: A ? 'bowl' : 'salt' + ({ hand: '', kneader: 'k', mixer: 'm' }[c.mix] || ''), msg: A ? 'האוטוליזה נגמרה. מוסיפים מחמצת ומלח.' : 'עברו ' + c.saltWait + ' דקות. מוסיפים את המלח.' } });
+  if (A) items.push({ id: 'addss', anim: 'saltS' + ({ hand: '', kneader: 'k', mixer: 'm' }[c.mix] || ''), title: 'הוספת מחמצת ומלח', sub: 'מוסיפים את המחמצת ואת המלח, ולשים עד שנטמעו היטב.', starts: nextS });
   for (var k = 1; k <= c.folds; k++) {
     items.push({ id: 'fold' + k, title: 'קיפול ' + (ORD[k - 1] || k), sub: 'Stretch and fold או coil fold. ' + c.gap + ' דקות אחרי הקודם.', starts: k < c.folds ? 'fold' + (k + 1) : 'shapewait',
       timer: { id: 'fold' + k, total: c.gap * 60, label: 'קיפול ' + (ORD[k - 1] || k) + ' בעוד', art: 'fold', msg: 'זמן לקיפול ' + (ORD[k - 1] || k) + '.' } });
@@ -968,19 +968,21 @@ function whiskG(cls) {
     '<g fill="none" stroke-width="1.8" stroke-linecap="round" style="stroke:#7d858d"><ellipse cx="0" cy="-1" rx="10.5" ry="13"/><circle cx="0" cy="-7" r="4.4"/><circle cx="0" cy="4.2" r="4.4"/><path d="M0-12V-17"/></g>' +
     '<rect x="-3.8" y="-22" width="7.6" height="6" rx="1.8" stroke-width="1.4" style="fill:#c9ced3;stroke:var(--deep)"/></g></g>';
 }
+function toolBase(tool) { var K = tool === 'k', M = tool === 'm', MC = K || M; return MC ? '<rect x="0" y="82" width="112" height="6" rx="3" stroke-width="2" style="fill:' + (M ? 'var(--acc)' : '#c9ced3') + ';stroke:var(--deep)"/>' : ''; }
+function toolHead(tool) { var K = tool === 'k', M = tool === 'm'; return K ? '<g stroke-width="2" stroke-linejoin="round" style="stroke:var(--deep)"><rect x="0" y="14" width="15" height="70" rx="6" style="fill:#e4e8eb"/><rect x="0" y="6" width="74" height="18" rx="9" style="fill:#e4e8eb"/><circle cx="7.5" cy="48" r="3.2" style="fill:var(--acc)"/></g><circle cx="60" cy="24" r="3.4" stroke-width="1.6" style="fill:#8a949c;stroke:var(--deep)"/>'
+    : M ? '<g stroke-width="2" stroke-linejoin="round" style="stroke:var(--deep)"><rect x="0" y="16" width="17" height="68" rx="7" style="fill:var(--acc)"/><rect x="0" y="5" width="84" height="20" rx="10" style="fill:var(--acc)"/><circle cx="14" cy="15" r="2.6" style="fill:var(--card)"/></g><path d="M8 10H66" fill="none" stroke="#fff" stroke-opacity=".4" stroke-width="2" stroke-linecap="round"/><rect x="46" y="24" width="28" height="4" rx="2" stroke-width="1.6" style="fill:#8a949c;stroke:var(--deep)"/>' : ''; }
 function mixSvg(v, tool) {
   var id = 'mc' + (++uid), bowl = 'M18 44h84c0 24-18 38-42 38S18 68 18 44z', F = v === 'F';
   var K = tool === 'k', M = tool === 'm', MC = K || M, gray = '#7d858d';
   var hkClip = K ? '<clipPath id="' + id + 'h"><rect x="-9" y="6" width="18" height="36" rx="8"/></clipPath>' : '';
-  var baseP = MC ? '<rect x="0" y="82" width="112" height="6" rx="3" stroke-width="2" style="fill:' + (M ? 'var(--acc)' : '#c9ced3') + ';stroke:var(--deep)"/>' : '';
+  var baseP = toolBase(tool);
   var diag = '';
   if (K) for (var q = -1; q < 6; q++) diag += 'M-10 ' + (q * 9 + 14) + 'L10 ' + (q * 9 + 4);
   var ballP = K ? '<g class="mx-bl"><g class="mx-bob"><path d="M43 62C43 50 52 46 60 46S77 50 77 62C77 71 70 75 60 75S43 71 43 62Z" stroke-width="2" stroke-linejoin="round" style="fill:var(--dough);stroke:var(--dough-edge)"/><ellipse cx="52" cy="54" rx="5.5" ry="2.6" transform="rotate(-30 52 54)" fill="#fff" fill-opacity=".3"/></g></g>' : '';
   var hookP = K ? '<g class="mx-hk"><rect x="-9" y="6" width="18" height="36" rx="8" stroke-width="2" style="fill:#d5dadf;stroke:var(--deep)"/><g clip-path="url(#' + id + 'h)"><g class="mx-sc"><path d="' + diag + '" fill="none" stroke-width="3" stroke-linecap="round" stroke="' + gray + '"/></g></g><rect x="-2" y="0" width="4" height="8" style="fill:' + gray + '"/></g>'
     : M ? '<g class="mx-hk"><g class="mx-orb"><g class="mx-spin"><path d="M0 0V20C0 40-14 40-14 28" fill="none" stroke-width="5.5" stroke-linecap="round" stroke="' + gray + '"/><path d="M0 0V20C0 40-14 40-14 28" fill="none" stroke-width="2" stroke-linecap="round" stroke="#d5dadf"/></g></g></g>' : '';
   var ticksP = K ? '<g class="mx-bt"><path class="mx-tk" d="M25 57Q60 77 95 57" fill="none" stroke-width="2" stroke-linecap="round" stroke-dasharray="4 7" style="stroke:var(--mut);stroke-opacity:.8"/></g>' : '';
-  var headP = K ? '<g stroke-width="2" stroke-linejoin="round" style="stroke:var(--deep)"><rect x="0" y="14" width="15" height="70" rx="6" style="fill:#e4e8eb"/><rect x="0" y="6" width="74" height="18" rx="9" style="fill:#e4e8eb"/><circle cx="7.5" cy="48" r="3.2" style="fill:var(--acc)"/></g><circle cx="60" cy="24" r="3.4" stroke-width="1.6" style="fill:#8a949c;stroke:var(--deep)"/>'
-    : M ? '<g stroke-width="2" stroke-linejoin="round" style="stroke:var(--deep)"><rect x="0" y="16" width="17" height="68" rx="7" style="fill:var(--acc)"/><rect x="0" y="5" width="84" height="20" rx="10" style="fill:var(--acc)"/><circle cx="14" cy="15" r="2.6" style="fill:var(--card)"/></g><path d="M8 10H66" fill="none" stroke="#fff" stroke-opacity=".4" stroke-width="2" stroke-linecap="round"/><rect x="46" y="24" width="28" height="4" rx="2" stroke-width="1.6" style="fill:#8a949c;stroke:var(--deep)"/>' : '';
+  var headP = toolHead(tool);
   return '<svg class="mx' + v + '" width="170" height="113" viewBox="-2 0 140 90" aria-hidden="true"><defs>' + hkClip + '<clipPath id="' + id + '"><path d="M18 20H102V44c0 24-18 38-42 38S18 68 18 44z"/></clipPath></defs>' +
     baseP + '<path d="' + bowl + '" style="fill:var(--card)"/><g clip-path="url(#' + id + ')">' +
     '<rect class="mx-lw" x="10" y="56" width="100" height="40" style="fill:#9fcbe2;fill-opacity:.92"/>' +
@@ -1010,6 +1012,15 @@ ART.saltS = function () {
   var out = s.slice(0, i) + '<ellipse class="ss-bl" cx="50" cy="42" rx="10" ry="4" style="fill:var(--bubble)"/><g class="ss-sh">' + s.slice(i).replace('</svg>', '</g>' + starter + '</svg>');
   return out.replace('<svg ', '<svg class="ssS" style="overflow:visible" ');
 };
+function inTool(scene, tool) {
+  var m = scene.match(/^<svg([^>]*)>/), cls = (m[1].match(/class="([^"]*)"/) || [0, ''])[1], inner = scene.replace(/^<svg[^>]*>/, '').replace(/<\/svg>$/, '');
+  return '<svg' + (cls ? ' class="' + cls + '"' : '') + ' style="overflow:visible" width="170" height="113" viewBox="-2 0 140 90" aria-hidden="true">' + toolBase(tool) +
+    '<g transform="translate(4 -14.3) scale(1.167)">' + inner + '</g>' + toolHead(tool) + '</svg>';
+}
+['k', 'm'].forEach(function (t) {
+  ART['salt' + t] = function () { return inTool(ART.salt(), t); };
+  ART['saltS' + t] = function () { return inTool(ART.saltS(), t); };
+});
 function handSvg(rot) {
   var sh = '<rect x="-16" y="-6" width="32" height="34" rx="12"/><rect x="-16" y="-34" width="7.4" height="34" rx="3.7"/><rect x="-8" y="-40" width="7.8" height="40" rx="3.9"/><rect x="0.2" y="-36" width="7.6" height="36" rx="3.8"/><rect x="8.2" y="-28" width="7.4" height="28" rx="3.7"/><rect x="-4" y="-24" width="8" height="26" rx="4" transform="translate(-15 14) rotate(-52)"/>';
   return '<g transform="rotate(' + rot + ')"><rect x="-18" y="26" width="36" height="24" rx="4" stroke-width="1.8" style="fill:var(--acc);stroke:var(--deep)"/>' +
