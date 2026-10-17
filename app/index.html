@@ -290,18 +290,18 @@ h1, h2, h3, p { margin: 0; }
 .sl-g { animation: slFall .9s ease-in infinite; } .sl-g.d1 { animation-delay: .18s; } .sl-g.d2 { animation-delay: .36s; } .sl-g.d3 { animation-delay: .54s; } .sl-g.d4 { animation-delay: .72s; }
 @keyframes slDust { 0%, 15% { opacity: 0; } 55%, 100% { opacity: 1; } }
 .sl-s { animation: slDust 3.6s ease-out infinite; } .sl-s.d1 { animation-delay: .5s; } .sl-s.d2 { animation-delay: 1s; }
-@keyframes foD { 0%, 6% { transform: scale(1, 1) } 24% { transform: scale(1.42, .46) } 58%, 68% { transform: scale(.7, .92) } 84%, 100% { transform: scale(1, 1) } }
-@keyframes foG { 0%, 82% { transform: rotate(0) } 94%, 100% { transform: rotate(90deg) } }
-@keyframes foC { 0%, 44% { opacity: 0 } 56%, 70% { opacity: 1 } 80%, 100% { opacity: 0 } }
-@keyframes foA1 { 0%, 4% { opacity: 0 } 10%, 22% { opacity: 1 } 28%, 100% { opacity: 0 } }
-@keyframes foA2 { 0%, 28% { opacity: 0 } 34%, 50% { opacity: 1 } 56%, 100% { opacity: 0 } }
+@keyframes foG { 0%, 84% { transform: rotate(0) } 94%, 100% { transform: rotate(90deg) } }
+@keyframes foF { 0% { opacity: 0; transform: scaleX(1) } 5%, 8% { opacity: 1; transform: scaleX(1) } 22% { transform: scaleX(1.25) } 50%, 84% { opacity: 1; transform: scaleX(-1) } 90%, 100% { opacity: 0; transform: scaleX(-1) } }
+@keyframes foC { 0%, 49% { opacity: 0 } 56%, 84% { opacity: 1 } 90%, 100% { opacity: 0 } }
+@keyframes foA1 { 0%, 3% { opacity: 0 } 8%, 20% { opacity: 1 } 26%, 100% { opacity: 0 } }
+@keyframes foA2 { 0%, 24% { opacity: 0 } 30%, 46% { opacity: 1 } 52%, 100% { opacity: 0 } }
 .fo-g { transform-origin: 60px 45px; animation: foG 6s ease-in-out infinite; }
-.fo-d { transform-origin: 60px 45px; animation: foD 6s ease-in-out infinite; }
-.fo-cl { animation: foC 6s ease-in-out infinite; } .fo-a1 { animation: foA1 6s ease-in-out infinite; } .fo-a2 { animation: foA2 6s ease-in-out infinite; }
+.fo-f { transform-origin: 60px 45px; animation: foF 6s ease-in-out infinite; }
+.fo-cr { animation: foC 6s ease-in-out infinite; } .fo-a1 { animation: foA1 6s ease-in-out infinite; } .fo-a2 { animation: foA2 6s ease-in-out infinite; }
 @keyframes rlSpread { 0%, 6% { transform: scale(1, 1) } 72%, 90% { transform: scale(1.7, .6) } 100% { transform: scale(1, 1) } }
 .rl-b { transform-box: fill-box; transform-origin: 50% 100%; animation: rlSpread 7s ease-in-out infinite; }
-.paused .fo-g, .paused .fo-d, .paused .fo-cl, .paused .fo-a1, .paused .fo-a2, .paused .rl-b { animation-play-state: paused; }
-@media (prefers-reduced-motion: reduce) { .fo-g, .fo-d, .fo-cl, .fo-a1, .fo-a2, .rl-b { animation: none; } .fo-cl, .fo-a1, .fo-a2 { opacity: 0; } }
+.paused .fo-g, .paused .fo-f, .paused .fo-cr, .paused .fo-a1, .paused .fo-a2, .paused .rl-b { animation-play-state: paused; }
+@media (prefers-reduced-motion: reduce) { .fo-g, .fo-f, .fo-cr, .fo-a1, .fo-a2, .rl-b { animation: none; } .fo-cr, .fo-a1, .fo-a2 { opacity: 0; } }
 .fl-l { transform-origin: 48px 40px; animation: flFold 6.4s cubic-bezier(.45,.05,.4,1) infinite backwards; }
 @keyframes flFold { 0% { transform: scaleX(1); opacity: 0; } 1% { opacity: 1; } 5% { transform: translateX(7px) scaleX(1.15); } 14% { transform: translateX(0) scaleX(.04); } 21% { transform: scaleX(-1); } 24% { transform: scaleX(-1); opacity: 1; } 25%, 100% { transform: scaleX(-1); opacity: 0; } }
 .mx-wv { animation: fjSwirl .3s ease-in-out infinite alternate; }
@@ -830,13 +830,14 @@ ART.salt = function () {
     '<rect x="-6" y="-3.2" width="12" height="3.8" rx="1.4" style="fill:var(--acc)"/><circle cx="-2.2" cy="-1.2" r=".7" fill="#fff"/><circle cx="0" cy="-1.2" r=".7" fill="#fff"/><circle cx="2.2" cy="-1.2" r=".7" fill="#fff"/></g></svg>';
 };
 ART.fold = function () {
-  var ar = function (cls, d1, d2) { return '<g class="' + cls + '" fill="none" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" style="stroke:var(--acc)"><path d="' + d1 + '"/><path d="' + d2 + '"/></g>'; };
+  var ed = 'stroke:var(--dough-edge)', cr = 'stroke:var(--crust)', ar = function (cls, d1, d2) { return '<g class="' + cls + '" fill="none" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" style="stroke:var(--acc)"><path d="' + d1 + '"/><path d="' + d2 + '"/></g>'; };
   return '<svg class="fo" width="150" height="112" viewBox="0 0 120 90" aria-hidden="true" style="overflow:visible">' +
     '<circle cx="60" cy="45" r="41" stroke-width="2.4" style="fill:var(--card);stroke:var(--deep)"/><circle cx="60" cy="45" r="35" style="fill:var(--tint)"/>' +
-    '<g class="fo-g"><ellipse class="fo-d" cx="60" cy="45" rx="29" ry="29" stroke-width="2.2" vector-effect="non-scaling-stroke" style="fill:var(--dough);stroke:var(--dough-edge)"/>' +
-    '<g class="fo-cl" fill="none" stroke-width="2.4" stroke-linecap="round" style="stroke:var(--dough-edge)"><path d="M43 38Q60 29 77 38"/><path d="M41 46Q60 37 79 46"/><path d="M43 54Q60 46 77 54"/></g>' +
-    '<ellipse cx="50" cy="35" rx="9" ry="4" transform="rotate(-28 50 35)" fill="#fff" fill-opacity=".28"/>' +
-    ar('fo-a1', 'M92 45H106M101 40L106 45L101 50', 'M28 45H14M19 40L14 45L19 50') + ar('fo-a2', 'M106 45H92M97 40L92 45L97 50', 'M14 45H28M23 40L28 45L23 50') + '</g></svg>';
+    '<g class="fo-g"><circle cx="60" cy="45" r="30" stroke-width="2" style="fill:var(--dough-edge);' + cr + '"/>' +
+    '<path class="fo-f" d="M60 15A30 30 0 0 0 60 75Z" stroke-width="2.2" stroke-linejoin="round" vector-effect="non-scaling-stroke" style="fill:var(--dough);' + cr + '"/>' +
+    '<path class="fo-cr" d="M60 15V75" fill="none" stroke-width="3" stroke-linecap="round" style="' + cr + '"/>' +
+    ar('fo-a1', 'M20 45H6M11 40L6 45L11 50', 'M20 45H6') + ar('fo-a2', 'M24 16Q60-10 96 16', 'M86 8L96 16L84 20') + '</g>' +
+    '<circle cx="60" cy="45" r="41" fill="none" stroke-width="2.4" style="stroke:var(--deep)"/></svg>';
 };
 ART.relax = function () {
   var id = 'rl' + (++uid), B = 'M14 44h92c0 26-18 42-46 42S14 70 14 44z';
