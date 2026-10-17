@@ -99,12 +99,12 @@ h1, h2, h3, p { margin: 0; }
 .acch[aria-expanded="true"] .chev { transform: rotate(180deg); }
 .accb { position: relative; padding: 0 16px 16px; overflow: hidden; }
 .accin { display: flex; flex-direction: column; gap: 12px; }
-.accb.play.k-when .accin { animation: accIn .5s ease 1.45s backwards; }
-.accb.play.k-how .accin { animation: accIn .5s ease 1.75s backwards; }
+.accb.play.k-when .accin > :not(:first-child) { animation: accIn .5s ease 1.45s backwards; }
+.accb.play.k-how .accin > :not(:first-child) { animation: accIn .5s ease 1.75s backwards; }
 @keyframes accIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 .accb.play.k-what .tile { animation: tilePop .45s cubic-bezier(.3,1.4,.5,1) calc(2.25s + var(--i, 0) * 70ms) backwards; }
 @keyframes tilePop { from { opacity: 0; transform: scale(.35) translateY(-14px); } to { opacity: 1; transform: none; } }
-.ov { position: absolute; inset: 0 16px 16px; pointer-events: none; z-index: 2; }
+.ov { position: absolute; inset: 36px 16px 16px; pointer-events: none; z-index: 2; }
 /* book: a small closed recipe book opens, the recipes are written on its pages, then it zooms in until the recipe tiles take over */
 .ov-book { z-index: 2; }
 .ov-book .bk { position: absolute; top: 6px; left: 7%; right: 7%; height: min(230px, calc(100% - 12px)); perspective: 800px; transform-origin: 50% 40%; animation: bkLife 3s ease-in-out both; }
@@ -124,7 +124,7 @@ h1, h2, h3, p { margin: 0; }
 @keyframes bkShow { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 @keyframes bkLife { 0% { transform: translateX(25%) scale(.62); opacity: 0; } 6% { transform: translateX(25%) scale(.62); opacity: 1; } 26% { transform: translateX(0) scale(.8); opacity: 1; } 64% { transform: translateX(0) scale(.86); opacity: 1; } 92% { transform: translateX(0) scale(1.7); opacity: 0; } 100% { transform: translateX(0) scale(1.7); opacity: 0; } }
 /* hourglass: flips, sand runs, then the time settings appear */
-.ov-clock, .ov-jar { background: var(--card); display: grid; place-items: center; }
+.ov-clock, .ov-jar { background: var(--card); display: grid; place-items: start center; padding-top: 14px; }
 .ov-clock { animation: ovOut .4s ease 1.55s both; }
 .ov-jar { animation: ovOut .4s ease 1.85s both; }
 @keyframes ovOut { to { opacity: 0; } }
@@ -353,12 +353,14 @@ var RATIOS = ['1:1:1', '1:2:2', '1:3:3', '1:5:5', '1:10:10'];
 var ANCH = { bakeEnd: 'סוף אפייה', bakeStart: 'תחילת אפייה', bulkEnd: 'סוף תפיחה ראשונה', peak: 'מחמצת בשיא', feed1: 'האכלה ראשונה', feedLast: 'האכלה אחרונה', mix: 'תחילת לישה', salt: 'הוספת מלח', fold1: 'קיפול ראשון', proofStart: 'כניסה לתפיחה סופית', proofEnd: 'סוף תפיחה סופית', preheat: 'חימום תנור' };
 var MAINA = ['bakeEnd', 'bakeStart', 'bulkEnd', 'peak'], EXTRAA = ['feed1', 'feedLast', 'mix', 'salt', 'fold1', 'proofStart', 'proofEnd', 'preheat'];
 var AUTOCAP = { dutch: 1, stone: 2, pan: 2, tray: 3 }, RELOAD = 10;
+function stg1(sh) { return sh === 'dutch' ? 'שלב ראשון (מכוסה)' : 'שלב ראשון (עם אדים)'; }
+function stg2(sh) { return sh === 'dutch' ? 'שלב שני (פתוח)' : 'שלב שני (אחרי שחרור האדים)'; }
 function loavesTxt(n) { return n === 1 ? 'כיכר אחת' : n + ' כיכרות'; }
 function capOf(c) { return Math.max(1, S.plan.cap || AUTOCAP[c.shape] || 1); }
 function leadOf() { return S.plan.lead != null ? S.plan.lead : 10; }
 var ORD = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי'];
 var DEFAULTS = { feeds: 3, ratio: '1:10:10', reserve: 50, cold: false, temp: 24, method: 'ferment', mix: 'hand', folds: 3, gap: 30,
-  toShape: null, saltWait: 10, bench: 15, shape: 'dutch', bakeSplit: true, bake1: 20, bake2: 20, bakeOne: 25, proof: 'warm', warmH: null, coldH: 12 };
+  toShape: null, saltWait: 10, bench: 15, shape: 'dutch', bakeSplit: true, scoreMid: false, bake1: 20, bake2: 20, bakeOne: 25, proof: 'warm', warmH: null, coldH: 12 };
 /* [min, max, step, formatter] */
 var BOUNDS = {
   feeds: [0, 6, 1, function (v) { return v === 0 ? 'ללא' : String(v); }], reserve: [0, 200, 10, function (v) { return v + ' ג׳'; }],
@@ -504,7 +506,7 @@ function computePlan(items, anchor, at) {
     L: L, cap: cap, R: R, lead: lead, rounds: rounds };
 }
 /* recipes with the same timeline are made together; a different timeline needs its own date */
-var SIGKEYS = ['feeds', 'ratio', 'reserve', 'cold', 'temp', 'method', 'mix', 'folds', 'gap', 'toShape', 'saltWait', 'bench', 'shape', 'bakeSplit', 'bake1', 'bake2', 'bakeOne', 'proof', 'warmH', 'coldH'];
+var SIGKEYS = ['feeds', 'ratio', 'reserve', 'cold', 'temp', 'method', 'mix', 'folds', 'gap', 'toShape', 'saltWait', 'bench', 'shape', 'bakeSplit', 'scoreMid', 'bake1', 'bake2', 'bakeOne', 'proof', 'warmH', 'coldH'];
 function sigKey(r) {
   var c = eff(r), str = r.sType + '|' + SIGKEYS.map(function (k) { return c[k]; }).join('|'), h = 0;
   for (var i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) | 0;
@@ -663,28 +665,40 @@ function doughItems(b) {
     timer: { id: 'proof', total: (wh ? c.warmH : c.coldH) * 3600, label: wh ? 'נשאר עד סוף התפיחה' : 'נשאר בתפיחה במקרר', art: wh ? 'bowl' : 'fridge', msg: 'התפיחה הסתיימה. עוברים לאפייה.' } });
   return items;
 }
+function bakeStages(c) {
+  var dutch = c.shape === 'dutch', st;
+  if (c.bakeSplit || !dutch) {
+    var s1 = c.bakeSplit ? c.bake1 : Math.min(20, c.bakeOne - 5), s2 = c.bakeSplit ? c.bake2 : c.bakeOne - s1;
+    st = [{ k: 'bake1', mins: s1, title: dutch ? 'מכוסה, עד Oven Spring' : 'עם אדים, עד Oven Spring', label: 'נשאר עד Oven Spring', msg: dutch ? 'עברו ' + s1 + ' דקות. מורידים את המכסה.' : 'עברו ' + s1 + ' דקות. פותחים את התנור לרגע ומשחררים את האדים.' },
+      { k: 'bake2', mins: s2, title: dutch ? 'בלי מכסה, עד קרום זהוב' : 'אחרי שחרור האדים, עד קרום זהוב', label: 'נשאר עד שמוכן', msg: 'עברו ' + s2 + ' דקות. בודקים אם מוכן.' }];
+  } else st = [{ k: 'bake', mins: c.bakeOne, title: 'אפייה', label: 'נשאר עד שמוכן', msg: 'האפייה הסתיימה. בודקים אם מוכן.' }];
+  if (c.scoreMid && st[0].mins > 10) {
+    st[0].mins -= 7;
+    if (st[0].k === 'bake1') st[0].msg = st[0].msg.replace(/עברו \d+ דקות/, 'עברו ' + st[0].mins + ' דקות');
+    st.unshift({ k: 'score', mins: 7, title: 'חריצה אחרי 7 דקות', label: 'עד החריצה', msg: 'עברו 7 דקות. פותחים את התנור, חורצים את הכיכר וסוגרים מהר.' });
+  }
+  return st;
+}
 function bakeItems(b) {
   var p = b.plan, c = b.c, items = [], dutch = c.shape === 'dutch', R = p.R || 1;
   items.push({ id: 'preheat', anim: 'preheat', title: dutch ? 'מחממים תנור עם התנור ההולנדי' : 'מחממים תנור', sub: '230° · מתחילים כ־30 דקות לפני, בערך ב־' + hhmm(p.preheat) + '.' });
-  var loadT = { dutch: 'חריצה והעברה לסיר', stone: 'חריצה והעברה לאבן', pan: 'מעבירים לקסטן', tray: 'מניחים בתבנית ומכניסים לתנור' }[c.shape];
+  var loadT = c.scoreMid ? { dutch: 'העברה לסיר', stone: 'העברה לאבן', pan: 'מעבירים לקסטן', tray: 'מניחים בתבנית ומכניסים לתנור' }[c.shape] : { dutch: 'חריצה והעברה לסיר', stone: 'חריצה והעברה לאבן', pan: 'מעבירים לקסטן', tray: 'מניחים בתבנית ומכניסים לתנור' }[c.shape];
+  var stages = bakeStages(c);
   for (var r = 0; r < R; r++) {
     var sx = r ? '_' + r : '', rd = p.rounds && p.rounds[r], nx = p.rounds && p.rounds[r + 1], lbl = R > 1 ? ' · סבב ' + (r + 1) + ' מתוך ' + R : '';
-    var starts = [c.bakeSplit ? 'bake1' + sx : 'bake' + sx], note = '';
+    var starts = [stages[0].k + sx], note = '';
     if (nx) {
       starts.push('pull' + (r + 1));
       var T = b.timers['pull' + (r + 1)];
       note = 'התראה להוצאת הכיכר הבאה מהמקרר ב־' + hhmm(T && T.end ? T.end : nx.pull) + '.';
     }
-    var sub = [R > 1 && rd ? loavesTxt(rd.n) + '.' : '', r ? 'חורצים מיד אחרי ההוצאה מהמקרר.' : '', dutch ? 'סוגרים את המכסה.' : '', note].filter(Boolean).join(' ');
-    items.push({ id: 'load' + sx, anim: 'load', title: (r ? 'מוציאים מהמקרר, חורצים ומכניסים' : loadT) + lbl, sub: sub, starts: starts });
-    if (c.bakeSplit) {
-      items.push({ id: 'bake1' + sx, title: (dutch ? 'מכוסה, עד Oven Spring' : c.shape === 'stone' ? 'עם קיטור, עד Oven Spring' : 'שלב ראשון, עד Oven Spring') + lbl, sub: c.bake1 + ' דקות.', starts: 'bake2' + sx,
-        timer: { id: 'bake1' + sx, total: c.bake1 * 60, label: 'נשאר עד Oven Spring', art: 'loaf', msg: dutch ? 'עברו ' + c.bake1 + ' דקות. מורידים את המכסה.' : 'עברו ' + c.bake1 + ' דקות. ממשיכים באפייה.' } });
-      items.push({ id: 'bake2' + sx, title: (dutch ? 'בלי מכסה, עד קרום זהוב' : 'המשך אפייה, עד קרום זהוב') + lbl, sub: c.bake2 + ' דקות.',
-        timer: { id: 'bake2' + sx, total: c.bake2 * 60, label: 'נשאר עד שמוכן', art: 'loaf', msg: 'עברו ' + c.bake2 + ' דקות. בודקים אם מוכן.' } });
-    } else {
-      items.push({ id: 'bake' + sx, title: 'אפייה' + lbl, sub: c.bakeOne + ' דקות.', timer: { id: 'bake' + sx, total: c.bakeOne * 60, label: 'נשאר עד שמוכן', art: 'loaf', msg: 'האפייה הסתיימה. בודקים אם מוכן.' } });
-    }
+    var sub = [R > 1 && rd ? loavesTxt(rd.n) + '.' : '', r && !c.scoreMid ? 'חורצים מיד אחרי ההוצאה מהמקרר.' : '', dutch ? 'סוגרים את המכסה.' : 'שופכים כוס מים רותחים למגש חם בתחתית התנור כדי ליצור אדים, וסוגרים מהר.', note].filter(Boolean).join(' ');
+    items.push({ id: 'load' + sx, anim: 'load', title: (r ? (c.scoreMid ? 'מוציאים מהמקרר ומכניסים' : 'מוציאים מהמקרר, חורצים ומכניסים') : loadT) + lbl, sub: sub, starts: starts });
+    stages.forEach(function (s, i) {
+      var nxt = stages[i + 1];
+      items.push({ id: s.k + sx, title: s.title + lbl, sub: s.mins + ' דקות.', starts: nxt ? nxt.k + sx : undefined,
+        timer: { id: s.k + sx, total: s.mins * 60, label: s.label, art: 'loaf', msg: s.msg } });
+    });
     if (nx) items.push({ id: 'out' + r, anim: 'rack', title: 'מוציאים את סבב ' + (r + 1) + ' מהתנור', sub: (c.shape !== 'tray' ? 'בודקים 95° במרכז הכיכר, ' : '') + 'מניחים על רשת, ומיד מכניסים את הסבב הבא.' });
   }
   if (c.shape !== 'tray') items.push({ id: 'temp', anim: 'temp', title: 'בדיקת טמפרטורה פנימית', sub: 'מוכן ב־95 מעלות במרכז הכיכר.' });
@@ -771,6 +785,7 @@ function chipsFor(c) {
   if (c.folds > 0) out.push(c.folds + ' קיפולים, כל ' + c.gap + ' דק׳');
   out.push('כ־' + c.toShape + ' שעות עד עיצוב (כולל מלח וקיפולים)', 'תפיחה ' + PROOF[c.proof], SHAPE[c.shape]);
   out.push(c.bakeSplit ? 'אפייה ' + c.bake1 + ' + ' + c.bake2 + ' דק׳' : 'אפייה ' + c.bakeOne + ' דק׳', 'חדר ' + c.temp + '°');
+  if (c.scoreMid) out.push('חריצה אחרי 7 דק׳');
   return out;
 }
 function midnight(t) { var d = new Date(t); d.setHours(0, 0, 0, 0); return d.getTime(); }
@@ -1185,7 +1200,8 @@ function recipesView() {
       '<div class="fld"><div class="lb">קיפולים</div><div>' + rstep(r, 'folds', 'מספר קיפולים') + rstep(r, 'gap', 'זמן בין קיפולים') + '</div></div>' +
       '<div class="fld"><div class="lb">צורת אפייה</div>' + seg(rid, 'shape', SHAPE, r.over.shape, { dflt: 'כמו בהגדרות' }) + '</div>' +
       '<div class="fld"><div class="lb">זמן אפייה</div>' + seg(rid, 'bakeSplit', { 'false': 'זמן אחד', 'true': 'מחולק' }, r.over.bakeSplit === undefined ? undefined : String(r.over.bakeSplit), { dflt: 'כמו בהגדרות' }) +
-      '<div>' + (c.bakeSplit ? rstep(r, 'bake1', 'שלב ראשון (מכוסה)') + rstep(r, 'bake2', 'שלב שני (פתוח)') : rstep(r, 'bakeOne', 'זמן אפייה')) + '</div></div>' +
+      '<div class="lb" style="margin-top:6px">חריצה באמצע האפייה</div>' + seg(rid, 'scoreMid', { 'false': 'ללא', 'true': 'אחרי 7 דקות' }, r.over.scoreMid === undefined ? undefined : String(r.over.scoreMid), { dflt: 'כמו בהגדרות' }) +
+      '<div>' + (c.bakeSplit ? rstep(r, 'bake1', stg1(c.shape)) + rstep(r, 'bake2', stg2(c.shape)) : rstep(r, 'bakeOne', 'זמן אפייה')) + '</div></div>' +
       '<div class="fld"><div class="lb">תפיחה סופית</div>' + seg(rid, 'proof', PROOF, r.over.proof, { dflt: 'כמו בהגדרות' }) + '</div>' +
       '<div class="rowx" style="gap:8px;flex-wrap:wrap"><button type="button" class="btn pri" data-act="rpick" data-id="' + r.id + '">אפה את זה</button>' +
       '<button type="button" class="btn ghost" data-act="rdel" data-id="' + r.id + '">' + (delArm === r.id ? 'בטוח? לחץ שוב למחיקה' : 'מחיקה') + '</button></div></div></div>';
@@ -1210,8 +1226,9 @@ function settingsView() {
     sec('הבצק', '<div class="fld"><div class="lb">שיטה</div>' + seg('draft', 'method', METHOD, d.method) + '</div><div class="fld"><div class="lb">לישה</div>' + seg('draft', 'mix', MIX, d.mix) + '</div>' +
       group(srow('draft', 'folds', 'קיפולים', d.folds) + srow('draft', 'gap', 'זמן בין קיפולים', d.gap) + autoRow('toShape', 'זמן מוערך עד עיצוב', 'כולל המתנה למלח והקיפולים') + srow('draft', 'saltWait', 'המתנה עד המלח', d.saltWait) + srow('draft', 'bench', 'מנוחת ספסל', d.bench))) +
     sec('אפייה', '<div class="fld"><div class="lb">צורת אפייה</div>' + seg('draft', 'shape', SHAPE, d.shape).replace('--c:4', '--c:2') + '</div>' +
-      '<div class="fld"><div class="lb">זמן אפייה</div>' + seg('draft', 'bakeSplit', { 'false': 'זמן אחד', 'true': 'מחולק' }, String(d.bakeSplit)) + '</div>' +
-      group(d.bakeSplit ? srow('draft', 'bake1', 'שלב ראשון (מכוסה)', d.bake1) + srow('draft', 'bake2', 'שלב שני (פתוח)', d.bake2) : srow('draft', 'bakeOne', 'זמן אפייה', d.bakeOne))) +
+      '<div class="fld"><div class="lb">זמן אפייה</div>' + seg('draft', 'bakeSplit', { 'false': 'זמן אחד', 'true': 'מחולק' }, String(d.bakeSplit)) +
+      '<div class="lb" style="margin-top:6px">חריצה באמצע האפייה</div>' + seg('draft', 'scoreMid', { 'false': 'ללא', 'true': 'אחרי 7 דקות' }, String(!!d.scoreMid)) + '</div>' +
+      group(d.bakeSplit ? srow('draft', 'bake1', stg1(d.shape), d.bake1) + srow('draft', 'bake2', stg2(d.shape), d.bake2) : srow('draft', 'bakeOne', 'זמן אפייה', d.bakeOne))) +
     sec('תפיחה סופית', seg('draft', 'proof', PROOF, d.proof) + group(autoRow('warmH', 'תפיחה חמה') + srow('draft', 'coldH', 'תפיחה קרה', d.coldH))) +
     sec('הסביבה', group(srow('draft', 'temp', 'טמפרטורת החדר', d.temp))) +
     '<div class="sec" style="gap:10px"><button type="button" class="cta alt" style="min-height:50px;font-size:15px" data-act="nav" data-v="calc">טבלאות חישוב: שעות לפי טמפרטורה וקמח</button>' + (dirty ? '<div class="notice">יש שינויים שעוד לא נקבעו.</div>' : '') + '<button type="button" class="cta" data-act="commit"' + (dirty ? '' : ' disabled') + '>' + (dirty ? 'קבע לכל המתכונים' : 'הכול מעודכן') + '</button><button type="button" class="link" style="align-self:center" data-act="obrestart">להתחיל את השאלון מחדש</button></div>';
@@ -1247,9 +1264,9 @@ function obSteps() {
     gap: { q: 'כמה זמן בין קיפולים?', why: 'הזמן בין קיפול לקיפול, בדקות.', ctl: one('gap') },
     saltWait: { q: 'כמה זמן מחכים עד המלח?', why: 'מתחילת הלישה ועד הוספת המלח. אפס אם מוסיפים אותו מיד.', ctl: one('saltWait') },
     bench: { q: 'כמה זמן מנוחת ספסל?', why: 'מנוחה קצרה של הבצק על השיש.', ctl: one('bench') },
-    shape: { q: 'באיזה כלי אתה אופה?', why: 'זה משנה את ההוראות בשלב האפייה.', ctl: seg('ob', 'shape', SHAPE, s.shape).replace('--c:4', '--c:2') },
-    bakeSplit: { q: 'האפייה בשלב אחד או בשניים?', why: 'בשניים: קודם מכוסה עד שהכיכר מתנפחת, ואז פתוח עד שהיא משחימה.', ctl: seg('ob', 'bakeSplit', { 'false': 'שלב אחד', 'true': 'שני שלבים' }, String(s.bakeSplit)) },
-    bakeT: { q: 'כמה זמן אופים?', why: 'בדקות, בחום שהתנור כבר הגיע אליו.', ctl: grp(s.bakeSplit ? srow('ob', 'bake1', 'שלב ראשון (מכוסה)', s.bake1) + srow('ob', 'bake2', 'שלב שני (פתוח)', s.bake2) : srow('ob', 'bakeOne', 'זמן אפייה', s.bakeOne)) },
+    shape: { q: 'באיזה כלי אתה אופה?', why: 'כלי סגור, כמו תנור הולנדי: אופים עם מכסה ופותחים אותו באמצע. כלי פתוח: שופכים מים לאדים, ואחרי 20 דקות פותחים את התנור ומשחררים את האדים.', ctl: seg('ob', 'shape', SHAPE, s.shape).replace('--c:4', '--c:2') },
+    bakeSplit: { q: 'כמה שלבים יש באפייה?', why: 'בשניים: קודם מכוסה או עם אדים עד שהכיכר מתנפחת, ואז בלי עד שהיא משחימה. אפשר גם לחרוץ באמצע האפייה.', ctl: seg('ob', 'bakeSplit', { 'false': 'שלב אחד', 'true': 'שני שלבים' }, String(s.bakeSplit)) + '<div class="lb" style="margin-top:10px">חריצה אחרי 7 דקות, באמצע האפייה?</div>' + seg('ob', 'scoreMid', { 'false': 'לא', 'true': 'כן' }, String(!!s.scoreMid)) },
+    bakeT: { q: 'כמה זמן אופים?', why: 'בדקות, בחום שהתנור כבר הגיע אליו.', ctl: grp(s.bakeSplit ? srow('ob', 'bake1', stg1(s.shape), s.bake1) + srow('ob', 'bake2', stg2(s.shape), s.bake2) : srow('ob', 'bakeOne', 'זמן אפייה', s.bakeOne)) },
     proof: { q: 'תפיחה סופית חמה או קרה?', why: 'חמה: כמה שעות בטמפרטורת החדר. קרה: במקרר, לרוב ללילה.', ctl: seg('ob', 'proof', PROOF, s.proof) },
     coldH: { q: 'כמה שעות בתפיחה קרה?', why: 'כמה זמן הבצק נשאר במקרר.', ctl: one('coldH') }
   };
