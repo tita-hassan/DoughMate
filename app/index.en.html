@@ -1276,7 +1276,7 @@ function planView() {
     MAINA.map(abtn).join('') + '</div>' + (showX ? '<div class="sub" style="margin-top:2px">More steps in the process</div><div class="anchors">' + xs.map(abtn).join('') + '</div>' : '') +
     (isX ? '' : '<button type="button" class="link" style="align-self:flex-start" data-act="moreanch">' + (S.plan.moreAnch ? 'Fewer steps' : 'More steps') + '</button>') +
     (multi ? '<div class="notice" style="background:var(--tint);color:var(--deep)">The recipes you picked have different processes, so they are split into ' + bs.length + ' batches. Pick a time for each batch.</div>' : '') +
-    bs.map(function (g) { return whenCard(g, multi); }).join('') + strips + bakeCard;
+    bs.map(function (g) { return whenCard(g, multi); }).join('') + bakeCard;
   var how = '<div class="rowx" style="align-items:center"><div class="sub" style="margin-top:0">All the steps of this recipe, based on its settings</div><button type="button" class="link" data-act="nav" data-v="settings">Edit</button></div>' +
     bs.map(function (g) {
       var cf = g.p.c;
@@ -1301,6 +1301,7 @@ function planView() {
       (open ? '<div class="accb k-' + k + (play ? ' play' : '') + '"><div class="accin">' + body + '</div>' + (play ? OV[k](at0) : '') + '</div>' : '') + '</div>';
   }
   return '<div class="sec" style="gap:12px">' + accord('what', 'What are you baking?', sumWhat, what) + accord('when', 'When?', sumWhen, when) + accord('how', 'How?', sumHow, how) + '</div>' +
+    '<div class="sec" style="gap:10px"><div style="font-size:13px;font-weight:700;color:var(--mut)">Time summary</div>' + strips + '</div>' +
     '<div class="sec" style="gap:14px">' + warns + '<button type="button" class="cta" data-act="build"' + (bs.length ? '' : ' disabled') + '>Build schedule' + ic('fwd', 18, 2) + '</button></div>';
 }
 function emptyBrew(what) {

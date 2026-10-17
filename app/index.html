@@ -1276,7 +1276,7 @@ function planView() {
     MAINA.map(abtn).join('') + '</div>' + (showX ? '<div class="sub" style="margin-top:2px">עוד שלבים בהכנה</div><div class="anchors">' + xs.map(abtn).join('') + '</div>' : '') +
     (isX ? '' : '<button type="button" class="link" style="align-self:flex-start" data-act="moreanch">' + (S.plan.moreAnch ? 'פחות שלבים' : 'עוד שלבים') + '</button>') +
     (multi ? '<div class="notice" style="background:var(--tint);color:var(--deep)">התהליך של המתכונים שבחרת שונה, ולכן הם מתחלקים ל־' + bs.length + ' הכנות. בחר זמן לכל הכנה.</div>' : '') +
-    bs.map(function (g) { return whenCard(g, multi); }).join('') + strips + bakeCard;
+    bs.map(function (g) { return whenCard(g, multi); }).join('') + bakeCard;
   var how = '<div class="rowx" style="align-items:center"><div class="sub" style="margin-top:0">כל שלבי ההכנה של המתכון, לפי ההגדרות שלו</div><button type="button" class="link" data-act="nav" data-v="settings">עריכה</button></div>' +
     bs.map(function (g) {
       var cf = g.p.c;
@@ -1301,6 +1301,7 @@ function planView() {
       (open ? '<div class="accb k-' + k + (play ? ' play' : '') + '"><div class="accin">' + body + '</div>' + (play ? OV[k](at0) : '') + '</div>' : '') + '</div>';
   }
   return '<div class="sec" style="gap:12px">' + accord('what', 'מה אופים?', sumWhat, what) + accord('when', 'מתי?', sumWhen, when) + accord('how', 'איך?', sumHow, how) + '</div>' +
+    '<div class="sec" style="gap:10px"><div style="font-size:13px;font-weight:700;color:var(--mut)">סיכום זמנים</div>' + strips + '</div>' +
     '<div class="sec" style="gap:14px">' + warns + '<button type="button" class="cta" data-act="build"' + (bs.length ? '' : ' disabled') + '>בנה לוח זמנים' + ic('fwd', 18, 2) + '</button></div>';
 }
 function emptyBrew(what) {
