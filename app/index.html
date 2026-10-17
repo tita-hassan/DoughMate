@@ -281,9 +281,35 @@ h1, h2, h3, p { margin: 0; }
 @keyframes pkFinger { 0% { transform: translate(60px,-4px); } 16% { transform: translate(60px,34px); } 34% { transform: translate(60px,34px); } 50%, 100% { transform: translate(60px,-4px); } }
 .pk-d { transform-box: fill-box; transform-origin: 50% 50%; animation: pkDent 4.4s ease-in-out infinite; }
 @keyframes pkDent { 0%, 15% { transform: scale(0); opacity: 0; } 24% { transform: scale(1.2,1.7); opacity: 1; } 34% { transform: scale(1.2,1.7); opacity: 1; } 90% { transform: scale(.55,.7); opacity: 1; } 100% { transform: scale(.5,.65); opacity: 0; } }
+/* more dough-stage scenes: feeding, pre-shape, bench rest, banneton, fridge */
+.fjloop .fj-sp { animation-duration: 3.6s; animation-iteration-count: infinite; }
+.fjloop .fj-drop { animation-duration: 3.6s; animation-iteration-count: infinite; }
+.fjloop .fj-d { animation: fjRiseL 3.6s ease-in-out infinite; }
+@keyframes fjRiseL { 0%, 30% { transform: translateY(96px); } 42%, 86% { transform: translateY(80px); } 100% { transform: translateY(96px); } }
+.fjloop .fj-wave { animation: fjSwirl .3s ease-in-out infinite alternate; animation-delay: 0s; }
+.fjloop .fj-b { animation: fjBL 3.6s ease-out infinite; }
+@keyframes fjBL { 0%, 45% { transform: scale(0); opacity: 0; } 60%, 88% { transform: scale(1); opacity: 1; } 100% { transform: scale(0); opacity: 0; } }
+.pr-d { transform-box: fill-box; transform-origin: 50% 100%; animation: prBall 3.6s ease-in-out infinite; }
+@keyframes prBall { 0% { transform: scale(1,1); opacity: 0; } 6%, 8% { transform: scale(1,1); opacity: 1; } 50% { transform: scale(.6,1.9); } 56% { transform: scale(.64,1.8); } 62%, 84% { transform: scale(.6,1.9); opacity: 1; } 100% { transform: scale(.6,1.9); opacity: 0; } }
+.pr-s { animation: prScrape 3.6s ease-in-out infinite; }
+@keyframes prScrape { 0% { transform: translate(98px,76px); opacity: 0; } 8% { transform: translate(90px,76px); opacity: 1; } 50%, 62% { transform: translate(77px,76px); opacity: 1; } 78% { transform: translate(98px,76px); opacity: 1; } 86%, 100% { transform: translate(98px,76px); opacity: 0; } }
+.br-c { transform-box: fill-box; transform-origin: 50% 100%; animation: brCloth 6s ease-in-out infinite; }
+@keyframes brCloth { 0% { transform: translateY(-34px) scaleY(1); opacity: 0; } 12% { opacity: 1; } 24%, 30% { transform: translateY(0) scaleY(1); opacity: 1; } 55% { transform: translateY(0) scaleY(1.07); } 78% { transform: translateY(0) scaleY(1); opacity: 1; } 90% { transform: translateY(-34px) scaleY(1); opacity: 1; } 98%, 100% { transform: translateY(-34px) scaleY(1); opacity: 0; } }
+.br-f { animation: brFlour 6s ease-in-out infinite; }
+@keyframes brFlour { 0%, 18% { opacity: 0; } 30%, 100% { opacity: 1; } }
+.bn-d { transform-box: fill-box; transform-origin: 50% 50%; animation: bnDrop 3.8s ease-in-out infinite; }
+@keyframes bnDrop { 0% { transform: translate(34px,-34px) rotate(70deg) scale(.95); opacity: 0; } 10% { opacity: 1; } 42% { transform: translate(3px,-14px) rotate(10deg) scale(1); } 58% { transform: translate(0,4px) rotate(0deg) scale(1.07,.93); } 68% { transform: translate(0,0) rotate(0deg) scale(1,1); } 90% { opacity: 1; } 100% { transform: translate(0,0) rotate(0deg) scale(1,1); opacity: 0; } }
+.bn-p { transform-box: fill-box; transform-origin: 50% 50%; animation: bnPuff 3.8s ease-out infinite; }
+@keyframes bnPuff { 0%, 56% { opacity: 0; transform: translateY(0) scale(.4); } 62% { opacity: .95; } 82%, 100% { opacity: 0; transform: translateY(-9px) scale(1.3); } }
+.fr-d { transform-origin: 26px 40px; animation: frDoor 5s ease-in-out infinite; }
+@keyframes frDoor { 0%, 10% { transform: scaleX(1); } 26%, 58% { transform: scaleX(.2); } 72%, 100% { transform: scaleX(1); } }
+.fr-b { animation: frBowl 5s ease-in-out infinite; }
+@keyframes frBowl { 0% { transform: translate(86px,74px); opacity: 0; } 4%, 30% { transform: translate(86px,74px); opacity: 1; } 55% { transform: translate(48px,50px); opacity: 1; } 72%, 100% { transform: translate(48px,50px); opacity: 0; } }
+.fr-s { transform-box: fill-box; transform-origin: 50% 50%; animation: frSnow 5s ease-in-out infinite; }
+@keyframes frSnow { 0%, 70% { opacity: 0; transform: rotate(0deg) scale(.6); } 82%, 92% { opacity: 1; transform: rotate(40deg) scale(1); } 100% { opacity: 0; transform: rotate(70deg) scale(1); } }
 .animbox { margin-top: 8px; display: grid; place-items: center; background: var(--tint); border-radius: 16px; padding: 10px; }
-.paused .sl-shk, .paused .sl-g, .paused .sl-s, .paused .fl-l { animation-play-state: paused; }
-@media (prefers-reduced-motion: reduce) { .sl-shk, .sl-g, .sl-s, .fl-l, .pk-f, .pk-d { animation: none; } }
+.paused .sl-shk, .paused .sl-g, .paused .sl-s, .paused .fl-l, .paused .br-c, .paused .br-f, .paused .fr-d, .paused .fr-b, .paused .fr-s { animation-play-state: paused; }
+@media (prefers-reduced-motion: reduce) { .sl-shk, .sl-g, .sl-s, .fl-l, .pk-f, .pk-d, .fjloop *, .pr-d, .pr-s, .br-c, .br-f, .bn-d, .bn-p, .fr-d, .fr-b, .fr-s { animation: none; } }
 
 </style>
 
@@ -590,7 +616,7 @@ function ingFor(rec) {
 function feedItems(b) {
   var p = b.plan, N = p.feeds.length, items = [];
   p.feeds.forEach(function (f, k) {
-    items.push({ id: 'feed' + k, title: 'האכלה ' + (k + 1) + ' · ' + dayOf(f.t) + ' ' + hhmm(f.t), sub: f.seed + ' ג׳ מחמצת + ' + f.flour + ' ג׳ קמח + ' + f.water + ' ג׳ מים', starts: 'w' + k });
+    items.push({ id: 'feed' + k, anim: 'feed', title: 'האכלה ' + (k + 1) + ' · ' + dayOf(f.t) + ' ' + hhmm(f.t), sub: f.seed + ' ג׳ מחמצת + ' + f.flour + ' ג׳ קמח + ' + f.water + ' ג׳ מים', starts: 'w' + k });
     var last = k === N - 1, peakAt = f.t + f.P * 1000;
     items.push({ id: 'wait' + k, wait: true, autoDone: true, title: last ? 'המתנה לשיא' : 'המתנה להאכלה ' + (k + 2),
       sub: last ? 'שיא צפוי ב־' + hhmm(peakAt) + ', ואז מתחילים ללוש' : 'עד ' + dayOf(p.feeds[k + 1].t) + ' ' + hhmm(p.feeds[k + 1].t),
@@ -611,12 +637,12 @@ function doughItems(b) {
   items.push({ id: 'shapewait', wait: true, autoDone: true, title: 'התפחה ראשונה עד העיצוב', sub: 'עיצוב מתוכנן ב־' + hhmm(p.shapeAt),
     timer: { id: 'shapewait', dyn: function () { return Math.max(60, (p.shapeAt - Date.now()) / 1000); }, total: Math.max(60, (p.shapeAt - Date.now()) / 1000), label: 'עד Poke Test ועיצוב', art: 'bowl', msg: 'הבצק מוכן לבדיקה. עושים Poke Test.' } });
   items.push({ id: 'poke', anim: 'poke', title: 'Poke Test', sub: 'לוחצים בעדינות באצבע מקומחת. חוזר לאט ולא עד הסוף: מוכן. חוזר מהר: עוד קצת זמן.' });
-  items.push({ id: 'pre', title: 'Pre-shaping', sub: 'מרכזים את הבצק לכדור רופף.', starts: 'bench' });
-  items.push({ id: 'bench', title: 'Bench Rest', sub: c.bench + ' דקות מנוחה.', starts: null, timer: { id: 'bench', total: c.bench * 60, label: 'מנוחת ספסל', art: 'bowl', msg: 'המנוחה נגמרה. מעצבים.' } });
+  items.push({ id: 'pre', anim: 'pre', title: 'Pre-shaping', sub: 'מרכזים את הבצק לכדור רופף.', starts: 'bench' });
+  items.push({ id: 'bench', title: 'Bench Rest', sub: c.bench + ' דקות מנוחה.', starts: null, timer: { id: 'bench', total: c.bench * 60, label: 'מנוחת ספסל', art: 'rest', msg: 'המנוחה נגמרה. מעצבים.' } });
   var wh = c.proof === 'warm';
-  items.push({ id: 'shape', title: 'Shaping', sub: 'מעצבים סופית ומותחים את פני הבצק.', starts: 'proof' });
+  items.push({ id: 'shape', anim: 'banneton', title: 'Shaping', sub: 'מעצבים סופית ומותחים את פני הבצק.', starts: 'proof' });
   items.push({ id: 'proof', choice: true, wait: true, autoDone: true, title: wh ? 'תפיחה חמה' : 'תפיחה קרה', sub: wh ? 'בטמפרטורת החדר, כ־' + c.warmH + ' שעות.' : 'במקרר, כ־' + c.coldH + ' שעות.',
-    timer: { id: 'proof', total: (wh ? c.warmH : c.coldH) * 3600, label: wh ? 'נשאר עד סוף התפיחה' : 'נשאר בתפיחה במקרר', art: 'bowl', msg: 'התפיחה הסתיימה. עוברים לאפייה.' } });
+    timer: { id: 'proof', total: (wh ? c.warmH : c.coldH) * 3600, label: wh ? 'נשאר עד סוף התפיחה' : 'נשאר בתפיחה במקרר', art: wh ? 'bowl' : 'fridge', msg: 'התפיחה הסתיימה. עוברים לאפייה.' } });
   return items;
 }
 function bakeItems(b) {
@@ -754,6 +780,35 @@ ART.poke = function () {
     '<ellipse cx="46" cy="40" rx="9" ry="4" fill="#fff" fill-opacity=".25" transform="rotate(-25 46 40)"/>' +
     '<ellipse class="pk-d" cx="60" cy="31" rx="6" ry="2.6" style="fill:var(--dough-edge)"/>' +
     '<g class="pk-f"><rect x="-5.5" y="-34" width="11" height="34" rx="5.5" stroke-width="1.8" style="fill:var(--tint2);stroke:var(--deep)"/><circle cx="-1.5" cy="-4" r="1" fill="#fff" fill-opacity=".8"/><circle cx="2" cy="-7" r=".8" fill="#fff" fill-opacity=".8"/></g></svg>';
+};
+ART.feed = function () { return OV.how().replace('<div class="ov ov-jar" aria-hidden="true">', '<div class="fjloop" style="display:grid;place-items:center">'); };
+ART.pre = function () {
+  return '<svg width="150" height="112" viewBox="0 0 120 90" aria-hidden="true"><rect x="8" y="76" width="104" height="6" rx="3" style="fill:var(--stone)"/>' +
+    '<ellipse class="pr-d" cx="56" cy="67" rx="30" ry="9" stroke-width="2.2" style="fill:var(--dough);stroke:var(--deep)"/>' +
+    '<g class="pr-s"><rect x="-2.2" y="-30" width="4.4" height="30" rx="1.2" stroke-width="1.6" style="fill:var(--tint2);stroke:var(--deep)"/><rect x="-1.5" y="-40" width="8" height="12" rx="4" style="fill:var(--acc)"/></g></svg>';
+};
+ART.rest = function () {
+  var balls = [[24, 62, 11], [48, 61, 12], [72, 62, 11]].map(function (b) { return '<circle cx="' + b[0] + '" cy="' + b[1] + '" r="' + b[2] + '" stroke-width="2" style="fill:var(--dough);stroke:var(--deep)"/>'; }).join('');
+  var flour = [[20, 52], [31, 48], [46, 47], [57, 50], [68, 52], [79, 57]].map(function (f) { return '<circle class="br-f" cx="' + f[0] + '" cy="' + f[1] + '" r="1.2" fill="#fff"/>'; }).join('');
+  return '<svg width="88" height="73" viewBox="0 0 96 80" aria-hidden="true"><rect x="6" y="73" width="84" height="4" rx="2" style="fill:var(--stone)"/>' + balls +
+    '<g class="br-c"><path d="M6 74C6 56 12 47 24 47C34 47 37 43 48 43C59 43 62 47 72 47C84 47 90 56 90 74Q85 77 80 74T70 74T60 74T50 74T40 74T30 74T20 74T10 74Z" stroke-width="1.8" stroke-linejoin="round" style="fill:#c3d4df;stroke:#8aa6b8"/>' +
+    '<path d="M16 52Q15 63 14 73M36 46Q36 60 35 74M60 46Q60 60 61 74M80 52Q81 63 82 73" fill="none" stroke-width="1.4" style="stroke:#9db6c6"/>' + flour + '</g></svg>';
+};
+ART.banneton = function () {
+  var puffs = [[34, 44], [60, 36], [86, 44]].map(function (q, i) { return '<circle class="bn-p" style="animation-delay:' + (i * .06) + 's" cx="' + q[0] + '" cy="' + q[1] + '" r="2.4" fill="#fff"/>'; }).join('');
+  return '<svg width="150" height="112" viewBox="0 0 120 90" aria-hidden="true">' +
+    '<ellipse cx="60" cy="42" rx="40" ry="9" stroke-width="2.2" style="fill:#b8945f;stroke:var(--deep)"/>' +
+    '<g class="bn-d"><circle cx="60" cy="42" r="22" stroke-width="2.2" style="fill:var(--dough);stroke:var(--deep)"/><ellipse cx="51" cy="34" rx="7" ry="3.4" fill="#fff" fill-opacity=".28" transform="rotate(-25 51 34)"/></g>' + puffs +
+    '<path d="M20 42Q60 56 100 42L90 78Q60 86 30 78Z" stroke-width="2.2" stroke-linejoin="round" style="fill:#d9b98a;stroke:var(--deep)"/>' +
+    '<path d="M23 52Q60 66 97 52M26 61Q60 75 94 61M29 70Q60 83 91 70" fill="none" stroke-width="1.6" style="stroke:#b8945f"/>' +
+    '<path d="M20 42Q60 56 100 42" fill="none" stroke-width="3.2" stroke-linecap="round" style="stroke:var(--deep)"/></svg>';
+};
+ART.fridge = function () {
+  return '<svg width="88" height="73" viewBox="0 0 96 80" aria-hidden="true"><rect x="26" y="4" width="44" height="72" rx="5" stroke-width="2.4" style="fill:#dcebf2;stroke:var(--deep)"/>' +
+    '<path d="M30 30H66M30 50H66" stroke-width="1.6" style="stroke:#9db6c6"/>' +
+    '<g class="fr-b"><path d="M-9-14h18c0 9-4 14-9 14s-9-5-9-14z" stroke-width="2" style="fill:var(--card);stroke:var(--deep)"/><path d="M-10-14Q0-22 10-14Z" stroke-width="1.4" style="fill:#c3d4df;stroke:#8aa6b8"/></g>' +
+    '<g class="fr-d"><rect x="26" y="4" width="44" height="72" rx="5" stroke-width="2.4" style="fill:var(--tint2);stroke:var(--deep)"/><rect x="62" y="34" width="3" height="14" rx="1.5" style="fill:var(--deep)"/>' +
+    '<g class="fr-s" stroke-width="2" stroke-linecap="round" style="stroke:#4f9cc4"><path d="M46 30V50M37 35L55 45M37 45L55 35"/></g></g></svg>';
 };
 var CHEV = '<svg class="chev" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
 var ICO = {
