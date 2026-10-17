@@ -864,29 +864,29 @@ function feedCss() {
   function add(cls, stops) { var nm = 'fd' + (n++); css += kfCss(nm, P, stops) + '.fd .' + cls + '{animation:' + nm + ' ' + P + 's linear infinite;}'; }
   function layer(cls, t0, from) { var z = 'transform:translateY(' + from + 'px);'; add(cls, [[0, z + o0], [t0, z + o0], [t0 + .05, z + o1], [t0 + .6, 'transform:translateY(0);' + o1], [8.2, 'transform:translateY(0);' + o1], [8.8, 'transform:translateY(0);' + o0], [P, 'transform:translateY(0);' + o0]]); }
   function stream(cls, t0, h) { add(cls, [[0, o0], [t0 + .8, o0], [t0 + .85, o1], [t0 + .8 + h, o1], [t0 + .85 + h, o0], [P, o0]]); }
-  add('fd-cw', pourStops(P, [132, 0], [82, 10], -42, 0, .6)); stream('fd-sw', 0, .6); layer('fd-lw', 0, 16);
-  add('fd-cf', pourStops(P, [136, 0], [82, 10], -62, 2.3, .9)); stream('fd-sf', 2.3, .9); layer('fd-lf', 2.3, 14);
-  add('fd-lm', [[0, 'transform:translateY(0);' + o0], [4.6, 'transform:translateY(0);' + o0], [5.0, 'transform:translateY(0);' + o1], [6.6, 'transform:translateY(0);' + o1], [8.0, 'transform:translateY(-10px);' + o1], [8.2, 'transform:translateY(-10px);' + o1], [8.8, 'transform:translateY(-10px);' + o0], [P, 'transform:translateY(0);' + o0]]);
+  add('fd-cw', pourStops(P, [132, 0], [82, 10], -42, 0, .6)); stream('fd-sw', 0, .6); layer('fd-lw', 0, 9);
+  add('fd-cf', pourStops(P, [136, 0], [82, 10], -62, 2.3, .9)); stream('fd-sf', 2.3, .9); layer('fd-lf', 2.3, 8);
+  add('fd-lm', [[0, 'transform:translateY(0);' + o0], [4.6, 'transform:translateY(0);' + o0], [5.0, 'transform:translateY(0);' + o1], [6.6, 'transform:translateY(0);' + o1], [8.0, 'transform:translateY(-6px);' + o1], [8.2, 'transform:translateY(-6px);' + o1], [8.8, 'transform:translateY(-6px);' + o0], [P, 'transform:translateY(0);' + o0]]);
   add('fd-bb', [[0, o0], [7.0, o0], [7.5, o1], [8.2, o1], [8.8, o0], [P, o0]]);
-  var hid = tr(112, -6, 30) + ';' + o0, w = [[0, hid], [4.5, hid], [4.8, tr(66, 62, 10) + ';' + o1]], t = 4.8, k;
-  for (k = 0; k < 4; k++) { t += .45; w.push([t, tr(k % 2 ? 56 : 72, 78, k % 2 ? 6 : -8) + ';' + o1]); }
+  var hid = tr(112, -6, 30) + ';' + o0, w = [[0, hid], [4.5, hid], [4.8, tr(66, 64, 10) + ';' + o1]], t = 4.8, k;
+  for (k = 0; k < 4; k++) { t += .45; w.push([t, tr(k % 2 ? 54 : 70, 78, k % 2 ? 6 : -8) + ';' + o1]); }
   w.push([t + .3, hid], [P, hid]); add('fd-ss', w);
   return css;
 }
 (function () { try { var st = document.createElement('style'); st.textContent = feedCss() + '.fd .fd-wv{animation:fjSwirl .3s ease-in-out infinite alternate;} @media (prefers-reduced-motion: reduce) { .fd *, .mxF *, .mxA * { animation: none !important; } }'; document.head.appendChild(st); } catch (e) {} })();
 ART.feed = function () {
-  var id = 'fd' + (++uid), body = 'M34 30c-8 4-12 10-12 20v52a10 10 0 0 0 10 10h56a10 10 0 0 0 10-10V50c0-10-4-16-12-20z';
-  var wave = 'M-10 80q10-6 20 0t20 0t20 0t20 0t20 0t20 0t20 0t20 0';
+  var id = 'fd' + (++uid), body = 'M26 13c-6 3-8 8-8 14v28a6 6 0 0 0 6 6h40a6 6 0 0 0 6-6V27c0-6-2-11-8-14z';
+  var wave = 'M8 40q6-4 12 0t12 0t12 0t12 0t12 0t12 0t12 0';
   return '<svg class="fd" width="150" height="146" viewBox="-6 -16 150 146" style="overflow:visible" aria-hidden="true"><defs><clipPath id="' + id + '"><path d="' + body + '"/></clipPath></defs>' +
-    '<path d="' + body + '" style="fill:var(--card)"/><g clip-path="url(#' + id + ')">' +
-    '<rect class="fd-lw" x="18" y="84" width="90" height="40" style="fill:#9fcbe2;fill-opacity:.92"/>' +
-    '<rect x="18" y="96" width="90" height="30" style="fill:var(--dough)"/><path d="M18 96h90" stroke-width="1.2" style="stroke:var(--dough-edge)"/>' +
-    '<path class="fd-lf" d="M24 85Q60 64 96 85V89H24Z" stroke-width="1" style="fill:' + FLR + ';stroke:#e0d2b4"/>' +
-    '<g class="fd-lm"><g class="fd-wv"><path d="' + wave + 'V130H-10z" style="fill:var(--dough)"/><path d="' + wave + '" fill="none" stroke-width="2" style="stroke:var(--dough-edge)"/></g>' +
-    '<g class="fd-bb"><circle cx="46" cy="92" r="2.6" style="fill:var(--bubble)"/><circle cx="68" cy="100" r="2.2" style="fill:var(--bubble)"/><circle cx="58" cy="110" r="1.9" style="fill:var(--bubble)"/><circle cx="82" cy="94" r="1.8" style="fill:var(--bubble)"/></g></g></g>' +
-    '<path d="' + body + '" stroke-width="2.4" stroke-linejoin="round" style="fill:var(--card);fill-opacity:.2;stroke:var(--deep)"/><rect x="32" y="26" width="56" height="7" rx="3.5" style="fill:var(--acc)"/>' +
-    cupG('fd-cw', '#8fc3de') + '<g class="fd-sw"><path class="mx-dash" d="M78 16Q76 52 68 86" fill="none" stroke-width="3" stroke-linecap="round" stroke-dasharray="3 3" stroke="#8fc3de"/></g>' +
-    bagG('fd-cf') + '<g class="fd-sf"><path d="M79 18Q77 50 70 82" fill="none" stroke-width="5" stroke-linecap="round" stroke="#e0d2b4"/><path class="mx-dash" d="M79 18Q77 50 70 82" fill="none" stroke-width="3.4" stroke-linecap="round" stroke-dasharray="3 3" stroke="' + FLR + '"/></g>' +
+    '<g transform="translate(-12 6) scale(1.7)"><path d="' + body + '" style="fill:var(--card);fill-opacity:.7"/><g clip-path="url(#' + id + ')">' +
+    '<rect class="fd-lw" x="10" y="44" width="68" height="24" style="fill:#9fcbe2;fill-opacity:.92"/>' +
+    '<rect x="10" y="50" width="68" height="20" style="fill:var(--dough)"/><path d="M10 50h68" stroke-width=".8" style="stroke:var(--dough-edge)"/>' +
+    '<path class="fd-lf" d="M20 45Q44 32 68 45V48H20Z" stroke-width=".6" style="fill:' + FLR + ';stroke:#e0d2b4"/>' +
+    '<g class="fd-lm"><g class="fd-wv"><path d="' + wave + 'V70H8z" style="fill:var(--dough)"/><path d="' + wave + '" fill="none" stroke-width="1.2" style="stroke:var(--dough-edge)"/></g>' +
+    '<g class="fd-bb"><circle cx="30" cy="52" r="2.2" style="fill:var(--bubble)"/><circle cx="44" cy="58" r="1.6" style="fill:var(--bubble)"/><circle cx="56" cy="50" r="2" style="fill:var(--bubble)"/><circle cx="38" cy="44" r="1.4" style="fill:var(--bubble)"/></g></g></g>' +
+    '<path d="' + body + '" fill="none" style="stroke:var(--deep)" stroke-width="2.4" stroke-linejoin="round"/><rect x="18" y="47" width="52" height="3" style="fill:var(--acc);fill-opacity:.85"/></g>' +
+    cupG('fd-cw', '#8fc3de') + '<g class="fd-sw"><path class="mx-dash" d="M78 16Q76 50 68 80" fill="none" stroke-width="3" stroke-linecap="round" stroke-dasharray="3 3" stroke="#8fc3de"/></g>' +
+    bagG('fd-cf') + '<g class="fd-sf"><path d="M79 18Q77 48 70 74" fill="none" stroke-width="5" stroke-linecap="round" stroke="#e0d2b4"/><path class="mx-dash" d="M79 18Q77 48 70 74" fill="none" stroke-width="3.4" stroke-linecap="round" stroke-dasharray="3 3" stroke="' + FLR + '"/></g>' +
     spoonG('fd-ss') + '</svg>';
 };
 ART.rest = function () {
