@@ -796,10 +796,10 @@ var STAGES = [['plan', 'Plan'], ['feed', 'Feed'], ['dough', 'Dough'], ['bake', '
 function headHTML() {
   var v = S.view;
   if (v === 'recipes' || v === 'settings' || v === 'calc') {
-    return '<div class="back"><button type="button" class="backbtn" data-act="nav" data-v="' + (v === 'calc' ? 'settings' : 'plan') + '">' + ic('back', 18, 2.4) + 'Back</button><div class="brand">Dough<b>Mate</b></div></div>';
+    return '<div class="back"><button type="button" class="backbtn" data-act="nav" data-v="' + (v === 'calc' ? 'settings' : 'plan') + '">' + ic('back', 18, 2.4) + 'Back</button><div style="display:flex;align-items:center;gap:8px"><button type="button" class="ib" data-act="lang" data-l="he" aria-label="עברית" style="font-size:13px;font-weight:700">עב</button><div class="brand">Dough<b>Mate</b></div></div></div>';
   }
   var idx = Math.max(0, STAGES.map(function (s) { return s[0]; }).indexOf(v));
-  return '<div class="top"><div class="brand">Dough<b>Mate</b></div><div class="icons"><button type="button" class="ib" data-act="nav" data-v="recipes" aria-label="My recipes">' + ic('book') + '</button><button type="button" class="ib" data-act="nav" data-v="settings" aria-label="Settings">' + ic('gear') + '</button></div></div>' +
+  return '<div class="top"><div class="brand">Dough<b>Mate</b></div><div class="icons"><button type="button" class="ib" data-act="lang" data-l="he" aria-label="עברית" style="font-size:13px;font-weight:700">עב</button><button type="button" class="ib" data-act="nav" data-v="recipes" aria-label="My recipes">' + ic('book') + '</button><button type="button" class="ib" data-act="nav" data-v="settings" aria-label="Settings">' + ic('gear') + '</button></div></div>' +
     '<nav class="track" aria-label="Stages">' + STAGES.map(function (s, i) { return '<button type="button" class="tk ' + (i === idx ? 'on' : i < idx ? 'past' : '') + '" data-act="nav" data-v="' + s[0] + '"' + (i === idx ? ' aria-current="step"' : '') + '><i></i><span>' + s[1] + '</span></button>'; }).join('') + '</nav>';
 }
 function chipsFor(c) {
@@ -1503,7 +1503,7 @@ function render() {
   var body = S.ob ? obView() : { plan: planView, feed: feedView, dough: doughView, bake: bakeView, recipes: recipesView, settings: settingsView, calc: calcView }[v]();
   var y = window.scrollY;
   if (!S.ob && (v === 'feed' || v === 'dough' || v === 'bake') && S.brews.length > 1) body = batchSwitch() + body;
-  app.innerHTML = (S.ob ? '<div class="top"><div class="brand">Dough<b>Mate</b></div></div>' : headHTML()) + body;
+  app.innerHTML = (S.ob ? '<div class="top"><div class="brand">Dough<b>Mate</b></div><button type="button" class="ib" data-act="lang" data-l="he" aria-label="עברית" style="font-size:13px;font-weight:700">עב</button></div>' : headHTML()) + body;
   window.scrollTo(0, y);
   save();
 }
@@ -1562,6 +1562,7 @@ function onAct(a, el) {
     case 'obback': S.ob.i = Math.max(0, S.ob.i - 1); window.scrollTo(0, 0); break;
     case 'obskip': S.ob = null; S.view = 'plan'; window.scrollTo(0, 0); break;
     case 'grp': S.gc = S.gc || {}; S.gc[d.g] = d.open !== '1'; break;
+    case 'lang': try { localStorage.setItem('dm-lang', d.l); } catch (e) {} window.name = 'dm-' + d.l; location.reload(); break;
     case 'acc': S.acc = S.acc || {}; S.acc[d.k] = !S.acc[d.k]; S.jo = S.acc[d.k] ? d.k : null; break;
     case 'anchor': S.plan.anchor = d.v; break;
     case 'moreanch': S.plan.moreAnch = !S.plan.moreAnch; break;
