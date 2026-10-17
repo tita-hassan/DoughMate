@@ -290,30 +290,22 @@ h1, h2, h3, p { margin: 0; }
 .sl-g { animation: slFall .9s ease-in infinite; } .sl-g.d1 { animation-delay: .18s; } .sl-g.d2 { animation-delay: .36s; } .sl-g.d3 { animation-delay: .54s; } .sl-g.d4 { animation-delay: .72s; }
 @keyframes slDust { 0%, 15% { opacity: 0; } 55%, 100% { opacity: 1; } }
 .sl-s { animation: slDust 3.6s ease-out infinite; } .sl-s.d1 { animation-delay: .5s; } .sl-s.d2 { animation-delay: 1s; }
-@keyframes foS1 { 0%, 10.00% { transform: scaleX(1) } 19.00%, 100% { transform: scaleX(.72) } }
+@keyframes foS1 { 0%, 5.00% { transform: scale(1, 1) } 10.00% { transform: scale(1.14, .95) } 19.00%, 100% { transform: scale(.72, 1) } }
 .fo-s1 { transform-origin: 90px 45px; animation: foS1 13s ease-in-out infinite; }
-@keyframes foF1 { 0%, 4.00% { opacity: 0; transform: translate(0, 0) scaleX(1) } 5.50% { opacity: 1; transform: translate(0, 0) scaleX(1) } 9.00% { opacity: 1; transform: translate(-6px, 0) scaleX(1.3) } 18.00% { opacity: 1; transform: translate(26px, 0) scaleX(.8) } 20.00%, 100% { opacity: 0; transform: translate(30px, 0) scaleX(.7) } }
-.fo-fl1 { transform-origin: 40px 45px; animation: foF1 13s ease-in-out infinite; }
-@keyframes foS2 { 0%, 31.00% { transform: scaleX(1) } 40.00%, 100% { transform: scaleX(.72) } }
+@keyframes foS2 { 0%, 26.00% { transform: scale(1, 1) } 31.00% { transform: scale(1.14, .95) } 40.00%, 100% { transform: scale(.72, 1) } }
 .fo-s2 { transform-origin: 30px 45px; animation: foS2 13s ease-in-out infinite; }
-@keyframes foF2 { 0%, 25.00% { opacity: 0; transform: translate(0, 0) scaleX(1) } 26.50% { opacity: 1; transform: translate(0, 0) scaleX(1) } 30.00% { opacity: 1; transform: translate(-6px, 0) scaleX(1.3) } 39.00% { opacity: 1; transform: translate(26px, 0) scaleX(.8) } 41.00%, 100% { opacity: 0; transform: translate(30px, 0) scaleX(.7) } }
-.fo-fl2 { transform-origin: 40px 45px; animation: foF2 13s ease-in-out infinite; }
-@keyframes foS3 { 0%, 52.00% { transform: scaleY(1) } 61.00%, 100% { transform: scaleY(.72) } }
+@keyframes foS3 { 0%, 47.00% { transform: scale(1, 1) } 52.00% { transform: scale(.95, 1.14) } 61.00%, 100% { transform: scale(1, .72) } }
 .fo-s3 { transform-origin: 60px 75px; animation: foS3 13s ease-in-out infinite; }
-@keyframes foF3 { 0%, 46.00% { opacity: 0; transform: translate(0, 0) scaleX(1) } 47.50% { opacity: 1; transform: translate(0, 0) scaleX(1) } 51.00% { opacity: 1; transform: translate(-6px, 0) scaleX(1.3) } 60.00% { opacity: 1; transform: translate(26px, 0) scaleX(.8) } 62.00%, 100% { opacity: 0; transform: translate(30px, 0) scaleX(.7) } }
-.fo-fl3 { transform-origin: 40px 45px; animation: foF3 13s ease-in-out infinite; }
-@keyframes foS4 { 0%, 73.00% { transform: scaleY(1) } 82.00%, 100% { transform: scaleY(.72) } }
+@keyframes foS4 { 0%, 68.00% { transform: scale(1, 1) } 73.00% { transform: scale(.95, 1.14) } 82.00%, 100% { transform: scale(1, .72) } }
 .fo-s4 { transform-origin: 60px 14px; animation: foS4 13s ease-in-out infinite; }
-@keyframes foF4 { 0%, 67.00% { opacity: 0; transform: translate(0, 0) scaleX(1) } 68.50% { opacity: 1; transform: translate(0, 0) scaleX(1) } 72.00% { opacity: 1; transform: translate(-6px, 0) scaleX(1.3) } 81.00% { opacity: 1; transform: translate(26px, 0) scaleX(.8) } 83.00%, 100% { opacity: 0; transform: translate(30px, 0) scaleX(.7) } }
-.fo-fl4 { transform-origin: 40px 45px; animation: foF4 13s ease-in-out infinite; }
 @keyframes foW { 0% { opacity: 0 } 4%, 90% { opacity: 1 } 96%, 100% { opacity: 0 } }
 .fo-w { animation: foW 13s ease-in-out infinite; }
 @keyframes foCt { 0%, 82% { transform: translate(0, 0) } 90%, 100% { transform: translate(-2.4px, -2.4px) } }
 .fo-c { animation: foCt 13s ease-in-out infinite; }
 @keyframes rlSpread { 0%, 6% { transform: scale(1, 1) } 72%, 90% { transform: scale(1.7, .6) } 100% { transform: scale(1, 1) } }
 .rl-b { transform-box: fill-box; transform-origin: 50% 100%; animation: rlSpread 7s ease-in-out infinite; }
-.paused .fo-w, .paused .fo-c, .paused .fo-s1, .paused .fo-s2, .paused .fo-s3, .paused .fo-s4, .paused .fo-fl1, .paused .fo-fl2, .paused .fo-fl3, .paused .fo-fl4, .paused .rl-b { animation-play-state: paused; }
-@media (prefers-reduced-motion: reduce) { .fo-w, .fo-c, .fo-s1, .fo-s2, .fo-s3, .fo-s4, .fo-fl1, .fo-fl2, .fo-fl3, .fo-fl4, .rl-b { animation: none; } .fo-fl1, .fo-fl2, .fo-fl3, .fo-fl4 { opacity: 0; } }
+.paused .fo-w, .paused .fo-c, .paused .fo-s1, .paused .fo-s2, .paused .fo-s3, .paused .fo-s4, .paused .rl-b { animation-play-state: paused; }
+@media (prefers-reduced-motion: reduce) { .fo-w, .fo-c, .fo-s1, .fo-s2, .fo-s3, .fo-s4, .rl-b { animation: none; } }
 .fl-l { transform-origin: 48px 40px; animation: flFold 6.4s cubic-bezier(.45,.05,.4,1) infinite backwards; }
 @keyframes flFold { 0% { transform: scaleX(1); opacity: 0; } 1% { opacity: 1; } 5% { transform: translateX(7px) scaleX(1.15); } 14% { transform: translateX(0) scaleX(.04); } 21% { transform: scaleX(-1); } 24% { transform: scaleX(-1); opacity: 1; } 25%, 100% { transform: scaleX(-1); opacity: 0; } }
 .mx-wv { animation: fjSwirl .3s ease-in-out infinite alternate; }
@@ -843,12 +835,11 @@ ART.salt = function () {
 };
 ART.fold = function () {
   var blob = 'M60 14C76 13 91 26 90 44C89 62 76 76 59 75C42 74 29 62 30 44C31 27 44 15 60 14Z', ed = 'stroke:var(--dough-edge)';
-  var flap = function (rot, i) { return '<g transform="rotate(' + rot + ' 60 45)"><path class="fo-fl' + i + '" d="M30 44C30 31 37 21 47 17C43 29 43 59 47 71C37 67 30 58 30 44Z" stroke-width="1.6" stroke-linejoin="round" style="fill:var(--bubble);stroke:var(--crust)"/></g>'; };
   return '<svg class="fo" width="150" height="112" viewBox="0 0 120 90" aria-hidden="true" style="overflow:visible">' +
     '<circle cx="60" cy="45" r="41" stroke-width="2.4" style="fill:var(--card);stroke:var(--deep)"/><circle cx="60" cy="45" r="35" style="fill:var(--tint)"/>' +
     '<g class="fo-w"><g class="fo-c"><g class="fo-s1"><g class="fo-s2"><g class="fo-s3"><g class="fo-s4">' +
     '<path d="' + blob + '" stroke-width="2.2" stroke-linejoin="round" style="fill:var(--dough);' + ed + '"/><ellipse cx="49" cy="30" rx="9" ry="4" transform="rotate(-30 49 30)" fill="#fff" fill-opacity=".28"/>' +
-    '</g></g></g></g>' + flap(0, 1) + flap(180, 2) + flap(90, 3) + flap(270, 4) + '</g></g>' +
+    '</g></g></g></g></g></g>' +
     '<circle cx="60" cy="45" r="41" fill="none" stroke-width="2.4" style="stroke:var(--deep)"/></svg>';
 };
 ART.relax = function () {
