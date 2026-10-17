@@ -1544,6 +1544,11 @@ function tick(id) {
   var b = B(); if (!b) return;
   var it = allItems(b).filter(function (i) { return i.id === id; })[0]; if (!it) return;
   if (b.done[id]) { delete b.done[id]; return; }
+  var lists = [feedItems(b), doughItems(b), bakeItems(b)];
+  for (var li = 0; li < lists.length; li++) {
+    var ix = -1; lists[li].forEach(function (x, n) { if (x.id === id) ix = n; });
+    if (ix > 0 && !isDone(b, lists[li][ix - 1])) { toast('Previous step missing', 'Mark the previous step as done first.'); return; }
+  }
   b.done[id] = true;
   if (it.starts) [].concat(it.starts).forEach(function (s) { startTimer(b, s); });
 }
