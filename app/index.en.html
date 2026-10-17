@@ -834,13 +834,11 @@ ART.salt = function () {
     '<rect x="-6" y="-3.2" width="12" height="3.8" rx="1.4" style="fill:var(--acc)"/><circle cx="-2.2" cy="-1.2" r=".7" fill="#fff"/><circle cx="0" cy="-1.2" r=".7" fill="#fff"/><circle cx="2.2" cy="-1.2" r=".7" fill="#fff"/></g></svg>';
 };
 ART.fold = function () {
-  var blob = 'M60 14C76 13 91 26 90 44C89 62 76 76 59 75C42 74 29 62 30 44C31 27 44 15 60 14Z', ed = 'stroke:var(--dough-edge)';
-  return '<svg class="fo" width="150" height="112" viewBox="0 0 120 90" aria-hidden="true" style="overflow:visible">' +
-    '<circle cx="60" cy="45" r="41" stroke-width="2.4" style="fill:var(--card);stroke:var(--deep)"/><circle cx="60" cy="45" r="35" style="fill:var(--tint)"/>' +
-    '<g class="fo-w"><g class="fo-c"><g class="fo-s1"><g class="fo-s2"><g class="fo-s3"><g class="fo-s4">' +
-    '<path d="' + blob + '" stroke-width="2.2" stroke-linejoin="round" style="fill:var(--dough);' + ed + '"/><ellipse cx="49" cy="30" rx="9" ry="4" transform="rotate(-30 49 30)" fill="#fff" fill-opacity=".28"/>' +
-    '</g></g></g></g></g></g>' +
-    '<circle cx="60" cy="45" r="41" fill="none" stroke-width="2.4" style="stroke:var(--deep)"/></svg>';
+  var lobes = [[-90, 0], [0, 1], [90, 2], [180, 3]].map(function (x) {
+    return '<g transform="rotate(' + x[0] + ' 48 40)"><g class="fl-l" style="animation-delay:' + (x[1] * 1.6) + 's"><path d="M48 13A27 27 0 0 1 48 67Z" style="fill:var(--dough);stroke:var(--dough-edge)" stroke-width="2" stroke-linejoin="round"/><path d="M48 13A27 27 0 0 1 48 67Z" fill="#fff" fill-opacity=".3"/></g></g>';
+  }).join('');
+  return '<svg width="88" height="73" viewBox="0 0 96 80" aria-hidden="true"><circle cx="48" cy="40" r="35" style="fill:var(--card);stroke:var(--deep)" stroke-width="2.4"/>' +
+    '<circle cx="48" cy="40" r="27" style="fill:var(--dough);stroke:var(--dough-edge)" stroke-width="2"/>' + lobes + '</svg>';
 };
 ART.relax = function () {
   var id = 'rl' + (++uid), B = 'M14 44h92c0 26-18 42-46 42S14 70 14 44z';
