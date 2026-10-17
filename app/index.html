@@ -102,16 +102,29 @@ h1, h2, h3, p { margin: 0; }
 .accb.play.k-when .accin { animation: accIn .5s ease 1.45s backwards; }
 .accb.play.k-how .accin { animation: accIn .5s ease 1.75s backwards; }
 @keyframes accIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
-.accb.play.k-what .tile { animation: tilePop .4s cubic-bezier(.3,1.4,.5,1) calc(.85s + var(--i, 0) * 70ms) backwards; }
-@keyframes tilePop { from { opacity: 0; transform: scale(.6) translateY(8px); } to { opacity: 1; transform: none; } }
+.accb.play.k-what .tile { animation: tilePop .45s cubic-bezier(.3,1.4,.5,1) calc(1.5s + var(--i, 0) * 80ms) backwards; }
+@keyframes tilePop { from { opacity: 0; transform: scale(.35) translateY(-14px); } to { opacity: 1; transform: none; } }
 .ov { position: absolute; inset: 0 16px 16px; pointer-events: none; z-index: 2; }
-/* book: cover and pages swing open from the spine */
-.ov-book { perspective: 1000px; }
-.ov-book i { position: absolute; inset: 0; border-radius: 12px; transform-origin: right center; }
-.ov-book .pg { background: linear-gradient(270deg, #e9dfc8, #fbf6ea 16%); border: 1px solid var(--line); animation: bkOpen .85s cubic-bezier(.55,0,.25,1) both; }
-.ov-book .p1 { animation-delay: .14s; } .ov-book .p2 { animation-delay: .28s; } .ov-book .p3 { animation-delay: .42s; }
-.ov-book .cv { background: var(--deep); display: grid; place-items: center; color: var(--card); font-family: var(--f-disp); font-size: 22px; font-style: normal; box-shadow: inset 0 0 0 5px rgba(255,255,255,.12); animation: bkOpen .85s cubic-bezier(.55,0,.25,1) both; }
-@keyframes bkOpen { 0% { transform: rotateY(0); opacity: 1; } 65% { transform: rotateY(78deg); opacity: 1; } 100% { transform: rotateY(102deg); opacity: 0; } }
+/* book: a closed book slides to centre, the cover opens, two pages turn, then the book fades into the recipe tiles */
+.ov-book { z-index: 2; }
+.ov-book .bk { position: absolute; top: 10px; left: 7%; right: 7%; height: min(230px, calc(100% - 20px)); perspective: 800px; animation: bkLife 2.05s ease both; }
+.ov-book .pg, .ov-book .pt .f, .ov-book .pt .b, .ov-book .cvr .f, .ov-book .cvr .b { position: absolute; top: 0; bottom: 0; width: 50%; border: 1px solid #d9ccaa; box-sizing: border-box; background: #fbf6ea repeating-linear-gradient(0deg, transparent 0 15px, rgba(122,74,31,.13) 15px 16px); }
+.ov-book .lp { left: 0; border-radius: 12px 0 0 12px; background-color: #f6eed9; box-shadow: inset -14px 0 14px -10px rgba(0,0,0,.18); }
+.ov-book .rp { right: 0; border-radius: 0 12px 12px 0; box-shadow: inset 14px 0 14px -10px rgba(0,0,0,.18); animation: bkShow .3s ease .45s both; }
+.ov-book .ph { position: absolute; top: 12px; left: 14%; right: 14%; height: 34%; border-radius: 10px; background: radial-gradient(circle at 50% 55%, var(--dough) 0 38%, var(--tint) 39%); border: 1px solid var(--dough-edge); }
+.ov-book .pt, .ov-book .cvr { position: absolute; left: 0; top: 0; bottom: 0; width: 50%; transform-style: preserve-3d; transform-origin: right center; }
+.ov-book .pt .f, .ov-book .cvr .f { left: 0; width: 100%; border-radius: 12px 0 0 12px; backface-visibility: hidden; }
+.ov-book .pt .b, .ov-book .cvr .b { left: 0; width: 100%; border-radius: 0 12px 12px 0; backface-visibility: hidden; transform: rotateY(180deg); }
+.ov-book .pt .f { background-color: #f6eed9; }
+.ov-book .cvr .f { background: var(--deep); border-color: var(--deep); box-shadow: inset 0 0 0 6px rgba(255,255,255,.12); }
+.ov-book .cvr .b { background-color: #f6eed9; box-shadow: inset 14px 0 14px -10px rgba(0,0,0,.18); }
+.ov-book .cvr .f { display: grid; place-items: center; text-align: center; color: var(--card); font-family: var(--f-disp); font-size: 20px; line-height: 1.2; padding: 0 12px; }
+.ov-book .cvr { animation: bkTurn .6s cubic-bezier(.5,0,.25,1) .2s both; }
+.ov-book .pt1 { animation: bkTurn .45s ease-in-out .85s both; }
+.ov-book .pt2 { animation: bkTurn .45s ease-in-out 1.2s both; }
+@keyframes bkTurn { from { transform: rotateY(0); } to { transform: rotateY(-180deg); } }
+@keyframes bkShow { from { opacity: 0; } to { opacity: 1; } }
+@keyframes bkLife { 0% { transform: translateX(25%) scale(.92); opacity: 0; } 12% { transform: translateX(25%) scale(1); opacity: 1; } 40% { transform: translateX(0) scale(1); opacity: 1; } 76% { transform: translateX(0) scale(1); opacity: 1; } 100% { transform: translateX(0) scale(1.08); opacity: 0; } }
 /* hourglass: flips, sand runs, then the time settings appear */
 .ov-clock, .ov-jar { background: var(--card); display: grid; place-items: center; }
 .ov-clock { animation: ovOut .4s ease 1.55s both; }
@@ -990,7 +1003,12 @@ var ICO = {
   how: function () { return '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3h8M7 6h10M7 6c-1 1-2 2-2 4v8a3 3 0 0 0 3 3h8a3 3 0 0 0 3-3v-8c0-2-1-3-2-4M5 14h14"/></svg>'; }
 };
 var OV = {
-  what: function () { return '<div class="ov ov-book" aria-hidden="true"><i class="pg p3"></i><i class="pg p2"></i><i class="pg p1"></i><i class="cv"><span>ספר המתכונים</span></i></div>'; },
+  what: function () {
+    var pg = '<u class="ph"></u>';
+    return '<div class="ov ov-book" aria-hidden="true"><div class="bk"><div class="pg lp">' + pg + '</div><div class="pg rp">' + pg + '</div>' +
+      '<div class="pt pt2"><div class="f">' + pg + '</div><div class="b">' + pg + '</div></div><div class="pt pt1"><div class="f">' + pg + '</div><div class="b">' + pg + '</div></div>' +
+      '<div class="cvr"><div class="f"><span>ספר המתכונים</span></div><div class="b">' + pg + '</div></div></div></div>';
+  },
   when: function (at) {
     var d = new Date(at || Date.now()), m = d.getMinutes(), hr = d.getHours() % 12, ticks = '';
     for (var i = 0; i < 12; i++) {
