@@ -350,7 +350,12 @@ var MIX = { hand: 'ידני', kneader: 'מלוש', mixer: 'מיקסר' };
 var SHAPE = { dutch: 'תנור הולנדי', pan: 'קסטן', stone: 'אבן שמוט', tray: 'תבנית תנור' };
 var PROOF = { warm: 'חמה', cold: 'קרה' };
 var RATIOS = ['1:1:1', '1:2:2', '1:3:3', '1:5:5', '1:10:10'];
-var ANCH = { bakeEnd: 'סוף אפייה', bakeStart: 'תחילת אפייה', bulkEnd: 'סוף תפיחה ראשונה', peak: 'מחמצת בשיא' };
+var ANCH = { bakeEnd: 'סוף אפייה', bakeStart: 'תחילת אפייה', bulkEnd: 'סוף תפיחה ראשונה', peak: 'מחמצת בשיא', feed1: 'האכלה ראשונה', feedLast: 'האכלה אחרונה', mix: 'תחילת לישה', salt: 'הוספת מלח', fold1: 'קיפול ראשון', proofStart: 'כניסה לתפיחה סופית', proofEnd: 'סוף תפיחה סופית', preheat: 'חימום תנור' };
+var MAINA = ['bakeEnd', 'bakeStart', 'bulkEnd', 'peak'], EXTRAA = ['feed1', 'feedLast', 'mix', 'salt', 'fold1', 'proofStart', 'proofEnd', 'preheat'];
+var AUTOCAP = { dutch: 1, stone: 2, pan: 2, tray: 3 }, RELOAD = 10;
+function loavesTxt(n) { return n === 1 ? 'כיכר אחת' : n + ' כיכרות'; }
+function capOf(c) { return Math.max(1, S.plan.cap || AUTOCAP[c.shape] || 1); }
+function leadOf() { return S.plan.lead != null ? S.plan.lead : 10; }
 var ORD = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי'];
 var DEFAULTS = { feeds: 3, ratio: '1:10:10', reserve: 50, cold: false, temp: 24, method: 'ferment', mix: 'hand', folds: 3, gap: 30,
   toShape: null, saltWait: 10, bench: 15, shape: 'dutch', bakeSplit: true, bake1: 20, bake2: 20, bakeOne: 25, proof: 'warm', warmH: null, coldH: 12 };
@@ -359,7 +364,7 @@ var BOUNDS = {
   feeds: [0, 6, 1, function (v) { return v === 0 ? 'ללא' : String(v); }], reserve: [0, 200, 10, function (v) { return v + ' ג׳'; }],
   temp: [16, 32, 1, function (v) { return v + '°'; }], folds: [0, 6, 1, String], gap: [10, 90, 5, function (v) { return v + ' דק׳'; }],
   toShape: [2, 12, 0.5, function (v) { return v + ' שעות'; }], saltWait: [0, 60, 5, function (v) { return v + ' דק׳'; }], bench: [0, 45, 5, function (v) { return v + ' דק׳'; }],
-  bake1: [5, 60, 5, function (v) { return v + ' דק׳'; }], bake2: [5, 60, 5, function (v) { return v + ' דק׳'; }], bakeOne: [10, 90, 5, function (v) { return v + ' דק׳'; }],
+  bake1: [5, 60, 5, function (v) { return v + ' דק׳'; }], bake2: [5, 60, 5, function (v) { return v + ' דק׳'; }], bakeOne: [10, 90, 5, function (v) { return v + ' דק׳'; }], cap: [1, 12, 1, String], lead: [5, 60, 5, function (v) { return v + ' דק׳'; }],
   warmH: [0.5, 6, 0.5, function (v) { return v + ' שעות'; }], coldH: [6, 24, 1, function (v) { return v + ' שעות'; }],
   starter: [10, 600, 10, function (v) { return v + ' ג׳'; }], qty: [1, 10, 1, String]
 };
@@ -468,28 +473,35 @@ function offsets(c) {
   return { shape: shape, proofStart: proofStart, proofEnd: proofEnd, bakeStart: bakeStart, bakeEnd: bakeStart + bakeMin, bakeMin: bakeMin };
 }
 function computePlan(items, anchor, at) {
-  var r0 = items[0].r, c = eff(r0), o = offsets(c);
+  var r0 = items[0].r, c = eff(r0), o = offsets(c), min = 6e4;
   var starter = items.reduce(function (a, x) { return a + x.r.starter * x.qty; }, 0);
-  var back = { peak: 0, bulkEnd: o.shape, bakeStart: o.bakeStart, bakeEnd: o.bakeEnd }[anchor] || 0;
-  var mix = at - back * 6e4, min = 6e4;
-  var rt = c.ratio.split(':').map(Number), fa = rt[1], wa = rt[2], R = 1 + fa + wa;
+  var L = items.reduce(function (a, x) { return a + x.qty; }, 0), cap = capOf(c), R = Math.max(1, Math.ceil(L / cap)), lead = leadOf(), stepB = o.bakeMin + RELOAD;
+  var rt = c.ratio.split(':').map(Number), fa = rt[1], wa = rt[2], R0 = 1 + fa + wa;
   var base = peakTbl(r0.sType, c.ratio, c.temp);
-  var N = c.feeds, need = starter + c.reserve, am = [];
+  var N = c.feeds, Ps = [];
+  for (var j = 0; j < N; j++) Ps[j] = (base + (j === 0 && c.cold ? 1 : 0)) * 3600;
+  var spanMin = Ps.reduce(function (a, x) { return a + x; }, 0) / 60, lastMin = N ? Ps[N - 1] / 60 : 0;
+  var back = { peak: 0, mix: 0, bulkEnd: o.shape, bakeStart: o.bakeStart, bakeEnd: o.bakeEnd + (R - 1) * stepB, salt: c.saltWait, fold1: c.saltWait + c.gap, proofStart: o.proofStart, proofEnd: o.proofEnd, preheat: o.bakeStart - 30, feed1: -spanMin, feedLast: -lastMin }[anchor];
+  if (back == null) back = 0;
+  var mix = at - back * min;
+  var need = starter + c.reserve, am = [];
   for (var k = N - 1; k >= 0; k--) {
-    var seed = Math.max(1, Math.ceil(need / R)), fl = Math.round(seed * fa), wt = Math.round(seed * wa);
+    var seed = Math.max(1, Math.ceil(need / R0)), fl = Math.round(seed * fa), wt = Math.round(seed * wa);
     am[k] = { seed: seed, flour: fl, water: wt, total: seed + fl + wt };
     need = seed + c.reserve;
   }
   var feeds = [], t = mix;
-  for (var j = N - 1; j >= 0; j--) {
-    var P = (base + (j === 0 && c.cold ? 1 : 0)) * 3600;
-    t = t - P * 1000;
-    feeds[j] = Object.assign({ t: round15(t), P: P }, am[j]);
+  for (var j2 = N - 1; j2 >= 0; j2--) {
+    t = t - Ps[j2] * 1000;
+    feeds[j2] = Object.assign({ t: round15(t), P: Ps[j2] }, am[j2]);
   }
   var folds = [];
   for (var f = 1; f <= c.folds; f++) folds.push(mix + (c.saltWait + c.gap * f) * min);
+  var rounds = [];
+  for (var q = 0; q < R; q++) { var st = mix + (o.bakeStart + q * stepB) * min; rounds.push({ i: q, n: Math.min(cap, L - q * cap), start: st, end: st + o.bakeMin * min, pull: st - (q ? lead : 10) * min }); }
   return { c: c, o: o, mix: mix, feeds: feeds, folds: folds, saltAt: mix + c.saltWait * min, shapeAt: mix + o.shape * min, proofStart: mix + o.proofStart * min,
-    proofEnd: mix + o.proofEnd * min, bakeStart: mix + o.bakeStart * min, bakeEnd: mix + o.bakeEnd * min, preheat: mix + o.bakeStart * min - 30 * min, yieldKeep: N ? am[N - 1].total - starter : 0 };
+    proofEnd: mix + o.proofEnd * min, bakeStart: mix + o.bakeStart * min, bakeEnd: rounds[R - 1].end, bakeEnd1: rounds[0].end, preheat: mix + o.bakeStart * min - 30 * min, yieldKeep: N ? am[N - 1].total - starter : 0,
+    L: L, cap: cap, R: R, lead: lead, rounds: rounds };
 }
 /* recipes with the same timeline are made together; a different timeline needs its own date */
 var SIGKEYS = ['feeds', 'ratio', 'reserve', 'cold', 'temp', 'method', 'mix', 'folds', 'gap', 'toShape', 'saltWait', 'bench', 'shape', 'bakeSplit', 'bake1', 'bake2', 'bakeOne', 'proof', 'warmH', 'coldH'];
@@ -652,23 +664,41 @@ function doughItems(b) {
   return items;
 }
 function bakeItems(b) {
-  var p = b.plan, c = b.c, items = [], dutch = c.shape === 'dutch';
+  var p = b.plan, c = b.c, items = [], dutch = c.shape === 'dutch', R = p.R || 1;
   items.push({ id: 'preheat', anim: 'preheat', title: dutch ? 'מחממים תנור עם התנור ההולנדי' : 'מחממים תנור', sub: '230° · מתחילים כ־30 דקות לפני, בערך ב־' + hhmm(p.preheat) + '.' });
   var loadT = { dutch: 'חריצה והעברה לסיר', stone: 'חריצה והעברה לאבן', pan: 'מעבירים לקסטן', tray: 'מניחים בתבנית ומכניסים לתנור' }[c.shape];
-  items.push({ id: 'load', anim: 'load', title: loadT, sub: dutch ? 'סוגרים את המכסה.' : '', starts: c.bakeSplit ? 'bake1' : 'bake' });
-  if (c.bakeSplit) {
-    items.push({ id: 'bake1', title: dutch ? 'מכוסה, עד Oven Spring' : c.shape === 'stone' ? 'עם קיטור, עד Oven Spring' : 'שלב ראשון, עד Oven Spring', sub: c.bake1 + ' דקות.', starts: 'bake2',
-      timer: { id: 'bake1', total: c.bake1 * 60, label: 'נשאר עד Oven Spring', art: 'loaf', msg: dutch ? 'עברו ' + c.bake1 + ' דקות. מורידים את המכסה.' : 'עברו ' + c.bake1 + ' דקות. ממשיכים באפייה.' } });
-    items.push({ id: 'bake2', title: dutch ? 'בלי מכסה, עד קרום זהוב' : 'המשך אפייה, עד קרום זהוב', sub: c.bake2 + ' דקות.',
-      timer: { id: 'bake2', total: c.bake2 * 60, label: 'נשאר עד שמוכן', art: 'loaf', msg: 'עברו ' + c.bake2 + ' דקות. בודקים אם מוכן.' } });
-  } else {
-    items.push({ id: 'bake', title: 'אפייה', sub: c.bakeOne + ' דקות.', timer: { id: 'bake', total: c.bakeOne * 60, label: 'נשאר עד שמוכן', art: 'loaf', msg: 'האפייה הסתיימה. בודקים אם מוכן.' } });
+  for (var r = 0; r < R; r++) {
+    var sx = r ? '_' + r : '', rd = p.rounds && p.rounds[r], nx = p.rounds && p.rounds[r + 1], lbl = R > 1 ? ' · סבב ' + (r + 1) + ' מתוך ' + R : '';
+    var starts = [c.bakeSplit ? 'bake1' + sx : 'bake' + sx], note = '';
+    if (nx) {
+      starts.push('pull' + (r + 1));
+      var T = b.timers['pull' + (r + 1)];
+      note = 'התראה להוצאת הכיכר הבאה מהמקרר ב־' + hhmm(T && T.end ? T.end : nx.pull) + '.';
+    }
+    var sub = [R > 1 && rd ? loavesTxt(rd.n) + '.' : '', r ? 'חורצים מיד אחרי ההוצאה מהמקרר.' : '', dutch ? 'סוגרים את המכסה.' : '', note].filter(Boolean).join(' ');
+    items.push({ id: 'load' + sx, anim: 'load', title: (r ? 'מוציאים מהמקרר, חורצים ומכניסים' : loadT) + lbl, sub: sub, starts: starts });
+    if (c.bakeSplit) {
+      items.push({ id: 'bake1' + sx, title: (dutch ? 'מכוסה, עד Oven Spring' : c.shape === 'stone' ? 'עם קיטור, עד Oven Spring' : 'שלב ראשון, עד Oven Spring') + lbl, sub: c.bake1 + ' דקות.', starts: 'bake2' + sx,
+        timer: { id: 'bake1' + sx, total: c.bake1 * 60, label: 'נשאר עד Oven Spring', art: 'loaf', msg: dutch ? 'עברו ' + c.bake1 + ' דקות. מורידים את המכסה.' : 'עברו ' + c.bake1 + ' דקות. ממשיכים באפייה.' } });
+      items.push({ id: 'bake2' + sx, title: (dutch ? 'בלי מכסה, עד קרום זהוב' : 'המשך אפייה, עד קרום זהוב') + lbl, sub: c.bake2 + ' דקות.',
+        timer: { id: 'bake2' + sx, total: c.bake2 * 60, label: 'נשאר עד שמוכן', art: 'loaf', msg: 'עברו ' + c.bake2 + ' דקות. בודקים אם מוכן.' } });
+    } else {
+      items.push({ id: 'bake' + sx, title: 'אפייה' + lbl, sub: c.bakeOne + ' דקות.', timer: { id: 'bake' + sx, total: c.bakeOne * 60, label: 'נשאר עד שמוכן', art: 'loaf', msg: 'האפייה הסתיימה. בודקים אם מוכן.' } });
+    }
+    if (nx) items.push({ id: 'out' + r, anim: 'rack', title: 'מוציאים את סבב ' + (r + 1) + ' מהתנור', sub: (c.shape !== 'tray' ? 'בודקים 95° במרכז הכיכר, ' : '') + 'מניחים על רשת, ומיד מכניסים את הסבב הבא.' });
   }
   if (c.shape !== 'tray') items.push({ id: 'temp', anim: 'temp', title: 'בדיקת טמפרטורה פנימית', sub: 'מוכן ב־95 מעלות במרכז הכיכר.' });
   items.push({ id: 'rack', anim: 'rack', title: 'מניחים על רשת להתקרר', sub: 'לפחות שעה לפני החיתוך.' });
   return items;
 }
-function allItems(b) { return feedItems(b).concat(doughItems(b), bakeItems(b)); }
+/* alarms with no row in the list: pull the next loaf out of the fridge to score it */
+function ghostItems(b) {
+  var p = b.plan, c = b.c, R = p.R || 1, out = [], bm = c.bakeSplit ? c.bake1 + c.bake2 : c.bakeOne, lead = p.lead != null ? p.lead : 10;
+  for (var r = 1; r < R; r++) out.push({ id: 'pullg' + r, ghost: true, title: 'סבב ' + (r + 1) + ': להוציא מהמקרר',
+    timer: { id: 'pull' + r, total: Math.max(60, (bm + RELOAD - lead) * 60), label: 'להוציא מהמקרר', art: 'fridge', msg: 'מוציאים מהמקרר את הלחם של סבב ' + (r + 1) + ' וחורצים אותו. בעוד ' + lead + ' דקות הוא נכנס לתנור.' } });
+  return out;
+}
+function allItems(b) { return feedItems(b).concat(doughItems(b), bakeItems(b), ghostItems(b)); }
 function timerItem(b, id) { var a = allItems(b); for (var i = 0; i < a.length; i++) if (a[i].timer && a[i].timer.id === id) return a[i]; return null; }
 
 /* ---------- timers ---------- */
@@ -1045,10 +1075,26 @@ function planView() {
       '<div class="card strip"><div><small>' + (p.feeds.length ? 'האכלה ראשונה' : 'האכלות') + '</small><b>' + (p.feeds.length ? hhmm(p.feeds[0].t) : '—') + '</b><small>' + (p.feeds.length ? dayOf(p.feeds[0].t) : 'ללא') + '</small></div>' +
       '<div><small>לישה</small><b>' + hhmm(p.mix) + '</b><small>' + dayOf(p.mix) + '</small></div><div><small>אפייה</small><b>' + hhmm(p.bakeStart) + '</b><small>' + dayOf(p.bakeStart) + '</small></div></div>';
   }).join('');
+  var cf0 = bs[0] ? bs[0].p.c : null, isX = EXTRAA.indexOf(S.plan.anchor) >= 0, showX = isX || !!S.plan.moreAnch;
+  var xs = EXTRAA.filter(function (k) { return !(cf0 && ((cf0.feeds < 1 && (k === 'feed1' || k === 'feedLast')) || (cf0.folds < 1 && k === 'fold1'))); });
+  function abtn(k) { return '<button type="button" data-act="anchor" data-v="' + k + '" aria-pressed="' + (S.plan.anchor === k) + '">' + ANCH[k] + '</button>'; }
+  var bakeCard = !bs.some(function (g) { return g.p.L > 1; }) ? '' : '<div class="sub" style="margin-top:6px">אפייה של כמה כיכרות</div>' +
+    '<div class="card sgroup">' + srow('planopt', 'cap', 'כיכרות בתנור', capOf(cf0), 'בבת אחת') +
+    srow('planopt', 'lead', 'התראה לפני הכנסה', leadOf(), 'להוצאה מהמקרר ולחריצה') + '</div>' +
+    bs.map(function (g) {
+      var pp = g.p, cold = pp.c.proof !== 'warm';
+      return (multi ? '<div style="font-weight:700;font-size:14px">' + esc(g.name) + '</div>' : '') + '<div class="card pad" style="display:flex;flex-direction:column;gap:8px">' +
+        pp.rounds.map(function (rd) {
+          return '<div><div class="rowx" style="justify-content:space-between"><b>סבב ' + (rd.i + 1) + ' · ' + loavesTxt(rd.n) + '</b><span dir="ltr">' + hhmm(rd.start) + ' – ' + hhmm(rd.end) + '</span></div>' +
+            (rd.i ? '<div class="sx mut" style="font-size:13px">להוציא מהמקרר ולחרוץ ב־' + ltr(hhmm(rd.pull)) + (cold ? ' · בתפיחה קרה כ־' + (Math.round((rd.pull - pp.proofStart) / 36e4) / 10) + ' שעות' : '') + '</div>' : '') + '</div>';
+        }).join('') + '</div>' +
+        (pp.R > 1 && !cold ? '<div class="notice">בתפיחה חמה הכיכרות של הסבבים האחרונים יתפחו הרבה יותר. כדאי לעבור לתפיחה קרה, או להתחיל ממנה את הסבבים הבאים מאוחר יותר.</div>' : '');
+    }).join('');
   var when = '<div class="sub" style="margin-top:0">לפי מה נקבע את כל זמני התהליך?</div><div class="anchors">' +
-    Object.keys(ANCH).map(function (k) { return '<button type="button" data-act="anchor" data-v="' + k + '" aria-pressed="' + (S.plan.anchor === k) + '">' + ANCH[k] + '</button>'; }).join('') + '</div>' +
+    MAINA.map(abtn).join('') + '</div>' + (showX ? '<div class="sub" style="margin-top:2px">עוד שלבים בהכנה</div><div class="anchors">' + xs.map(abtn).join('') + '</div>' : '') +
+    (isX ? '' : '<button type="button" class="link" style="align-self:flex-start" data-act="moreanch">' + (S.plan.moreAnch ? 'פחות שלבים' : 'עוד שלבים') + '</button>') +
     (multi ? '<div class="notice" style="background:var(--tint);color:var(--deep)">התהליך של המתכונים שבחרת שונה, ולכן הם מתחלקים ל־' + bs.length + ' הכנות. בחר זמן לכל הכנה.</div>' : '') +
-    bs.map(function (g) { return whenCard(g, multi); }).join('') + strips;
+    bs.map(function (g) { return whenCard(g, multi); }).join('') + strips + bakeCard;
   var how = '<div class="rowx" style="align-items:center"><div class="sub" style="margin-top:0">כל שלבי ההכנה של המתכון, לפי ההגדרות שלו</div><button type="button" class="link" data-act="nav" data-v="settings">עריכה</button></div>' +
     bs.map(function (g) {
       var cf = g.p.c;
@@ -1117,7 +1163,7 @@ function bakeView() {
   var items = bakeItems(b), pr = progressOf(b, items), c = b.c, p = b.plan;
   var all = pr.d === pr.n;
   var hero = all ? '<div class="hero"><div class="l"><span>הלחם מוכן</span></div><div class="t m" style="font-size:44px">בתיאבון</div><div class="s">כדאי לחכות שהכיכר תתקרר לפני החיתוך.</div></div>' :
-    '<div class="hero"><div class="l"><span>הלחם יוצא מהתנור ב־</span></div><div class="t m">' + hhmm(p.bakeEnd) + '</div><div class="s">' + SHAPE[c.shape] + ' · ' + (c.bakeSplit ? c.bake1 + ' + ' + c.bake2 : c.bakeOne) + ' דק׳ · 230°</div></div>';
+    '<div class="hero"><div class="l"><span>' + ((p.R || 1) > 1 ? 'הסבב האחרון יוצא מהתנור ב־' : 'הלחם יוצא מהתנור ב־') + '</span></div><div class="t m">' + hhmm(p.bakeEnd) + '</div><div class="s">' + SHAPE[c.shape] + ' · ' + (c.bakeSplit ? c.bake1 + ' + ' + c.bake2 : c.bakeOne) + ' דק׳ · 230°</div></div>';
   return hero + '<div class="sec" style="gap:8px"><div class="bar"><i style="width:' + Math.round(pr.d / pr.n * 100) + '%"></i></div><div class="meta2"><span>' + esc(b.name) + '</span><span>הושלמו ' + pr.d + ' מתוך ' + pr.n + '</span></div></div>' +
     listHTML(b, items) + '<button type="button" class="cta' + (all ? '' : ' alt') + '" data-act="newbrew">אפייה חדשה</button>';
 }
@@ -1272,7 +1318,7 @@ function tick(id) {
   var it = allItems(b).filter(function (i) { return i.id === id; })[0]; if (!it) return;
   if (b.done[id]) { delete b.done[id]; return; }
   b.done[id] = true;
-  if (it.starts) startTimer(b, it.starts);
+  if (it.starts) [].concat(it.starts).forEach(function (s) { startTimer(b, s); });
 }
 function onAct(a, el) {
   var d = el.dataset, b = B();
@@ -1285,6 +1331,7 @@ function onAct(a, el) {
     case 'obskip': S.ob = null; S.view = 'plan'; window.scrollTo(0, 0); break;
     case 'acc': S.acc = S.acc || {}; S.acc[d.k] = !S.acc[d.k]; S.jo = S.acc[d.k] ? d.k : null; break;
     case 'anchor': S.plan.anchor = d.v; break;
+    case 'moreanch': S.plan.moreAnch = !S.plan.moreAnch; break;
     case 'build': startBrew(); window.scrollTo(0, 0); break;
     case 'newbrew': S.brews = []; S.bi = 0; S.view = 'plan'; window.scrollTo(0, 0); break;
     case 'tick': tick(d.id); break;
@@ -1317,6 +1364,7 @@ function onAct(a, el) {
     case 'step': {
       var dd = +d.d, key = d.k, ctx = d.ctx, bd = BOUNDS[key];
       if (ctx === 'planfeed') { var nv = clamp(key, eff(S.recipes.filter(function (x) { return S.plan.sel[x.id]; })[0])[key] + dd * bd[2]); planSet(key, nv); break; }
+      if (ctx === 'planopt') { var cur0 = key === 'cap' ? capOf(eff(S.recipes.filter(function (x) { return S.plan.sel[x.id]; })[0] || null)) : leadOf(); S.plan[key] = clamp(key, cur0 + dd * bd[2]); break; }
       if (ctx.indexOf('sel:') === 0) { var sid = ctx.slice(4); S.plan.sel[sid] = clamp('qty', (S.plan.sel[sid] || 1) + dd); break; }
       if (key === 'starter') { var rr = recipeById(ctx.slice(4)); rr.starter = clamp(key, rr.starter + dd * bd[2]); break; }
       var obj = ctxObj(ctx); if (!obj) break;
