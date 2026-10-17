@@ -290,14 +290,16 @@ h1, h2, h3, p { margin: 0; }
 .sl-g { animation: slFall .9s ease-in infinite; } .sl-g.d1 { animation-delay: .18s; } .sl-g.d2 { animation-delay: .36s; } .sl-g.d3 { animation-delay: .54s; } .sl-g.d4 { animation-delay: .72s; }
 @keyframes slDust { 0%, 15% { opacity: 0; } 55%, 100% { opacity: 1; } }
 .sl-s { animation: slDust 3.6s ease-out infinite; } .sl-s.d1 { animation-delay: .5s; } .sl-s.d2 { animation-delay: 1s; }
-@keyframes foA { 0%, 8% { opacity: 0 } 12%, 26% { opacity: 1 } 30%, 100% { opacity: 0 } }
-@keyframes foB { 0%, 26% { opacity: 0 } 30%, 44% { opacity: 1 } 48%, 100% { opacity: 0 } }
-@keyframes foC { 0%, 44% { opacity: 0 } 48%, 62% { opacity: 1 } 66%, 100% { opacity: 0 } }
-@keyframes foD { 0%, 62% { opacity: 0 } 68%, 92% { opacity: 1 } 98%, 100% { opacity: 0 } }
-@keyframes foE { 0%, 8% { opacity: 0 } 14%, 40% { opacity: 1 } 46%, 100% { opacity: 0 } }
-.fo-1 { animation: foA 5s ease-in-out infinite; } .fo-2 { animation: foB 5s ease-in-out infinite; } .fo-3 { animation: foC 5s ease-in-out infinite; } .fo-4 { animation: foD 5s ease-in-out infinite; } .fo-ar { animation: foE 5s ease-in-out infinite; }
-.paused .fo-1, .paused .fo-2, .paused .fo-3, .paused .fo-4, .paused .fo-ar { animation-play-state: paused; }
-@media (prefers-reduced-motion: reduce) { .fo-1, .fo-2, .fo-3, .fo-4, .fo-ar { animation: none; opacity: 0; } }
+@keyframes foS { 0%, 4% { opacity: 0; transform: rotate(-8deg) scale(1, 1) } 8% { opacity: 1; transform: rotate(-12deg) scale(1, 8) } 24% { transform: rotate(-17deg) scale(1, 33) } 44% { transform: rotate(31deg) scale(1, 46) } 62% { transform: rotate(81deg) scale(1, 64) } 72% { opacity: 1; transform: rotate(84deg) scale(1, 62) } 76%, 100% { opacity: 0; transform: rotate(84deg) scale(1, 62) } }
+@keyframes foH { 0%, 4% { opacity: 0; transform: translate(24px, 54px) rotate(-8deg) } 8% { opacity: 1; transform: translate(22px, 46px) rotate(-12deg) } 24% { transform: translate(14px, 22px) rotate(-17deg) } 44% { transform: translate(48px, 15px) rotate(31deg) } 62% { transform: translate(87px, 44px) rotate(81deg) } 72% { opacity: 1; transform: translate(86px, 48px) rotate(84deg) } 76%, 100% { opacity: 0; transform: translate(86px, 48px) rotate(84deg) } }
+@keyframes foL { 0%, 70% { opacity: 0 } 76%, 93% { opacity: 1 } 100% { opacity: 0 } }
+.fo-s { transform-origin: 24px 54px; animation: foS 5.4s ease-in-out infinite; }
+.fo-h { animation: foH 5.4s ease-in-out infinite; }
+.fo-l { animation: foL 5.4s ease-in-out infinite; }
+@keyframes rlSpread { 0%, 6% { transform: scale(1, 1) } 72%, 90% { transform: scale(1.7, .6) } 100% { transform: scale(1, 1) } }
+.rl-b { transform-box: fill-box; transform-origin: 50% 100%; animation: rlSpread 7s ease-in-out infinite; }
+.paused .fo-s, .paused .fo-h, .paused .fo-l, .paused .rl-b { animation-play-state: paused; }
+@media (prefers-reduced-motion: reduce) { .fo-s, .fo-h, .fo-l, .rl-b { animation: none; } .fo-s, .fo-h { opacity: 0; } }
 .fl-l { transform-origin: 48px 40px; animation: flFold 6.4s cubic-bezier(.45,.05,.4,1) infinite backwards; }
 @keyframes flFold { 0% { transform: scaleX(1); opacity: 0; } 1% { opacity: 1; } 5% { transform: translateX(7px) scaleX(1.15); } 14% { transform: translateX(0) scaleX(.04); } 21% { transform: scaleX(-1); } 24% { transform: scaleX(-1); opacity: 1; } 25%, 100% { transform: scaleX(-1); opacity: 0; } }
 .mx-wv { animation: fjSwirl .3s ease-in-out infinite alternate; }
@@ -653,11 +655,11 @@ function doughItems(b) {
   items.push({ id: 'mix', anim: (c.method === 'auto' ? 'mixA' : 'mixF') + ({ hand: '', kneader: 'k', mixer: 'm' }[c.mix] || ''), title: c.method === 'auto' ? 'אוטוליזה: קמח ומים' : 'פרמנטוליזה: קמח, מים ומחמצת', sub: verb + ' עד שאין קמח יבש. בלי מלח.', starts: 'salt' });
   var A = c.method === 'auto', nextS = c.folds ? 'fold1' : 'shapewait', tl = ({ hand: '', kneader: 'k', mixer: 'm' }[c.mix] || '');
   items.push({ id: 'salt', wait: true, autoDone: true, title: A ? 'אוטוליזה: המתנה' : 'המתנה לפני המלח', sub: A ? 'הבצק נח, בלי מחמצת ובלי מלח.' : c.saltWait + ' דקות',
-    timer: { id: 'salt', total: c.saltWait * 60, label: A ? 'נשאר באוטוליזה' : 'נשאר עד המלח', art: 'bowl', msg: A ? 'האוטוליזה נגמרה. מוסיפים מחמצת ומלח.' : 'עברו ' + c.saltWait + ' דקות. מוסיפים את המלח.' } });
-  items.push({ id: 'addss', anim: (A ? 'saltS' : 'salt') + tl, title: A ? 'הוספת מחמצת ומלח' : 'הוספת מלח', sub: A ? 'מוסיפים את המחמצת ואת המלח, ולשים עד שנטמעו היטב.' : 'מוסיפים את המלח ומטמיעים בבצק.', starts: c.folds ? undefined : 'shapewait' });
+    timer: { id: 'salt', total: c.saltWait * 60, label: A ? 'נשאר באוטוליזה' : 'נשאר עד המלח', art: 'relax', msg: A ? 'האוטוליזה נגמרה. מוסיפים מחמצת ומלח.' : 'עברו ' + c.saltWait + ' דקות. מוסיפים את המלח.' } });
+  items.push({ id: 'addss', anim: (A ? 'saltS' : 'salt') + (tl || 'Big'), title: A ? 'הוספת מחמצת ומלח' : 'הוספת מלח', sub: A ? 'מוסיפים את המחמצת ואת המלח, ולשים עד שנטמעו היטב.' : 'מוסיפים את המלח ומטמיעים בבצק.', starts: c.folds ? undefined : 'shapewait' });
   for (var k = 1; k <= c.folds; k++) {
     if (k > 1) items.push({ id: 'fw' + k, wait: true, autoDone: true, title: 'המתנה', sub: c.gap + ' דקות',
-      timer: { id: 'fw' + k, total: c.gap * 60, label: 'נשאר עד קיפול ' + (ORD[k - 1] || k), art: 'bowl', msg: 'זמן לקיפול ' + (ORD[k - 1] || k) + '.' } });
+      timer: { id: 'fw' + k, total: c.gap * 60, label: 'נשאר עד קיפול ' + (ORD[k - 1] || k), art: 'relax', msg: 'זמן לקיפול ' + (ORD[k - 1] || k) + '.' } });
     items.push({ id: 'fold' + k, anim: 'fold', title: 'קיפול ' + (ORD[k - 1] || k), sub: (k === 1 && c.folds ? 'מיד אחרי הוספת המלח' + '\n' : '') + '\u200FStretch and fold או coil fold', starts: k < c.folds ? 'fw' + (k + 1) : 'shapewait' });
   }
   items.push({ id: 'shapewait', wait: true, autoDone: true, title: 'התפחה ראשונה', bold: true, sub: 'עיצוב מתוכנן ב־' + hhmm(p.shapeAt),
@@ -826,14 +828,21 @@ ART.salt = function () {
     '<rect x="-6" y="-3.2" width="12" height="3.8" rx="1.4" style="fill:var(--acc)"/><circle cx="-2.2" cy="-1.2" r=".7" fill="#fff"/><circle cx="0" cy="-1.2" r=".7" fill="#fff"/><circle cx="2.2" cy="-1.2" r=".7" fill="#fff"/></g></svg>';
 };
 ART.fold = function () {
-  var id = 'fo' + (++uid), B = 'M14 54h92c0 22-18 34-46 34S14 76 14 54z', sh = function (cls, d) { return '<path class="' + cls + '" d="' + d + '" stroke-width="2" stroke-linejoin="round" style="fill:var(--dough);stroke:var(--dough-edge)"/>'; };
+  var id = 'fo' + (++uid), B = 'M14 58h92c0 20-16 30-46 30S14 78 14 58z', ed = 'stroke:var(--dough-edge)', skin = 'fill:var(--tint2);stroke:var(--deep)';
   return '<svg class="fo" width="150" height="112" viewBox="0 0 120 90" aria-hidden="true" style="overflow:visible"><defs><clipPath id="' + id + '"><path d="' + B + '"/></clipPath></defs>' +
-    '<path d="' + B + '" style="fill:var(--card)"/><g clip-path="url(#' + id + ')"><rect x="10" y="50" width="100" height="42" style="fill:var(--dough)"/></g>' +
-    '<path d="M18 54Q60 30 102 54Z" stroke-width="2" stroke-linejoin="round" style="fill:var(--dough);stroke:var(--dough-edge)"/>' +
-    sh('fo-1', 'M20 52Q12 36 16 14Q30 26 40 44Z') + sh('fo-2', 'M20 52Q18 8 58 14Q48 30 36 44Z') + sh('fo-3', 'M20 52Q50 28 100 50Q72 56 38 50Z') +
-    '<path class="fo-4" d="M28 50Q60 38 92 52" fill="none" stroke-width="2.4" stroke-linecap="round" style="stroke:var(--dough-edge)"/>' +
-    '<g class="fo-ar" fill="none" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="stroke:var(--acc)"><path d="M26 18Q62 -6 98 28"/><path d="M90 26L99 30L97 20"/></g>' +
-    '<path d="' + B + '" fill="none" style="stroke:var(--deep)" stroke-width="2.4" stroke-linejoin="round"/><path d="M11 54h98" style="stroke:var(--deep)" stroke-width="3" stroke-linecap="round"/></svg>';
+    '<path d="' + B + '" style="fill:var(--card)"/><g clip-path="url(#' + id + ')"><rect x="10" y="62" width="100" height="30" style="fill:var(--dough)"/></g>' +
+    '<path d="M18 59Q60 26 102 59Z" stroke-width="2" stroke-linejoin="round" style="fill:var(--dough);' + ed + '"/>' +
+    '<g class="fo-l"><path d="M30 53Q62 34 100 55Q68 60 36 57Z" stroke-width="2" stroke-linejoin="round" style="fill:var(--dough);' + ed + '"/><path d="M34 52Q64 44 92 54" fill="none" stroke-width="2" stroke-linecap="round" style="' + ed + '"/></g>' +
+    '<g class="fo-s"><path d="M17 54Q16 53.5 24 53Q32 53.5 31 54Z" stroke-width="2" stroke-linejoin="round" vector-effect="non-scaling-stroke" style="fill:var(--dough);stroke:var(--crust)"/></g>' +
+    '<g class="fo-h"><g stroke-width="1.9" stroke-linejoin="round" style="' + skin + '"><rect x="-9" y="-17" width="18" height="15" rx="6"/><rect x="-8" y="-4" width="5" height="12" rx="2.5"/><rect x="-2.5" y="-4" width="5" height="13" rx="2.5"/><rect x="3" y="-4" width="5" height="12" rx="2.5"/></g></g>' +
+    '<path d="' + B + '" fill="none" style="stroke:var(--deep)" stroke-width="2.4" stroke-linejoin="round"/><path d="M11 58h98" style="stroke:var(--deep)" stroke-width="3" stroke-linecap="round"/></svg>';
+};
+ART.relax = function () {
+  var id = 'rl' + (++uid), B = 'M14 44h92c0 26-18 42-46 42S14 70 14 44z';
+  return '<svg class="rlx" width="104" height="78" viewBox="0 0 120 90" aria-hidden="true"><defs><clipPath id="' + id + '"><path d="M14 20H106V44c0 26-18 42-46 42S14 70 14 44z"/></clipPath></defs>' +
+    '<path d="' + B + '" style="fill:var(--card)"/><g clip-path="url(#' + id + ')"><g class="rl-b"><path d="M36 74C34 56 44 48 60 48S86 56 84 74C82 86 70 88 60 88S38 86 36 74Z" stroke-width="2" stroke-linejoin="round" style="fill:var(--dough);stroke:var(--dough-edge)"/>' +
+    '<ellipse cx="50" cy="58" rx="7" ry="3.2" transform="rotate(-24 50 58)" fill="#fff" fill-opacity=".3"/><circle cx="66" cy="68" r="2" style="fill:var(--bubble)"/><circle cx="54" cy="74" r="1.6" style="fill:var(--bubble)"/></g></g>' +
+    '<path d="' + B + '" fill="none" style="stroke:var(--deep)" stroke-width="2.4" stroke-linejoin="round"/><path d="M11 44h98" style="stroke:var(--deep)" stroke-width="3" stroke-linecap="round"/></svg>';
 };
 ART.poke = function () {
   var skin = 'fill:var(--tint2);stroke:var(--deep)', B = 'M12 72H108C108 96 92 110 60 110S12 96 12 72Z', B2 = 'M16 72H104C104 93 90 106 60 106S16 93 16 72Z', id = 'pb' + (++uid);
@@ -1039,8 +1048,10 @@ function inTool(scene, tool, small) {
   return '<svg' + (cls ? ' class="' + cls + '"' : '') + ' style="overflow:visible" width="' + (small ? 108 : 170) + '" height="' + (small ? 72 : 113) + '" viewBox="-2 0 140 90" aria-hidden="true">' + toolBase(tool) + toolHead(tool) +
     '<g transform="translate(4 -14.3) scale(1.167)">' + inner + '</g></svg>';
 }
+ART.saltBig = function () { return ART.salt().replace('width="88" height="77"', 'width="150" height="131"'); };
+ART.saltSBig = function () { return ART.saltS().replace('width="88" height="77"', 'width="150" height="131"'); };
 ['k', 'm'].forEach(function (t) {
-  ART['salt' + t] = function () { return inTool(ART.salt(), t, true); };
+  ART['salt' + t] = function () { return inTool(ART.salt(), t); };
   ART['saltS' + t] = function () { return inTool(ART.saltS(), t); };
 });
 function handSvg(rot) {
