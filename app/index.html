@@ -88,6 +88,63 @@ h1, h2, h3, p { margin: 0; }
 .obdots i { width: 8px; height: 8px; border-radius: 4px; background: var(--line); }
 .obdots i.on { width: 22px; background: var(--acc); }
 .obwrap { display: flex; flex-direction: column; gap: 22px; padding-top: 8px; }
+/* plan screen: three collapsible headings, each opening with its own small animation */
+.accd { background: var(--card); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); overflow: hidden; }
+.acch { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 72px; padding: 12px 16px; background: none; border: 0; text-align: start; color: var(--ink); }
+.acch .ai { flex: none; width: 42px; height: 42px; border-radius: 13px; background: var(--tint); color: var(--deep); display: grid; place-items: center; }
+.acch .at { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.acch .at b { font-family: var(--f-disp); font-weight: 500; font-size: 24px; line-height: 1.15; }
+.acch .at small { color: var(--mut); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.acch .chev { flex: none; color: var(--mut); transition: transform .25s; }
+.acch[aria-expanded="true"] .chev { transform: rotate(180deg); }
+.accb { position: relative; padding: 0 16px 16px; overflow: hidden; }
+.accin { display: flex; flex-direction: column; gap: 12px; }
+.accb.play.k-when .accin { animation: accIn .5s ease 1.45s backwards; }
+.accb.play.k-how .accin { animation: accIn .5s ease 1.75s backwards; }
+@keyframes accIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.accb.play.k-what .tile { animation: tilePop .4s cubic-bezier(.3,1.4,.5,1) calc(.85s + var(--i, 0) * 70ms) backwards; }
+@keyframes tilePop { from { opacity: 0; transform: scale(.6) translateY(8px); } to { opacity: 1; transform: none; } }
+.ov { position: absolute; inset: 0 16px 16px; pointer-events: none; z-index: 2; }
+/* book: cover and pages swing open from the spine */
+.ov-book { perspective: 1000px; }
+.ov-book i { position: absolute; inset: 0; border-radius: 12px; transform-origin: right center; }
+.ov-book .pg { background: linear-gradient(270deg, #e9dfc8, #fbf6ea 16%); border: 1px solid var(--line); animation: bkOpen .85s cubic-bezier(.55,0,.25,1) both; }
+.ov-book .p1 { animation-delay: .14s; } .ov-book .p2 { animation-delay: .28s; } .ov-book .p3 { animation-delay: .42s; }
+.ov-book .cv { background: var(--deep); display: grid; place-items: center; color: var(--card); font-family: var(--f-disp); font-size: 22px; font-style: normal; box-shadow: inset 0 0 0 5px rgba(255,255,255,.12); animation: bkOpen .85s cubic-bezier(.55,0,.25,1) both; }
+@keyframes bkOpen { 0% { transform: rotateY(0); opacity: 1; } 65% { transform: rotateY(78deg); opacity: 1; } 100% { transform: rotateY(102deg); opacity: 0; } }
+/* hourglass: flips, sand runs, then the time settings appear */
+.ov-glass, .ov-jar { background: var(--card); display: grid; place-items: center; }
+.ov-glass { animation: ovOut .4s ease 1.55s both; }
+.ov-jar { animation: ovOut .4s ease 1.85s both; }
+@keyframes ovOut { to { opacity: 0; } }
+.hgsvg { overflow: visible; animation: hgFlip .7s cubic-bezier(.6,0,.3,1) both; }
+@keyframes hgFlip { from { transform: rotate(-180deg); } to { transform: none; } }
+.sand-t, .sand-b { transform-box: fill-box; transform-origin: 50% 100%; }
+.sand-t { animation: sandOut .95s linear .7s both; }
+.sand-b { animation: sandIn .95s linear .7s both; }
+@keyframes sandOut { from { transform: scaleY(1); } to { transform: scaleY(0); } }
+@keyframes sandIn { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+.hgstream { animation: hgStream 1s linear .7s both; }
+@keyframes hgStream { 0% { opacity: 0; stroke-dashoffset: 0; } 8%, 92% { opacity: 1; } 100% { opacity: 0; stroke-dashoffset: -20; } }
+/* sourdough jar: a spoon pours in the feed, stirs, and leaves */
+.fjsvg { overflow: visible; }
+.fj-sp { animation: fjSpoon 1.9s linear both; }
+@keyframes fjSpoon {
+  0% { transform: translate(112px,-16px) rotate(30deg); opacity: 0; } 6% { opacity: 1; }
+  18% { transform: translate(80px,12px) rotate(28deg); } 32% { transform: translate(66px,42px) rotate(8deg); }
+  40% { transform: translate(60px,66px) rotate(0deg); } 48% { transform: translate(78px,72px) rotate(-7deg); }
+  56% { transform: translate(46px,72px) rotate(7deg); } 64% { transform: translate(78px,72px) rotate(-7deg); }
+  72% { transform: translate(46px,72px) rotate(7deg); } 80% { transform: translate(62px,64px) rotate(0deg); }
+  92% { transform: translate(92px,0) rotate(22deg); opacity: 1; } 100% { transform: translate(116px,-18px) rotate(30deg); opacity: 0; } }
+.fj-drop { animation: fjDrop 1.9s linear both; opacity: 0; }
+@keyframes fjDrop { 0%, 17% { transform: translate(78px,14px); opacity: 0; } 19% { opacity: 1; } 32% { transform: translate(62px,80px); opacity: 1; } 34%, 100% { transform: translate(62px,82px) scale(.2); opacity: 0; } }
+.fj-d { animation: fjRise 1.9s ease-out both; }
+@keyframes fjRise { 0%, 30% { transform: translateY(96px); } 42%, 100% { transform: translateY(80px); } }
+.fj-wave { animation: fjSwirl .25s ease-in-out .76s 3 alternate both; }
+@keyframes fjSwirl { from { transform: translateX(-6px); } to { transform: translateX(6px); } }
+.fj-b { transform-box: fill-box; transform-origin: center; animation: fjB .5s ease-out both; }
+@keyframes fjB { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .ov { display: none; } .accb.play .accin, .accb.play .tile { animation: none; } }
 .notice { background: var(--warn-bg); color: var(--warn); border-radius: 14px; padding: 12px 14px; font-size: 14px; }
 .empty { text-align: center; padding: 28px 18px; display: flex; flex-direction: column; gap: 14px; align-items: center; }
 .empty b { font-family: var(--f-disp); font-size: 22px; font-weight: 500; }
@@ -294,7 +351,7 @@ function defCalc() {
   return { temps: temps, types: types };
 }
 function fresh() {
-  return { settings: Object.assign({}, DEFAULTS), recipes: seedRecipes(), plan: { sel: { plain: 2 }, anchor: 'bakeStart', ats: {} }, brews: [], bi: 0, view: 'plan', open: null, calc: defCalc(), calcType: 'white', ob: { i: 0 } };
+  return { settings: Object.assign({}, DEFAULTS), recipes: seedRecipes(), plan: { sel: { plain: 2 }, anchor: 'bakeStart', ats: {} }, brews: [], bi: 0, view: 'plan', open: null, calc: defCalc(), calcType: 'white', ob: { i: 0 }, acc: {}, jo: null };
 }
 var S = (function () {
   var s = fresh();
@@ -443,9 +500,9 @@ function iconKey(name) {
 }
 function iconSvg(name, size) { return '<svg width="' + size + '" height="' + size + '" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + ICONS[iconKey(name)] + '</svg>'; }
 function tilesHTML(mode) {
-  var h = S.recipes.map(function (r) {
+  var h = S.recipes.map(function (r, ix) {
     var q = S.plan.sel[r.id] || 0, plan = mode === 'plan', on = plan ? q > 0 : S.open === r.id;
-    return '<button type="button" class="tile' + (on ? ' on' : '') + '" data-act="' + (plan ? 'tsel' : 'ropen') + '" data-id="' + r.id + '" ' + (plan ? 'aria-pressed="' + on + '"' : 'aria-expanded="' + on + '"') + '>' +
+    return '<button type="button" class="tile' + (on ? ' on' : '') + '" style="--i:' + ix + '" data-act="' + (plan ? 'tsel' : 'ropen') + '" data-id="' + r.id + '" ' + (plan ? 'aria-pressed="' + on + '"' : 'aria-expanded="' + on + '"') + '>' +
       (q > 0 ? '<span class="badge">' + (plan ? q : ic('check', 12, 3)) + '</span>' : '') + iconSvg(r.name, 40) + '<span class="nm">' + esc(r.name || 'מתכון חדש') + '</span></button>';
   }).join('');
   if (mode === 'recipes') h += '<button type="button" class="tile add" data-act="radd">' + ic('plus', 28, 2.2) + '<span class="nm">מתכון חדש</span></button>';
@@ -662,37 +719,77 @@ function planSet(key, v) {
   S.recipes.forEach(function (r) { if (S.plan.sel[r.id]) r.over[key] = v; });
   batches().forEach(function (g) { var t = old[g.items[0].r.id]; if (t != null) S.plan.ats[g.key] = t; });
 }
+var CHEV = '<svg class="chev" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
+var ICO = {
+  what: function () { return ic('book', 22); },
+  when: function () { return '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12M6 21h12M7 3c0 5 5 7 5 9s-5 4-5 9M17 3c0 5-5 7-5 9s5 4 5 9"/></svg>'; },
+  how: function () { return '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3h8M7 6h10M7 6c-1 1-2 2-2 4v8a3 3 0 0 0 3 3h8a3 3 0 0 0 3-3v-8c0-2-1-3-2-4M5 14h14"/></svg>'; }
+};
+var OV = {
+  what: function () { return '<div class="ov ov-book" aria-hidden="true"><i class="pg p3"></i><i class="pg p2"></i><i class="pg p1"></i><i class="cv"><span>ספר המתכונים</span></i></div>'; },
+  when: function () {
+    var id = 'hg' + (++uid), glass = 'M12 8H48C48 30 34 38 30 45C34 52 48 60 48 82H12C12 60 26 52 30 45C26 38 12 30 12 8Z';
+    return '<div class="ov ov-glass" aria-hidden="true"><svg class="hgsvg" width="76" height="110" viewBox="0 0 60 90" fill="none"><defs><clipPath id="' + id + '"><path d="' + glass + '"/></clipPath></defs>' +
+      '<g clip-path="url(#' + id + ')"><rect class="sand-t" x="10" y="8" width="40" height="37" style="fill:var(--acc)"/><rect class="sand-b" x="10" y="45" width="40" height="37" style="fill:var(--acc)"/></g>' +
+      '<path class="hgstream" d="M30 45V80" stroke-dasharray="2 3" stroke-width="1.6" style="stroke:var(--acc)"/>' +
+      '<path d="' + glass + '" stroke-width="2.4" stroke-linejoin="round" style="stroke:var(--deep)"/>' +
+      '<rect x="8" y="3" width="44" height="5" rx="2.5" style="fill:var(--deep)"/><rect x="8" y="82" width="44" height="5" rx="2.5" style="fill:var(--deep)"/></svg></div>';
+  },
+  how: function () {
+    var id = 'fj' + (++uid), body = 'M34 30c-8 4-12 10-12 20v52a10 10 0 0 0 10 10h56a10 10 0 0 0 10-10V50c0-10-4-16-12-20z';
+    return '<div class="ov ov-jar" aria-hidden="true"><svg class="fjsvg" width="124" height="134" viewBox="0 0 120 130" fill="none"><defs><clipPath id="' + id + '"><path d="' + body + '"/></clipPath></defs>' +
+      '<path d="' + body + '" style="fill:var(--card)"/>' +
+      '<g clip-path="url(#' + id + ')"><g class="fj-d"><g class="fj-wave"><path d="M-10 0q10-7 20 0t20 0t20 0t20 0t20 0t20 0t20 0V60H-10z" style="fill:var(--dough)"/></g>' +
+      '<circle class="fj-b" cx="46" cy="14" r="2.4" style="fill:var(--bubble);animation-delay:1s"/><circle class="fj-b" cx="68" cy="24" r="2" style="fill:var(--bubble);animation-delay:1.1s"/><circle class="fj-b" cx="56" cy="34" r="1.8" style="fill:var(--bubble);animation-delay:1.2s"/></g></g>' +
+      '<g class="fj-sp"><path d="M2-4L26-62" stroke-width="5" stroke-linecap="round" style="stroke:var(--deep)"/><ellipse cx="0" cy="2" rx="10" ry="6.5" transform="rotate(-24)" stroke-width="2" style="fill:var(--acc);stroke:var(--deep)"/><ellipse cx="-1" cy="0" rx="6" ry="3.2" transform="rotate(-24)" style="fill:#fff;fill-opacity:.85"/></g>' +
+      '<g class="fj-drop"><circle r="7" stroke-width="1.6" style="fill:var(--dough);stroke:var(--dough-edge)"/></g>' +
+      '<path d="' + body + '" stroke-width="2.4" stroke-linejoin="round" style="fill:var(--card);fill-opacity:.2;stroke:var(--deep)"/><rect x="32" y="26" width="56" height="7" rx="3.5" style="fill:var(--acc)"/></svg></div>';
+  }
+};
 function planView() {
-  var bs = batches(), now = Date.now(), multi = bs.length > 1;
-  var selRows = S.recipes.filter(function (r) { return S.plan.sel[r.id]; }).map(function (r) {
+  var bs = batches(), now = Date.now(), multi = bs.length > 1, jo = S.jo, A = S.acc || (S.acc = {});
+  S.jo = null; /* the opening animation plays once, not on every redraw */
+  var sel = S.recipes.filter(function (r) { return S.plan.sel[r.id]; });
+  var selRows = sel.map(function (r) {
     return '<div class="rowx qrow"><span style="display:flex;align-items:center;gap:10px;min-width:0"><span class="acc">' + iconSvg(r.name, 26) + '</span><b>' + esc(r.name) + '</b></span>' + stepper('sel:' + r.id, 'qty', S.plan.sel[r.id], { txt: S.plan.sel[r.id] + ' ' + r.unit }) + '</div>';
   }).join('');
-  var rec = '<div class="sec"><h2>מה אופים?</h2><div class="sub">אפשר לבחור כמה מתכונים ביחד</div>' + tilesHTML('plan') + (selRows ? '<div class="card qlist">' + selRows + '</div>' : '') +
-    '<button type="button" class="link" style="align-self:flex-start" data-act="nav" data-v="recipes">עריכת מתכונים</button></div>';
-  var when = '<div class="sec"><h2>מתי?</h2><div class="sub">לפי מה נקבע את כל זמני התהליך?</div><div class="anchors">' +
-    Object.keys(ANCH).map(function (k) { return '<button type="button" data-act="anchor" data-v="' + k + '" aria-pressed="' + (S.plan.anchor === k) + '">' + ANCH[k] + '</button>'; }).join('') + '</div>' +
-    (multi ? '<div class="notice" style="background:var(--tint);color:var(--deep)">התהליך של המתכונים שבחרת שונה, ולכן הם מתחלקים ל־' + bs.length + ' הכנות. בחר זמן לכל הכנה.</div>' : '') +
-    bs.map(function (g) {
-      return whenCard(g, multi);
-    }).join('') + '</div>';
-  var how = '<div class="sec"><div class="rowx" style="align-items:flex-start"><div style="display:flex;flex-direction:column;gap:2px"><h2 style="font-family:var(--f-disp);font-weight:500;font-size:24px">איך?</h2><div class="sub" style="margin-top:0">כל שלבי ההכנה של המתכון, לפי ההגדרות שלו</div></div><button type="button" class="link" data-act="nav" data-v="settings">עריכה</button></div>' +
-    bs.map(function (g) { return (multi ? '<div style="font-weight:700;font-size:14px;margin-top:4px">' + esc(g.name) + '</div>' : '') + '<div class="chips">' + chipsFor(g.p.c).map(function (c) { return '<span class="chip">' + esc(c) + '</span>'; }).join('') + '</div>'; }).join('') + '</div>';
-  var sums = bs.map(function (g) {
-    var p = g.p, warn = '';
-    if (p.feeds.length && p.feeds[0].t < now) warn = 'ההאכלה הראשונה כבר עברה. אפשר לדחות את התאריך, או להפחית את מספר ההאכלות בהגדרות.';
-    else if (p.feeds.some(function (f) { var h = new Date(f.t).getHours(); return h < 6 || h >= 23; })) warn = 'אחת ההאכלות יוצאת בלילה. אפשר להזיז את הזמן או לשנות את מספר ההאכלות.';
-    var fx = '';
-    {
-      var cf = g.p.c;
-      fx = '<div class="card pad" style="display:flex;flex-direction:column;gap:10px"><div class="rowx"><span style="font-weight:600">מספר האכלות</span>' + stepper('planfeed', 'feeds', cf.feeds) + '</div>' +
-        '<div class="lb" style="font-size:13px;color:var(--mut);font-weight:700">יחס האכלה</div>' + seg('planfeed', 'ratio', RATIOS.reduce(function (o, k) { o[k] = k; return o; }, {}), cf.ratio).replace('--c:5', '--c:3') +
-        '<div class="sx mut" style="font-size:13px">אפשר גם להזיז את הזמן למעלה. השינוי חל על המתכונים שנבחרו.</div></div>';
-    }
-    return (multi ? '<div style="font-weight:700;font-size:14px">' + esc(g.name) + '</div>' : '') + (warn ? '<div class="notice">' + warn + '</div>' : '') + fx +
+  var what = '<div class="sub" style="margin-top:0">אפשר לבחור כמה מתכונים ביחד</div>' + tilesHTML('plan') + (selRows ? '<div class="card qlist">' + selRows + '</div>' : '') +
+    '<button type="button" class="link" style="align-self:flex-start" data-act="nav" data-v="recipes">עריכת מתכונים</button>';
+  var strips = bs.map(function (g) {
+    var p = g.p;
+    return (multi ? '<div style="font-weight:700;font-size:14px">' + esc(g.name) + '</div>' : '') +
       '<div class="card strip"><div><small>' + (p.feeds.length ? 'האכלה ראשונה' : 'האכלות') + '</small><b>' + (p.feeds.length ? hhmm(p.feeds[0].t) : '—') + '</b><small>' + (p.feeds.length ? dayOf(p.feeds[0].t) : 'ללא') + '</small></div>' +
       '<div><small>לישה</small><b>' + hhmm(p.mix) + '</b><small>' + dayOf(p.mix) + '</small></div><div><small>אפייה</small><b>' + hhmm(p.bakeStart) + '</b><small>' + dayOf(p.bakeStart) + '</small></div></div>';
   }).join('');
-  return rec + when + how + '<div class="sec" style="gap:14px">' + sums + '<button type="button" class="cta" data-act="build"' + (bs.length ? '' : ' disabled') + '>בנה לוח זמנים' + ic('fwd', 18, 2) + '</button></div>';
+  var when = '<div class="sub" style="margin-top:0">לפי מה נקבע את כל זמני התהליך?</div><div class="anchors">' +
+    Object.keys(ANCH).map(function (k) { return '<button type="button" data-act="anchor" data-v="' + k + '" aria-pressed="' + (S.plan.anchor === k) + '">' + ANCH[k] + '</button>'; }).join('') + '</div>' +
+    (multi ? '<div class="notice" style="background:var(--tint);color:var(--deep)">התהליך של המתכונים שבחרת שונה, ולכן הם מתחלקים ל־' + bs.length + ' הכנות. בחר זמן לכל הכנה.</div>' : '') +
+    bs.map(function (g) { return whenCard(g, multi); }).join('') + strips;
+  var how = '<div class="rowx" style="align-items:center"><div class="sub" style="margin-top:0">כל שלבי ההכנה של המתכון, לפי ההגדרות שלו</div><button type="button" class="link" data-act="nav" data-v="settings">עריכה</button></div>' +
+    bs.map(function (g) {
+      var cf = g.p.c;
+      return (multi ? '<div style="font-weight:700;font-size:14px;margin-top:4px">' + esc(g.name) + '</div>' : '') + '<div class="chips">' + chipsFor(cf).map(function (c) { return '<span class="chip">' + esc(c) + '</span>'; }).join('') + '</div>' +
+        '<div class="card pad" style="display:flex;flex-direction:column;gap:10px"><div class="rowx"><span style="font-weight:600">מספר האכלות</span>' + stepper('planfeed', 'feeds', cf.feeds) + '</div>' +
+        '<div class="lb" style="font-size:13px;color:var(--mut);font-weight:700">יחס האכלה</div>' + seg('planfeed', 'ratio', RATIOS.reduce(function (o, k) { o[k] = k; return o; }, {}), cf.ratio).replace('--c:5', '--c:3') +
+        '<div class="sx mut" style="font-size:13px">אפשר גם להזיז את הזמן למעלה. השינוי חל על המתכונים שנבחרו.</div></div>';
+    }).join('');
+  var warns = bs.map(function (g) {
+    var p = g.p, warn = '';
+    if (p.feeds.length && p.feeds[0].t < now) warn = 'ההאכלה הראשונה כבר עברה. אפשר לדחות את התאריך, או להפחית את מספר ההאכלות בהגדרות.';
+    else if (p.feeds.some(function (f) { var hr = new Date(f.t).getHours(); return hr < 6 || hr >= 23; })) warn = 'אחת ההאכלות יוצאת בלילה. אפשר להזיז את הזמן או לשנות את מספר ההאכלות.';
+    return warn ? '<div class="notice">' + (multi ? '<b>' + esc(g.name) + ': </b>' : '') + warn + '</div>' : '';
+  }).join('');
+  var g0 = bs[0], c0 = g0 ? g0.p.c : null, at0 = g0 ? atOf(g0.key) : 0;
+  var sumWhat = sel.map(function (r) { return esc(r.name) + (S.plan.sel[r.id] > 1 ? ' ' + ltr('×' + S.plan.sel[r.id]) : ''); }).join(' · ');
+  var sumWhen = g0 ? ANCH[S.plan.anchor] + ' · ' + dayOf(at0) + ' ' + ltr(hhmm(at0)) : '';
+  var sumHow = c0 ? (c0.feeds > 0 ? c0.feeds + ' האכלות · יחס ' + ltr(c0.ratio) : 'ללא האכלות') + ' · לישה ' + MIX[c0.mix] : '';
+  function accord(k, title, sum, body) {
+    var open = !!A[k], play = open && jo === k;
+    return '<div class="accd"><button type="button" class="acch" data-act="acc" data-k="' + k + '" aria-expanded="' + open + '"><span class="ai">' + ICO[k]() + '</span><span class="at"><b>' + title + '</b><small>' + sum + '</small></span>' + CHEV + '</button>' +
+      (open ? '<div class="accb k-' + k + (play ? ' play' : '') + '"><div class="accin">' + body + '</div>' + (play ? OV[k]() : '') + '</div>' : '') + '</div>';
+  }
+  return '<div class="sec" style="gap:12px">' + accord('what', 'מה אופים?', sumWhat, what) + accord('when', 'מתי?', sumWhen, when) + accord('how', 'איך?', sumHow, how) + '</div>' +
+    '<div class="sec" style="gap:14px">' + warns + '<button type="button" class="cta" data-act="build"' + (bs.length ? '' : ' disabled') + '>בנה לוח זמנים' + ic('fwd', 18, 2) + '</button></div>';
 }
 function emptyBrew(what) {
   return '<div class="card empty"><b>עוד אין לוח זמנים</b><p class="mut">בחר מה אופים ומתי, ואז נבנה את ' + what + '.</p><button type="button" class="cta" data-act="nav" data-v="plan">לתכנון</button></div>';
@@ -884,6 +981,7 @@ function onAct(a, el) {
     case 'obnext': if (S.ob.i >= obSteps().length - 1) { S.ob = null; S.view = 'plan'; toast('מוכן', 'שאר ההגדרות קיבלו ברירת מחדל. אפשר לשנות אותן בכל רגע בגלגל השיניים.'); } else S.ob.i++; window.scrollTo(0, 0); break;
     case 'obback': S.ob.i = Math.max(0, S.ob.i - 1); window.scrollTo(0, 0); break;
     case 'obskip': S.ob = null; S.view = 'plan'; window.scrollTo(0, 0); break;
+    case 'acc': S.acc = S.acc || {}; S.acc[d.k] = !S.acc[d.k]; S.jo = S.acc[d.k] ? d.k : null; break;
     case 'anchor': S.plan.anchor = d.v; break;
     case 'build': startBrew(); window.scrollTo(0, 0); break;
     case 'newbrew': S.brews = []; S.bi = 0; S.view = 'plan'; window.scrollTo(0, 0); break;
