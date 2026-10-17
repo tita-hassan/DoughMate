@@ -1168,7 +1168,7 @@ function settingsView() {
       group(d.bakeSplit ? srow('draft', 'bake1', 'שלב ראשון (מכוסה)', d.bake1) + srow('draft', 'bake2', 'שלב שני (פתוח)', d.bake2) : srow('draft', 'bakeOne', 'זמן אפייה', d.bakeOne))) +
     sec('תפיחה סופית', seg('draft', 'proof', PROOF, d.proof) + group(autoRow('warmH', 'תפיחה חמה') + srow('draft', 'coldH', 'תפיחה קרה', d.coldH))) +
     sec('הסביבה', group(srow('draft', 'temp', 'טמפרטורת החדר', d.temp))) +
-    '<div class="sec" style="gap:10px"><button type="button" class="cta alt" style="min-height:50px;font-size:15px" data-act="nav" data-v="calc">טבלאות חישוב: שעות לפי טמפרטורה וקמח</button>' + (dirty ? '<div class="notice">יש שינויים שעוד לא נקבעו.</div>' : '') + '<button type="button" class="cta" data-act="commit"' + (dirty ? '' : ' disabled') + '>' + (dirty ? 'קבע לכל המתכונים' : 'הכול מעודכן') + '</button></div>';
+    '<div class="sec" style="gap:10px"><button type="button" class="cta alt" style="min-height:50px;font-size:15px" data-act="nav" data-v="calc">טבלאות חישוב: שעות לפי טמפרטורה וקמח</button>' + (dirty ? '<div class="notice">יש שינויים שעוד לא נקבעו.</div>' : '') + '<button type="button" class="cta" data-act="commit"' + (dirty ? '' : ' disabled') + '>' + (dirty ? 'קבע לכל המתכונים' : 'הכול מעודכן') + '</button><button type="button" class="link" style="align-self:center" data-act="obrestart">להתחיל את השאלון מחדש</button></div>';
 }
 function calcView() {
   var ty = S.calcType || 'white', T = calcOf(ty), temps = S.calc.temps;
@@ -1280,6 +1280,7 @@ function onAct(a, el) {
     case 'nav': if (d.v === 'settings') draft = Object.assign({}, S.settings); S.view = d.v; window.scrollTo(0, 0); break;
     case 'obmode': S.ob.mode = d.v; S.ob.i = 1; window.scrollTo(0, 0); break;
     case 'obnext': if (S.ob.i >= obSteps().length - 1) { var own = S.ob.mode === 'own'; S.ob = null; S.view = 'plan'; toast('מוכן', own ? 'ההגדרות שלך נשמרו. אפשר לשנות אותן בכל רגע בגלגל השיניים.' : 'שאר ההגדרות קיבלו ברירת מחדל מומלצת. אפשר לשנות אותן בכל רגע בגלגל השיניים.'); } else S.ob.i++; window.scrollTo(0, 0); break;
+    case 'obrestart': S.ob = { i: 0 }; draft = null; window.scrollTo(0, 0); break;
     case 'obback': S.ob.i = Math.max(0, S.ob.i - 1); window.scrollTo(0, 0); break;
     case 'obskip': S.ob = null; S.view = 'plan'; window.scrollTo(0, 0); break;
     case 'acc': S.acc = S.acc || {}; S.acc[d.k] = !S.acc[d.k]; S.jo = S.acc[d.k] ? d.k : null; break;
