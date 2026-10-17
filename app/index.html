@@ -775,7 +775,7 @@ function listHTML(b, items) {
   for (var i = 0; i < items.length; i++) if (!isDone(b, items[i])) { active = i; break; }
   var gk = [], gs = {}, cur = null;
   items.forEach(function (it, i) { if (it.group) { cur = it.group; gs[cur] = { n: 0, d: 0, act: false }; } gk[i] = cur; if (cur) { gs[cur].n++; if (isDone(b, it)) gs[cur].d++; if (i === active) gs[cur].act = true; } });
-  function gOpen(g) { var o = (S.gc || {})[g]; return o === undefined ? !(gs[g].d === gs[g].n) : o; }
+  function gOpen(g) { var o = (S.gc || {})[g]; return o === undefined ? gs[g].act : o; }
   return '<ol class="tl">' + items.map(function (it, i) {
     var done = isDone(b, it), act = i === active;
     if (gk[i] && !it.group && !gOpen(gk[i])) return '';
