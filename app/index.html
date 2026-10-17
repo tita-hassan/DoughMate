@@ -84,6 +84,10 @@ h1, h2, h3, p { margin: 0; }
 .cta { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 56px; border-radius: 16px; border: 0; background: var(--acc); color: var(--acc-ink); font-size: 17px; font-weight: 700; }
 .cta.alt { background: var(--card); color: var(--deep); border: 1.5px solid var(--acc); }
 .cta:disabled { opacity: .45; cursor: default; }
+.obdots { display: flex; gap: 6px; justify-content: center; }
+.obdots i { width: 8px; height: 8px; border-radius: 4px; background: var(--line); }
+.obdots i.on { width: 22px; background: var(--acc); }
+.obwrap { display: flex; flex-direction: column; gap: 22px; padding-top: 8px; }
 .notice { background: var(--warn-bg); color: var(--warn); border-radius: 14px; padding: 12px 14px; font-size: 14px; }
 .empty { text-align: center; padding: 28px 18px; display: flex; flex-direction: column; gap: 14px; align-items: center; }
 .empty b { font-family: var(--f-disp); font-size: 22px; font-weight: 500; }
@@ -290,13 +294,14 @@ function defCalc() {
   return { temps: temps, types: types };
 }
 function fresh() {
-  return { settings: Object.assign({}, DEFAULTS), recipes: seedRecipes(), plan: { sel: { plain: 2 }, anchor: 'bakeStart', ats: {} }, brews: [], bi: 0, view: 'plan', open: null, calc: defCalc(), calcType: 'white' };
+  return { settings: Object.assign({}, DEFAULTS), recipes: seedRecipes(), plan: { sel: { plain: 2 }, anchor: 'bakeStart', ats: {} }, brews: [], bi: 0, view: 'plan', open: null, calc: defCalc(), calcType: 'white', ob: { i: 0 } };
 }
 var S = (function () {
   var s = fresh();
   try {
     var sv = JSON.parse(localStorage.getItem(KEY) || 'null');
     if (sv) {
+      s.ob = sv.ob && typeof sv.ob.i === 'number' ? sv.ob : null; /* existing users skip the questionnaire */
       if (sv.settings) s.settings = Object.assign({}, DEFAULTS, sv.settings);
       if (sv.recipes && sv.recipes.length) s.recipes = sv.recipes;
       if (sv.plan) {
@@ -323,7 +328,7 @@ var S = (function () {
   return s;
 })();
 var draft = null, delArm = null;
-function save() { try { localStorage.setItem(KEY, JSON.stringify({ settings: S.settings, recipes: S.recipes, plan: S.plan, brews: S.brews, bi: S.bi, view: S.view, calc: S.calc, calcType: S.calcType })); } catch (e) {} }
+function save() { try { localStorage.setItem(KEY, JSON.stringify({ settings: S.settings, recipes: S.recipes, plan: S.plan, brews: S.brews, bi: S.bi, view: S.view, calc: S.calc, calcType: S.calcType, ob: S.ob })); } catch (e) {} }
 function B() { return S.brews[S.bi] || null; }
 function recipeById(id) { return S.recipes.filter(function (r) { return r.id === id; })[0]; }
 function interp(map, temps, t) {
@@ -481,6 +486,7 @@ function ic(n, s, w) { return '<svg width="' + (s || 20) + '" height="' + (s || 
 /* ---------- helpers for controls ---------- */
 function ctxObj(ctx) {
   if (ctx === 'draft') return draft;
+  if (ctx === 'ob') return S.settings;
   if (ctx === 'plan') return S.plan;
   if (ctx.indexOf('rec:') === 0) { var r = recipeById(ctx.slice(4)); return r ? r.over : null; }
   if (ctx === 'recmeta') return null;
@@ -797,11 +803,37 @@ function calcView() {
     table('תפיחה חמה', 'שעות מהעיצוב עד שהבצק מוכן לתנור', one('warmH')) +
     '<button type="button" class="btn ghost" style="align-self:flex-start" data-act="calcreset">' + (delArm === 'calc' ? 'בטוח? לחץ שוב לאיפוס' : 'איפוס לברירת מחדל') + '</button>';
 }
+/* ---------- first-run questionnaire: a few questions instead of the full settings screen ---------- */
+function obSteps() {
+  var s = S.settings, ratios = RATIOS.reduce(function (o, k) { o[k] = k; return o; }, {});
+  return [
+    { q: 'כמה חם אצלך בבית בדרך כלל?', why: 'החום קובע כמה מהר המחמצת והבצק מתפיחים. אפשר לתקן לפני כל אפייה.',
+      ctl: '<div class="rowx" style="justify-content:center">' + stepper('ob', 'temp', s.temp) + '</div>' },
+    { q: 'איך אתה מאכיל את המחמצת?', why: 'מחמצת : קמח : מים. ככל שהמספרים גדולים יותר המחמצת מגיעה לשיא לאט יותר, ואפשר לחכות יותר בין האכלות.',
+      ctl: seg('ob', 'ratio', ratios, s.ratio).replace('--c:5', '--c:3') },
+    { q: 'המחמצת גרה במקרר?', why: 'אם כן, ההאכלה הראשונה לוקחת בערך שעה יותר, ואנחנו נחשב את זה בשבילך.',
+      ctl: seg('ob', 'cold', { 'false': 'לא, על השיש', 'true': 'כן, במקרר' }, String(s.cold)) },
+    { q: 'איך אתה לש?', why: 'נתאים לזה את ההוראות בשלב הבצק.',
+      ctl: seg('ob', 'mix', MIX, s.mix) },
+    { q: 'באיזה כלי אתה אופה?', why: 'זה משנה את ההוראות בשלב האפייה.',
+      ctl: seg('ob', 'shape', SHAPE, s.shape).replace('--c:4', '--c:2') }
+  ];
+}
+function obView() {
+  var st = obSteps(), i = Math.min(S.ob.i, st.length - 1), q = st[i], last = i === st.length - 1;
+  return '<div class="obwrap"><div class="obdots" aria-label="שאלה ' + (i + 1) + ' מתוך ' + st.length + '">' + st.map(function (x, k) { return '<i class="' + (k === i ? 'on' : '') + '"></i>'; }).join('') + '</div>' +
+    '<div class="sec" style="gap:8px"><h1 class="ttl">' + q.q + '</h1><div class="mut" style="font-size:15px">' + q.why + '</div></div>' +
+    '<div class="sec">' + q.ctl + '</div>' +
+    '<div class="sec" style="gap:6px"><button type="button" class="cta" data-act="obnext">' + (last ? 'סיימנו' : 'הבא') + '</button>' +
+    '<div class="rowx" style="justify-content:space-between">' + (i > 0 ? '<button type="button" class="link" data-act="obback">חזרה</button>' : '<span></span>') +
+    '<button type="button" class="link" style="color:var(--mut)" data-act="obskip">' + (last ? '' : 'דלג, אסדר אחר כך') + '</button></div></div></div>';
+}
 function render() {
-  var v = S.view, body = { plan: planView, feed: feedView, dough: doughView, bake: bakeView, recipes: recipesView, settings: settingsView, calc: calcView }[v]();
+  var v = S.view;
+  var body = S.ob ? obView() : { plan: planView, feed: feedView, dough: doughView, bake: bakeView, recipes: recipesView, settings: settingsView, calc: calcView }[v]();
   var y = window.scrollY;
-  if ((v === 'feed' || v === 'dough' || v === 'bake') && S.brews.length > 1) body = batchSwitch() + body;
-  app.innerHTML = headHTML() + body;
+  if (!S.ob && (v === 'feed' || v === 'dough' || v === 'bake') && S.brews.length > 1) body = batchSwitch() + body;
+  app.innerHTML = (S.ob ? '<div class="top"><div class="brand">Dough<b>Mate</b></div></div>' : headHTML()) + body;
   window.scrollTo(0, y);
   save();
 }
@@ -849,6 +881,9 @@ function onAct(a, el) {
   var d = el.dataset, b = B();
   switch (a) {
     case 'nav': if (d.v === 'settings') draft = Object.assign({}, S.settings); S.view = d.v; window.scrollTo(0, 0); break;
+    case 'obnext': if (S.ob.i >= obSteps().length - 1) { S.ob = null; S.view = 'plan'; toast('מוכן', 'שאר ההגדרות קיבלו ברירת מחדל. אפשר לשנות אותן בכל רגע בגלגל השיניים.'); } else S.ob.i++; window.scrollTo(0, 0); break;
+    case 'obback': S.ob.i = Math.max(0, S.ob.i - 1); window.scrollTo(0, 0); break;
+    case 'obskip': S.ob = null; S.view = 'plan'; window.scrollTo(0, 0); break;
     case 'anchor': S.plan.anchor = d.v; break;
     case 'build': startBrew(); window.scrollTo(0, 0); break;
     case 'newbrew': S.brews = []; S.bi = 0; S.view = 'plan'; window.scrollTo(0, 0); break;
