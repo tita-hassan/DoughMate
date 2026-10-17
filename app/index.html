@@ -655,7 +655,7 @@ function doughItems(b) {
   }
   items.push({ id: 'shapewait', wait: true, autoDone: true, title: 'התפחה ראשונה עד העיצוב', sub: 'עיצוב מתוכנן ב־' + hhmm(p.shapeAt),
     timer: { id: 'shapewait', dyn: function () { return Math.max(60, (p.shapeAt - Date.now()) / 1000); }, total: Math.max(60, (p.shapeAt - Date.now()) / 1000), label: 'עד Poke Test ועיצוב', art: 'bowl', msg: 'הבצק מוכן לבדיקה. עושים Poke Test.' } });
-  items.push({ id: 'poke', anim: 'poke', title: 'Poke Test', sub: 'לוחצים בעדינות באצבע מקומחת. חוזר לאט ולא עד הסוף: מוכן. חוזר מהר: עוד קצת זמן.' });
+  items.push({ id: 'poke', anim: 'poke', title: 'Jiggle Test + Poke Test', sub: 'מנדנדים את הקערה בעדינות: בצק שרועד כמו ג׳לי מוכן. אחר כך לוחצים באצבע מקומחת: חוזר לאט ולא עד הסוף, מוכן. חוזר מהר, עוד קצת זמן.' });
   items.push({ id: 'pre', anim: 'pre', title: 'Pre-shaping', sub: 'מרכזים את הבצק לכדור רופף.', starts: 'bench' });
   items.push({ id: 'bench', title: 'Bench Rest', sub: c.bench + ' דקות מנוחה.', starts: null, timer: { id: 'bench', total: c.bench * 60, label: 'מנוחת ספסל', art: 'rest', msg: 'המנוחה נגמרה. מעצבים.' } });
   var wh = c.proof === 'warm';
@@ -826,20 +826,26 @@ ART.fold = function () {
     '<circle cx="48" cy="40" r="27" style="fill:var(--dough);stroke:var(--dough-edge)" stroke-width="2"/>' + lobes + '</svg>';
 };
 ART.poke = function () {
-  var skin = 'fill:var(--tint2);stroke:var(--deep)';
-  var hand = '<g stroke-width="1.9" stroke-linejoin="round" stroke-linecap="round">' +
-    '<path d="M-17-60Q-30-62-29-50Q-28-42-20-44Q-18-46-17-52Z" style="' + skin + '"/>' +
-    '<path d="M-7 0Q-7 6.5 0 6.5Q7 6.5 7 0L7-40C7-47 20-48 20-60L20-96L-20-96L-20-60C-20-48-7-47-7-40Z" style="' + skin + '"/>' +
-    '</g>' +
-    '<path d="M-3-14Q0-12 3-14M-3-24Q0-22 3-24M-3-33Q0-31 3-33" fill="none" stroke-width="1.3" stroke-linecap="round" style="stroke:var(--deep);stroke-opacity:.4"/>' +
-    '<path transform="translate(0 4)" d="M-4.2-4.5Q-4.2-11 0-11Q4.2-11 4.2-4.5Q4.2-1.2 0-1.2Q-4.2-1.2-4.2-4.5Z" fill="#fff" fill-opacity=".6" stroke-width="1.2" style="stroke:var(--deep);stroke-opacity:.5"/>' +
-    '<path d="M-14-58Q-14-70-8-80M6-80Q12-72 12-60" fill="none" stroke-width="1.3" stroke-linecap="round" style="stroke:var(--deep);stroke-opacity:.3"/>' +
-    '<rect x="-24" y="-112" width="48" height="26" rx="5" stroke-width="1.9" style="fill:var(--acc);stroke:var(--deep)"/>';
-  return '<svg width="150" height="162" viewBox="0 -40 120 130" aria-hidden="true"><rect x="8" y="74" width="104" height="6" rx="3" style="fill:var(--stone)"/>' +
-    '<path d="M16 74C16 40 40 22 60 22s44 18 44 52z" stroke-width="2.2" stroke-linejoin="round" style="fill:var(--dough);stroke:var(--deep)"/>' +
-    '<ellipse cx="42" cy="38" rx="10" ry="4.4" fill="#fff" fill-opacity=".28" transform="rotate(-28 42 38)"/>' +
-    '<ellipse class="pk-d" cx="60" cy="28" rx="7" ry="3" style="fill:var(--dough-edge)"/>' +
-    '<g class="pk-f">' + hand + '</g></svg>';
+  var skin = 'fill:var(--tint2);stroke:var(--deep)', B = 'M12 72H108C108 96 92 110 60 110S12 96 12 72Z', B2 = 'M16 72H104C104 93 90 106 60 106S16 93 16 72Z', id = 'pb' + (++uid);
+  var hand = '<g stroke-width="1.9" stroke-linejoin="round" stroke-linecap="round" style="' + skin + '">' +
+    '<path d="M-21-76C-23-62-24-50-22-42C-20-34-13-31-7-31L8-31C15-31 21-35 22-44C23-54 22-66 20-76Z"/>' +
+    '<rect x="-19" y="-40" width="12" height="40" rx="6"/>' +
+    '<rect x="-6" y="-34" width="9" height="19" rx="4.5"/><rect x="3" y="-34" width="9" height="17" rx="4.5"/><rect x="12" y="-35" width="9" height="14" rx="4.5"/>' +
+    '<path d="M21-52C31-48 33-35 25-29C20-26 15-31 18-37Z"/></g>' +
+    '<g fill="none" stroke-width="1.3" stroke-linecap="round" style="stroke:var(--deep);stroke-opacity:.4"><path d="M-17-17Q-13-15-9-17M-17-26Q-13-24-9-26M-3-24Q0-22 3-24M6-23Q9-21 12-23M-14-44Q-8-47-2-44"/></g>' +
+    '<rect x="-17.4" y="-12" width="8.8" height="10.5" rx="4.4" fill="#fff" fill-opacity=".6" stroke-width="1.2" style="stroke:var(--deep);stroke-opacity:.5"/>' +
+    '<rect x="-26" y="-112" width="52" height="38" rx="6" stroke-width="1.9" style="fill:var(--acc);stroke:var(--deep)"/>';
+  hand = '<g transform="scale(.7)">' + hand + '</g>';
+  return '<svg class="pt" width="150" height="200" viewBox="0 -30 120 160" aria-hidden="true"><defs><clipPath id="' + id + '"><path d="' + B2 + '"/></clipPath></defs>' +
+    '<g class="jm" fill="none" stroke-width="2.2" stroke-linecap="round" style="stroke:var(--mut)"><path d="M10 60Q4 69 10 78M4 56Q-4 69 4 82M110 60Q116 69 110 78M116 56Q124 69 116 82"/></g>' +
+    '<g class="jb"><path d="' + B + '" style="fill:#dce6ec"/><g clip-path="url(#' + id + ')"><rect x="14" y="68" width="92" height="52" style="fill:var(--dough)"/>' +
+    '<circle cx="40" cy="88" r="3" style="fill:var(--bubble)"/><circle cx="62" cy="98" r="2.4" style="fill:var(--bubble)"/><circle cx="80" cy="86" r="2.8" style="fill:var(--bubble)"/><circle cx="52" cy="80" r="1.8" style="fill:var(--bubble)"/><circle cx="72" cy="104" r="2" style="fill:var(--bubble)"/></g>' +
+    '<g class="jd"><path d="M24 73C24 47 42 35 60 35S96 47 96 73Z" stroke-width="2.2" stroke-linejoin="round" style="fill:var(--dough);stroke:var(--deep)"/>' +
+    '<ellipse cx="43" cy="49" rx="10" ry="4.4" fill="#fff" fill-opacity=".3" transform="rotate(-28 43 49)"/>' +
+    '<circle cx="76" cy="52" r="2.2" style="fill:var(--bubble)"/><circle cx="52" cy="60" r="1.8" style="fill:var(--bubble)"/>' +
+    '<ellipse class="dn" cx="60" cy="39" rx="7" ry="3" style="fill:var(--dough-edge)"/></g>' +
+    '<path d="' + B + '" fill="none" stroke-width="2.4" stroke-linejoin="round" style="stroke:var(--deep)"/><rect x="8" y="69" width="104" height="6.5" rx="3.25" stroke-width="2" style="fill:#c4d3dc;stroke:var(--deep)"/></g>' +
+    '<g class="ph">' + hand + '</g></svg>';
 };
 ART.feed = function () { return OV.how().replace('<div class="ov ov-jar" aria-hidden="true">', '<div class="fjloop" style="display:grid;place-items:center">'); };
 ART.rest = function () {
@@ -995,6 +1001,18 @@ ART.shape = function () {
     '<path d="M20 42Q60 56 100 42" fill="none" stroke-width="3.2" stroke-linecap="round" style="stroke:var(--deep)"/>' +
     '<g class="h2">' + handSvg(180) + '</g></g></svg>';
 };
+function pokeCss() {
+  var P = 7, h = function (y, o) { return 'transform:translate(69px,' + y + 'px);opacity:' + o; };
+  var css = sceneCss('pt', P, {
+    jb: [[0, 'transform:translateX(0px)'], [.4, 'transform:translateX(0px)'], [.65, 'transform:translateX(3px)'], [1.0, 'transform:translateX(-3px)'], [1.35, 'transform:translateX(3px)'], [1.7, 'transform:translateX(-3px)'], [2.05, 'transform:translateX(3px)'], [2.4, 'transform:translateX(-2px)'], [2.7, 'transform:translateX(0px)'], [P, 'transform:translateX(0px)']],
+    jd: [[0, 'transform:scale(1,1)'], [.4, 'transform:scale(1,1)'], [.8, 'transform:scale(1.03,.95)'], [1.15, 'transform:scale(.97,1.05)'], [1.5, 'transform:scale(1.03,.95)'], [1.85, 'transform:scale(.97,1.05)'], [2.2, 'transform:scale(1.02,.97)'], [2.7, 'transform:scale(1,1)'], [P, 'transform:scale(1,1)']],
+    jm: [[0, 'opacity:0'], [.4, 'opacity:0'], [.65, 'opacity:1'], [1.0, 'opacity:.25'], [1.35, 'opacity:1'], [1.7, 'opacity:.25'], [2.05, 'opacity:1'], [2.5, 'opacity:0'], [P, 'opacity:0']],
+    ph: [[0, h(-60, 0)], [3.0, h(-60, 0)], [3.3, h(-30, 1)], [4.0, h(30, 1)], [4.35, h(37, 1)], [5.0, h(37, 1)], [5.7, h(-20, 1)], [6.2, h(-60, 0)], [P, h(-60, 0)]],
+    dn: [[0, 'transform:scale(0);opacity:0'], [4.1, 'transform:scale(0);opacity:0'], [4.4, 'transform:scale(1.4,1.6);opacity:1'], [5.0, 'transform:scale(1.4,1.6);opacity:1'], [6.1, 'transform:scale(.7,.8);opacity:.7'], [6.8, 'transform:scale(.5,.6);opacity:0'], [P, 'transform:scale(0);opacity:0']]
+  });
+  return css + '.pt .jd{transform-origin:60px 73px}.pt .dn{transform-box:fill-box;transform-origin:50% 50%}@media (prefers-reduced-motion: reduce){.pt *{animation:none!important}}';
+}
+(function () { try { var st = document.createElement('style'); st.textContent = pokeCss(); document.head.appendChild(st); } catch (e) {} })();
 function bakeCss() {
   var T = function (x, y, s, o) { return 'transform:translate(' + x + 'px,' + y + 'px) scale(' + (s === undefined ? 1 : s) + ');opacity:' + (o === undefined ? 1 : o); };
   var css = '';
