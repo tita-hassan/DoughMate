@@ -113,19 +113,14 @@ h1, h2, h3, p { margin: 0; }
 .ov-book .cv { background: var(--deep); display: grid; place-items: center; color: var(--card); font-family: var(--f-disp); font-size: 22px; font-style: normal; box-shadow: inset 0 0 0 5px rgba(255,255,255,.12); animation: bkOpen .85s cubic-bezier(.55,0,.25,1) both; }
 @keyframes bkOpen { 0% { transform: rotateY(0); opacity: 1; } 65% { transform: rotateY(78deg); opacity: 1; } 100% { transform: rotateY(102deg); opacity: 0; } }
 /* hourglass: flips, sand runs, then the time settings appear */
-.ov-glass, .ov-jar { background: var(--card); display: grid; place-items: center; }
-.ov-glass { animation: ovOut .4s ease 1.55s both; }
+.ov-clock, .ov-jar { background: var(--card); display: grid; place-items: center; }
+.ov-clock { animation: ovOut .4s ease 1.55s both; }
 .ov-jar { animation: ovOut .4s ease 1.85s both; }
 @keyframes ovOut { to { opacity: 0; } }
-.hgsvg { overflow: visible; animation: hgFlip .7s cubic-bezier(.6,0,.3,1) both; }
-@keyframes hgFlip { from { transform: rotate(-180deg); } to { transform: none; } }
-.sand-t, .sand-b { transform-box: fill-box; transform-origin: 50% 100%; }
-.sand-t { animation: sandOut .95s linear .7s both; }
-.sand-b { animation: sandIn .95s linear .7s both; }
-@keyframes sandOut { from { transform: scaleY(1); } to { transform: scaleY(0); } }
-@keyframes sandIn { from { transform: scaleY(0); } to { transform: scaleY(1); } }
-.hgstream { animation: hgStream 1s linear .7s both; }
-@keyframes hgStream { 0% { opacity: 0; stroke-dashoffset: 0; } 8%, 92% { opacity: 1; } 100% { opacity: 0; stroke-dashoffset: -20; } }
+.ck-h, .ck-m { transform-origin: 50px 50px; animation: ckH 1.5s cubic-bezier(.35,.1,.25,1) both; }
+.ck-m { animation-name: ckM; }
+@keyframes ckH { from { transform: rotate(0deg); } to { transform: rotate(var(--ha, 360deg)); } }
+@keyframes ckM { from { transform: rotate(0deg); } to { transform: rotate(var(--ma, 720deg)); } }
 /* sourdough jar: a spoon pours in the feed, stirs, and leaves */
 .fjsvg { overflow: visible; }
 .fj-sp { animation: fjSpoon 1.9s linear both; }
@@ -273,6 +268,23 @@ h1, h2, h3, p { margin: 0; }
 .steam { animation: steam 3s ease-out infinite; } .steam.d1 { animation-delay: 1.2s; }
 .paused .jar-rise, .paused .dough-rise, .paused .loaf, .paused .ear, .paused .bub, .paused .steam { animation-play-state: paused; }
 @media (prefers-reduced-motion: reduce) { .jar-rise, .bub, .dough-rise, .loaf, .ear, .steam { animation: none; } }
+/* dough-stage scenes: salt shaker, dough fold, poke test */
+@keyframes slShake { from { transform: translate(51px,25px) rotate(10deg); } to { transform: translate(47px,26px) rotate(27deg); } }
+.sl-shk { animation: slShake .45s ease-in-out infinite alternate; }
+@keyframes slFall { 0% { transform: translateY(0); opacity: 0; } 15% { opacity: 1; } 85% { opacity: 1; } 100% { transform: translateY(13px); opacity: 0; } }
+.sl-g { animation: slFall .9s ease-in infinite; } .sl-g.d1 { animation-delay: .18s; } .sl-g.d2 { animation-delay: .36s; } .sl-g.d3 { animation-delay: .54s; } .sl-g.d4 { animation-delay: .72s; }
+@keyframes slDust { 0%, 15% { opacity: 0; } 55%, 100% { opacity: 1; } }
+.sl-s { animation: slDust 3.6s ease-out infinite; } .sl-s.d1 { animation-delay: .5s; } .sl-s.d2 { animation-delay: 1s; }
+.fl-l { transform-origin: 48px 40px; animation: flFold 3.2s cubic-bezier(.45,.05,.4,1) infinite; }
+@keyframes flFold { 0% { transform: scaleX(1); opacity: 1; } 14% { transform: translateX(7px) scaleX(1.15); } 50% { transform: translateX(0) scaleX(.04); } 78% { transform: scaleX(-1); } 90% { transform: scaleX(-1); opacity: 1; } 100% { transform: scaleX(-1); opacity: 0; } }
+.pk-f { animation: pkFinger 4.4s ease-in-out infinite; }
+@keyframes pkFinger { 0% { transform: translate(60px,-4px); } 16% { transform: translate(60px,34px); } 34% { transform: translate(60px,34px); } 50%, 100% { transform: translate(60px,-4px); } }
+.pk-d { transform-box: fill-box; transform-origin: 50% 50%; animation: pkDent 4.4s ease-in-out infinite; }
+@keyframes pkDent { 0%, 15% { transform: scale(0); opacity: 0; } 24% { transform: scale(1.2,1.7); opacity: 1; } 34% { transform: scale(1.2,1.7); opacity: 1; } 90% { transform: scale(.55,.7); opacity: 1; } 100% { transform: scale(.5,.65); opacity: 0; } }
+.animbox { margin-top: 8px; display: grid; place-items: center; background: var(--tint); border-radius: 16px; padding: 10px; }
+.paused .sl-shk, .paused .sl-g, .paused .sl-s, .paused .fl-l { animation-play-state: paused; }
+@media (prefers-reduced-motion: reduce) { .sl-shk, .sl-g, .sl-s, .fl-l, .pk-f, .pk-d { animation: none; } }
+
 </style>
 
 <div class="app" id="app" dir="rtl" lang="he"></div>
@@ -591,14 +603,14 @@ function doughItems(b) {
   var verb = { hand: 'ללוש ידנית', kneader: 'ללוש במלוש', mixer: 'ללוש במיקסר' }[c.mix];
   items.push({ id: 'mix', title: c.method === 'auto' ? 'Autolyse: קמח ומים' : 'Fermentolyse: קמח, מים ומחמצת', sub: verb + ' עד שאין קמח יבש. בלי מלח.', starts: 'salt' });
   items.push({ id: 'salt', title: 'עד הוספת מלח', sub: c.method === 'auto' ? 'מוסיפים את המחמצת ואת המלח ולשים עד שנטמעו.' : 'מוסיפים את המלח ומטמיעים בבצק.', starts: c.folds ? 'fold1' : 'shapewait',
-    timer: { id: 'salt', total: c.saltWait * 60, label: 'עד הוספת מלח', art: 'bowl', msg: 'עברו ' + c.saltWait + ' דקות. מוסיפים את המלח.' } });
+    timer: { id: 'salt', total: c.saltWait * 60, label: 'עד הוספת מלח', art: 'salt', msg: 'עברו ' + c.saltWait + ' דקות. מוסיפים את המלח.' } });
   for (var k = 1; k <= c.folds; k++) {
     items.push({ id: 'fold' + k, title: 'קיפול ' + (ORD[k - 1] || k), sub: 'Stretch and Fold או Coil Fold, ' + c.gap + ' דקות אחרי הקודם.', starts: k < c.folds ? 'fold' + (k + 1) : 'shapewait',
-      timer: { id: 'fold' + k, total: c.gap * 60, label: 'קיפול ' + (ORD[k - 1] || k) + ' בעוד', art: 'bowl', msg: 'זמן לקיפול ' + (ORD[k - 1] || k) + '.' } });
+      timer: { id: 'fold' + k, total: c.gap * 60, label: 'קיפול ' + (ORD[k - 1] || k) + ' בעוד', art: 'fold', msg: 'זמן לקיפול ' + (ORD[k - 1] || k) + '.' } });
   }
   items.push({ id: 'shapewait', wait: true, autoDone: true, title: 'התפחה ראשונה עד העיצוב', sub: 'עיצוב מתוכנן ב־' + hhmm(p.shapeAt),
     timer: { id: 'shapewait', dyn: function () { return Math.max(60, (p.shapeAt - Date.now()) / 1000); }, total: Math.max(60, (p.shapeAt - Date.now()) / 1000), label: 'עד Poke Test ועיצוב', art: 'bowl', msg: 'הבצק מוכן לבדיקה. עושים Poke Test.' } });
-  items.push({ id: 'poke', title: 'Poke Test', sub: 'לוחצים בעדינות באצבע מקומחת. חוזר לאט ולא עד הסוף: מוכן. חוזר מהר: עוד קצת זמן.' });
+  items.push({ id: 'poke', anim: 'poke', title: 'Poke Test', sub: 'לוחצים בעדינות באצבע מקומחת. חוזר לאט ולא עד הסוף: מוכן. חוזר מהר: עוד קצת זמן.' });
   items.push({ id: 'pre', title: 'Pre-shaping', sub: 'מרכזים את הבצק לכדור רופף.', starts: 'bench' });
   items.push({ id: 'bench', title: 'Bench Rest', sub: c.bench + ' דקות מנוחה.', starts: null, timer: { id: 'bench', total: c.bench * 60, label: 'מנוחת ספסל', art: 'bowl', msg: 'המנוחה נגמרה. מעצבים.' } });
   var wh = c.proof === 'warm';
@@ -671,6 +683,7 @@ function listHTML(b, items) {
     var dot = '<span class="' + (done ? 'ok' : act ? 'run' : '') + '">' + (done ? ic('check', 14, 3) : '') + '</span>';
     var extra = '';
     if (act && it.timer) extra += timerCard(b, it);
+    if (act && it.anim) extra += '<div class="animbox">' + ART[it.anim]() + '</div>';
     if (act && it.choice && tstate(b, it).mode === 'idle') extra += '<div style="margin-top:8px">' + seg('brew', 'proof', PROOF, b.c.proof) + '</div>';
     return '<li class="' + (done ? 'done ' : '') + (it.wait ? 'wt' : '') + '"><button type="button" class="dotb" data-act="tick" data-id="' + it.id + '" aria-pressed="' + done + '" aria-label="סימון כהושלם: ' + esc(it.title) + '">' + dot + '</button>' +
       '<div class="b"><div class="st">' + esc(it.title) + '</div>' + (it.sub ? '<div class="sx">' + esc(it.sub) + '</div>' : '') + extra + '</div></li>';
@@ -719,21 +732,48 @@ function planSet(key, v) {
   S.recipes.forEach(function (r) { if (S.plan.sel[r.id]) r.over[key] = v; });
   batches().forEach(function (g) { var t = old[g.items[0].r.id]; if (t != null) S.plan.ats[g.key] = t; });
 }
+ART.salt = function () {
+  var id = 'sc' + (++uid), bowl = 'M12 50h72c0 22-15 34-36 34S12 72 12 50z';
+  return '<svg width="88" height="77" viewBox="0 0 96 84" aria-hidden="true"><defs><clipPath id="' + id + '"><path d="M12 24H84V50c0 22-15 34-36 34S12 72 12 50z"/></clipPath></defs>' +
+    '<path d="' + bowl + '" style="fill:var(--card)"/><g clip-path="url(#' + id + ')"><path d="M12 50Q48 30 84 50V96H12z" style="fill:var(--dough)"/><path d="M12 50Q48 30 84 50" fill="none" style="stroke:var(--dough-edge)" stroke-width="2" stroke-linecap="round"/>' +
+    '<circle class="sl-s" cx="40" cy="42" r="1.2" fill="#fff"/><circle class="sl-s d1" cx="50" cy="40" r="1.2" fill="#fff"/><circle class="sl-s d2" cx="58" cy="43" r="1.2" fill="#fff"/></g>' +
+    '<path d="' + bowl + '" fill="none" style="stroke:var(--deep)" stroke-width="2.4" stroke-linejoin="round"/><path d="M9 50h78" style="stroke:var(--deep)" stroke-width="3" stroke-linecap="round"/>' +
+    [47, 50, 53, 48.5, 51.5].map(function (x, i) { return '<circle class="sl-g' + (i ? ' d' + i : '') + '" cx="' + x + '" cy="29" r="1.3" style="fill:var(--mut)"/>'; }).join('') +
+    '<g class="sl-shk"><rect x="-6.5" y="-19" width="13" height="16" rx="4.5" stroke-width="1.8" style="fill:var(--card);fill-opacity:.9;stroke:var(--deep)"/><rect x="-5" y="-12" width="10" height="8" rx="2" fill="#fff" fill-opacity=".95"/>' +
+    '<rect x="-6" y="-3.2" width="12" height="3.8" rx="1.4" style="fill:var(--acc)"/><circle cx="-2.2" cy="-1.2" r=".7" fill="#fff"/><circle cx="0" cy="-1.2" r=".7" fill="#fff"/><circle cx="2.2" cy="-1.2" r=".7" fill="#fff"/></g></svg>';
+};
+ART.fold = function () {
+  return '<svg width="88" height="73" viewBox="0 0 96 80" aria-hidden="true"><circle cx="48" cy="40" r="35" style="fill:var(--card);stroke:var(--deep)" stroke-width="2.4"/>' +
+    '<circle cx="48" cy="40" r="27" style="fill:var(--dough);stroke:var(--dough-edge)" stroke-width="2"/>' +
+    '<g class="fl-l"><path d="M48 13A27 27 0 0 1 48 67Z" style="fill:var(--dough);stroke:var(--dough-edge)" stroke-width="2" stroke-linejoin="round"/><path d="M48 13A27 27 0 0 1 48 67Z" fill="#fff" fill-opacity=".28"/>' +
+    '<ellipse cx="73" cy="31" rx="4.4" ry="2.7" stroke-width="1.4" style="fill:var(--tint2);stroke:var(--deep)"/><ellipse cx="74" cy="41" rx="4.4" ry="2.7" stroke-width="1.4" style="fill:var(--tint2);stroke:var(--deep)"/><ellipse cx="73" cy="51" rx="4.4" ry="2.7" stroke-width="1.4" style="fill:var(--tint2);stroke:var(--deep)"/></g></svg>';
+};
+ART.poke = function () {
+  return '<svg width="150" height="112" viewBox="0 0 120 90" aria-hidden="true"><rect x="8" y="74" width="104" height="6" rx="3" style="fill:var(--stone)"/>' +
+    '<path d="M16 74C16 40 40 22 60 22s44 18 44 52z" stroke-width="2.2" stroke-linejoin="round" style="fill:var(--dough);stroke:var(--deep)"/>' +
+    '<ellipse cx="46" cy="40" rx="9" ry="4" fill="#fff" fill-opacity=".25" transform="rotate(-25 46 40)"/>' +
+    '<ellipse class="pk-d" cx="60" cy="31" rx="6" ry="2.6" style="fill:var(--dough-edge)"/>' +
+    '<g class="pk-f"><rect x="-5.5" y="-34" width="11" height="34" rx="5.5" stroke-width="1.8" style="fill:var(--tint2);stroke:var(--deep)"/><circle cx="-1.5" cy="-4" r="1" fill="#fff" fill-opacity=".8"/><circle cx="2" cy="-7" r=".8" fill="#fff" fill-opacity=".8"/></g></svg>';
+};
 var CHEV = '<svg class="chev" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
 var ICO = {
   what: function () { return ic('book', 22); },
-  when: function () { return '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12M6 21h12M7 3c0 5 5 7 5 9s-5 4-5 9M17 3c0 5-5 7-5 9s5 4 5 9"/></svg>'; },
+  when: function () { return '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>'; },
   how: function () { return '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3h8M7 6h10M7 6c-1 1-2 2-2 4v8a3 3 0 0 0 3 3h8a3 3 0 0 0 3-3v-8c0-2-1-3-2-4M5 14h14"/></svg>'; }
 };
 var OV = {
   what: function () { return '<div class="ov ov-book" aria-hidden="true"><i class="pg p3"></i><i class="pg p2"></i><i class="pg p1"></i><i class="cv"><span>ספר המתכונים</span></i></div>'; },
-  when: function () {
-    var id = 'hg' + (++uid), glass = 'M12 8H48C48 30 34 38 30 45C34 52 48 60 48 82H12C12 60 26 52 30 45C26 38 12 30 12 8Z';
-    return '<div class="ov ov-glass" aria-hidden="true"><svg class="hgsvg" width="76" height="110" viewBox="0 0 60 90" fill="none"><defs><clipPath id="' + id + '"><path d="' + glass + '"/></clipPath></defs>' +
-      '<g clip-path="url(#' + id + ')"><rect class="sand-t" x="10" y="8" width="40" height="37" style="fill:var(--acc)"/><rect class="sand-b" x="10" y="45" width="40" height="37" style="fill:var(--acc)"/></g>' +
-      '<path class="hgstream" d="M30 45V80" stroke-dasharray="2 3" stroke-width="1.6" style="stroke:var(--acc)"/>' +
-      '<path d="' + glass + '" stroke-width="2.4" stroke-linejoin="round" style="stroke:var(--deep)"/>' +
-      '<rect x="8" y="3" width="44" height="5" rx="2.5" style="fill:var(--deep)"/><rect x="8" y="82" width="44" height="5" rx="2.5" style="fill:var(--deep)"/></svg></div>';
+  when: function (at) {
+    var d = new Date(at || Date.now()), m = d.getMinutes(), hr = d.getHours() % 12, ticks = '';
+    for (var i = 0; i < 12; i++) {
+      var an = i * 30 * Math.PI / 180, r2 = i % 3 ? 35 : 31;
+      ticks += '<line x1="' + (50 + 38.5 * Math.sin(an)).toFixed(1) + '" y1="' + (50 - 38.5 * Math.cos(an)).toFixed(1) + '" x2="' + (50 + r2 * Math.sin(an)).toFixed(1) + '" y2="' + (50 - r2 * Math.cos(an)).toFixed(1) + '" stroke-width="' + (i % 3 ? 1.6 : 2.6) + '" stroke-linecap="round" style="stroke:var(--deep)"/>';
+    }
+    return '<div class="ov ov-clock" aria-hidden="true"><svg width="116" height="116" viewBox="0 0 100 100" fill="none" style="--ha:' + (360 + hr * 30 + m * 0.5) + 'deg;--ma:' + (720 + m * 6) + 'deg">' +
+      '<circle cx="50" cy="50" r="45" stroke-width="3" style="fill:var(--card);stroke:var(--deep)"/>' + ticks +
+      '<line class="ck-h" x1="50" y1="50" x2="50" y2="29" stroke-width="4.6" stroke-linecap="round" style="stroke:var(--deep)"/>' +
+      '<line class="ck-m" x1="50" y1="50" x2="50" y2="16" stroke-width="3" stroke-linecap="round" style="stroke:var(--acc)"/>' +
+      '<circle cx="50" cy="50" r="3.6" style="fill:var(--acc)"/></svg></div>';
   },
   how: function () {
     var id = 'fj' + (++uid), body = 'M34 30c-8 4-12 10-12 20v52a10 10 0 0 0 10 10h56a10 10 0 0 0 10-10V50c0-10-4-16-12-20z';
@@ -786,7 +826,7 @@ function planView() {
   function accord(k, title, sum, body) {
     var open = !!A[k], play = open && jo === k;
     return '<div class="accd"><button type="button" class="acch" data-act="acc" data-k="' + k + '" aria-expanded="' + open + '"><span class="ai">' + ICO[k]() + '</span><span class="at"><b>' + title + '</b><small>' + sum + '</small></span>' + CHEV + '</button>' +
-      (open ? '<div class="accb k-' + k + (play ? ' play' : '') + '"><div class="accin">' + body + '</div>' + (play ? OV[k]() : '') + '</div>' : '') + '</div>';
+      (open ? '<div class="accb k-' + k + (play ? ' play' : '') + '"><div class="accin">' + body + '</div>' + (play ? OV[k](at0) : '') + '</div>' : '') + '</div>';
   }
   return '<div class="sec" style="gap:12px">' + accord('what', 'מה אופים?', sumWhat, what) + accord('when', 'מתי?', sumWhen, when) + accord('how', 'איך?', sumHow, how) + '</div>' +
     '<div class="sec" style="gap:14px">' + warns + '<button type="button" class="cta" data-act="build"' + (bs.length ? '' : ' disabled') + '>בנה לוח זמנים' + ic('fwd', 18, 2) + '</button></div>';
