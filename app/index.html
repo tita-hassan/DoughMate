@@ -198,6 +198,11 @@ h1, h2, h3, p { margin: 0; }
 .tl .done .st, .tl .done .sx { color: var(--mut); }
 .tl .done .st { font-weight: 600; }
 .tl .sx { font-size: 14px; color: var(--mut); }
+.grpb { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 44px; padding: 0; background: none; border: 0; color: var(--acc); font: inherit; font-weight: 700; text-align: start; }
+.grpb span { flex: 1; }
+.grpb small { color: var(--mut); font-size: 12px; font-weight: 500; }
+.grpb svg { transition: transform .25s; }
+.grpb[aria-expanded="true"] svg { transform: rotate(180deg); }
 .tl li.grp { display: block; padding: 18px 4px 0; font-size: 13px; font-weight: 700; color: var(--acc); letter-spacing: .3px; border: 0; }
 
 /* timer card */
@@ -768,14 +773,18 @@ function timerCard(b, it) {
 function listHTML(b, items) {
   var active = -1;
   for (var i = 0; i < items.length; i++) if (!isDone(b, items[i])) { active = i; break; }
+  var gk = [], gs = {}, cur = null;
+  items.forEach(function (it, i) { if (it.group) { cur = it.group; gs[cur] = { n: 0, d: 0, act: false }; } gk[i] = cur; if (cur) { gs[cur].n++; if (isDone(b, it)) gs[cur].d++; if (i === active) gs[cur].act = true; } });
+  function gOpen(g) { var o = (S.gc || {})[g]; return o === undefined ? !(gs[g].d === gs[g].n) : o; }
   return '<ol class="tl">' + items.map(function (it, i) {
     var done = isDone(b, it), act = i === active;
+    if (gk[i] && !it.group && !gOpen(gk[i])) return '';
     var dot = '<span class="' + (done ? 'ok' : act ? 'run' : '') + '">' + (done ? ic('check', 14, 3) : '') + '</span>';
     var extra = '';
     if (act && it.timer) extra += timerCard(b, it);
     if (act && it.anim) extra += '<div class="animbox">' + ART[it.anim]() + '</div>';
     if (act && it.choice && tstate(b, it).mode === 'idle') extra += '<div style="margin-top:8px">' + seg('brew', 'proof', PROOF, b.c.proof) + '</div>';
-    return (it.group ? '<li class="grp" aria-hidden="true">' + esc(it.group) + '</li>' : '') + '<li class="' + (done ? 'done ' : '') + (it.wait && !it.bold ? 'wt' : '') + '"><button type="button" class="dotb" data-act="tick" data-id="' + it.id + '" aria-pressed="' + done + '" aria-label="סימון כהושלם: ' + esc(it.title) + '">' + dot + '</button>' +
+    return (it.group ? '<li class="grp"><button type="button" class="grpb" data-act="grp" data-g="' + esc(it.group) + '" data-open="' + (gOpen(it.group) ? 1 : 0) + '" aria-expanded="' + gOpen(it.group) + '"><span>' + esc(it.group) + '</span><small>' + gs[it.group].d + '/' + gs[it.group].n + '</small>' + CHEV + '</button></li>' : '') + '<li class="' + (done ? 'done ' : '') + (it.wait && !it.bold ? 'wt' : '') + '"><button type="button" class="dotb" data-act="tick" data-id="' + it.id + '" aria-pressed="' + done + '" aria-label="סימון כהושלם: ' + esc(it.title) + '">' + dot + '</button>' +
       '<div class="b"><div class="st">' + esc(it.title) + '</div>' + (it.sub ? '<div class="sx">' + esc(it.sub).split('\n').map(function (l) { return '<div dir="auto">' + l + '</div>'; }).join('') + '</div>' : '') + extra + '</div></li>';
   }).join('') + '</ol>';
 }
@@ -1546,6 +1555,7 @@ function onAct(a, el) {
     case 'obrestart': S.ob = { i: 0 }; draft = null; window.scrollTo(0, 0); break;
     case 'obback': S.ob.i = Math.max(0, S.ob.i - 1); window.scrollTo(0, 0); break;
     case 'obskip': S.ob = null; S.view = 'plan'; window.scrollTo(0, 0); break;
+    case 'grp': S.gc = S.gc || {}; S.gc[d.g] = d.open !== '1'; break;
     case 'acc': S.acc = S.acc || {}; S.acc[d.k] = !S.acc[d.k]; S.jo = S.acc[d.k] ? d.k : null; break;
     case 'anchor': S.plan.anchor = d.v; break;
     case 'moreanch': S.plan.moreAnch = !S.plan.moreAnch; break;
