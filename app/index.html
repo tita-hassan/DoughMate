@@ -292,7 +292,7 @@ h1, h2, h3, p { margin: 0; }
 .mx-dash { animation: mxDash .25s linear infinite; }
 @keyframes mxDash { to { stroke-dashoffset: -6; } }
 .pk-f { animation: pkFinger 4.4s ease-in-out infinite; }
-@keyframes pkFinger { 0% { transform: translate(60px,-4px); } 16% { transform: translate(60px,34px); } 34% { transform: translate(60px,34px); } 50%, 100% { transform: translate(60px,-4px); } }
+@keyframes pkFinger { 0% { transform: translate(60px,2px); } 16% { transform: translate(60px,29px); } 34% { transform: translate(60px,29px); } 50%, 100% { transform: translate(60px,2px); } }
 .pk-d { transform-box: fill-box; transform-origin: 50% 50%; animation: pkDent 4.4s ease-in-out infinite; }
 @keyframes pkDent { 0%, 15% { transform: scale(0); opacity: 0; } 24% { transform: scale(1.2,1.7); opacity: 1; } 34% { transform: scale(1.2,1.7); opacity: 1; } 90% { transform: scale(.55,.7); opacity: 1; } 100% { transform: scale(.5,.65); opacity: 0; } }
 /* more dough-stage scenes: feeding, pre-shape, bench rest, banneton, fridge */
@@ -586,8 +586,7 @@ var ART = {
   },
   loaf: function () {
     return '<svg width="88" height="66" viewBox="0 0 88 66" aria-hidden="true"><path class="steam" d="M30 12q-4-4 0-8" fill="none" style="stroke:var(--mut)" stroke-width="2" stroke-linecap="round"/><path class="steam d1" d="M58 12q-4-4 0-8" fill="none" style="stroke:var(--mut)" stroke-width="2" stroke-linecap="round"/>' +
-      '<g class="loaf"><path d="M12 54C12 28 30 14 44 14s32 14 32 40z" style="fill:var(--crust);stroke:var(--deep)" stroke-width="2.2" stroke-linejoin="round"/><ellipse cx="34" cy="30" rx="8" ry="4" fill="#fff" fill-opacity=".22" transform="rotate(-25 34 30)"/>' +
-      '<path class="ear" d="M30 36C38 26 52 24 60 32" fill="none" style="stroke:var(--ear)" stroke-linecap="round"/></g><rect x="6" y="54" width="76" height="6" rx="3" style="fill:var(--stone)"/></svg>';
+      '<g class="loaf"><g transform="translate(44 54)">' + bakedLoaf(33, 34) + '</g></g><rect x="6" y="54" width="76" height="6" rx="3" style="fill:var(--stone)"/></svg>';
   }
 };
 var IC = {
@@ -827,11 +826,17 @@ ART.fold = function () {
     '<circle cx="48" cy="40" r="27" style="fill:var(--dough);stroke:var(--dough-edge)" stroke-width="2"/>' + lobes + '</svg>';
 };
 ART.poke = function () {
-  return '<svg width="150" height="112" viewBox="0 0 120 90" aria-hidden="true"><rect x="8" y="74" width="104" height="6" rx="3" style="fill:var(--stone)"/>' +
+  var hand = '<g stroke-width="1.8" stroke-linejoin="round" style="fill:var(--tint2);stroke:var(--deep)">' +
+    '<rect x="-17" y="-62" width="34" height="36" rx="15"/><rect x="-5.5" y="-34" width="11" height="34" rx="5.5"/>' +
+    '<rect x="-17" y="-40" width="10" height="16" rx="5"/><rect x="7" y="-40" width="10" height="14" rx="5"/></g>' +
+    '<rect x="-20" y="-78" width="40" height="22" rx="4" stroke-width="1.8" style="fill:var(--acc);stroke:var(--deep)"/>' +
+    '<g fill="none" stroke-width="1.1" stroke-linecap="round" style="stroke:var(--deep);stroke-opacity:.4"><path d="M-4-16Q0-14 4-16M-4-23Q0-21 4-23M-12-32Q-12-29-10-27M12-32Q12-29 10-27"/></g>' +
+    '<rect x="-1" y="-12" width="5" height="10" rx="2.5" fill="#fff" fill-opacity=".6"/>';
+  return '<svg width="150" height="162" viewBox="0 -40 120 130" aria-hidden="true"><rect x="8" y="74" width="104" height="6" rx="3" style="fill:var(--stone)"/>' +
     '<path d="M16 74C16 40 40 22 60 22s44 18 44 52z" stroke-width="2.2" stroke-linejoin="round" style="fill:var(--dough);stroke:var(--deep)"/>' +
     '<ellipse cx="46" cy="40" rx="9" ry="4" fill="#fff" fill-opacity=".25" transform="rotate(-25 46 40)"/>' +
-    '<ellipse class="pk-d" cx="60" cy="31" rx="6" ry="2.6" style="fill:var(--dough-edge)"/>' +
-    '<g class="pk-f"><rect x="-5.5" y="-34" width="11" height="34" rx="5.5" stroke-width="1.8" style="fill:var(--tint2);stroke:var(--deep)"/><circle cx="-1.5" cy="-4" r="1" fill="#fff" fill-opacity=".8"/><circle cx="2" cy="-7" r=".8" fill="#fff" fill-opacity=".8"/></g></svg>';
+    '<ellipse class="pk-d" cx="60" cy="29" rx="6" ry="2.6" style="fill:var(--dough-edge)"/>' +
+    '<g class="pk-f">' + hand + '</g></svg>';
 };
 ART.feed = function () { return OV.how().replace('<div class="ov ov-jar" aria-hidden="true">', '<div class="fjloop" style="display:grid;place-items:center">'); };
 ART.rest = function () {
@@ -848,6 +853,21 @@ ART.fridge = function () {
     '<g class="fr-d"><rect x="26" y="4" width="44" height="72" rx="5" stroke-width="2.4" style="fill:var(--tint2);stroke:var(--deep)"/><rect x="62" y="34" width="3" height="14" rx="1.5" style="fill:var(--deep)"/>' +
     '<g class="fr-s" stroke-width="2" stroke-linecap="round" style="stroke:#4f9cc4"><path d="M46 30V50M37 35L55 45M37 45L55 35"/></g></g></svg>';
 };
+function breadPath(w, h) {
+  var f = function (n) { return +n.toFixed(1); };
+  return 'M' + (-w) + ' 0C' + (-w) + ' ' + f(-h * .95) + ' ' + f(-w * .6) + ' ' + (-h) + ' 0 ' + (-h) + 'C' + f(w * .6) + ' ' + (-h) + ' ' + w + ' ' + f(-h * .95) + ' ' + w + ' 0Q' + f(w * .92) + ' ' + f(h * .26) + ' 0 ' + f(h * .26) + 'Q' + f(-w * .92) + ' ' + f(h * .26) + ' ' + (-w) + ' 0Z';
+}
+/* a round loaf with a flat-ish base, drawn with its base line at y=0 and centred on x=0 */
+function bakedLoaf(w, h) {
+  return '<path d="' + breadPath(w, h) + '" stroke-width="2.2" stroke-linejoin="round" style="fill:var(--crust);stroke:var(--deep)"/>' +
+    '<path d="M' + (-w * .52) + ' ' + (-h * .46) + 'Q' + (-w * .1) + ' ' + (-h * 1.02) + ' ' + (w * .4) + ' ' + (-h * .62) + '" fill="none" stroke-width="2.6" stroke-linecap="round" style="stroke:#f2d3a3"/>' +
+    '<path d="M' + (-w * .3) + ' ' + (-h * .3) + 'Q' + (w * .05) + ' ' + (-h * .62) + ' ' + (w * .5) + ' ' + (-h * .36) + '" fill="none" stroke-width="1.8" stroke-linecap="round" style="stroke:#f2d3a3;stroke-opacity:.75"/>' +
+    '<ellipse cx="' + (-w * .52) + '" cy="' + (-h * .6) + '" rx="' + (w * .16) + '" ry="' + (h * .09) + '" transform="rotate(-38 ' + (-w * .52) + ' ' + (-h * .6) + ')" fill="#fff" fill-opacity=".25"/>';
+}
+function doughLoaf(w, h) {
+  return '<path d="' + breadPath(w, h) + '" stroke-width="2.2" stroke-linejoin="round" style="fill:var(--dough);stroke:var(--deep)"/>' +
+    '<ellipse cx="' + (-w * .45) + '" cy="' + (-h * .62) + '" rx="' + (w * .2) + '" ry="' + (h * .1) + '" transform="rotate(-30 ' + (-w * .45) + ' ' + (-h * .62) + ')" fill="#fff" fill-opacity=".3"/>';
+}
 function kfCss(name, P, stops) {
   var s = stops.slice().sort(function (a, b) { return a[0] - b[0]; }), out = [], last = -1;
   s.forEach(function (x) { var t = Math.min(P, Math.max(0, x[0])); if (t <= last) t = last + 0.002; last = t; out.push([t, x[1]]); });
@@ -943,12 +963,13 @@ function shapeCss() {
     sm: [[0, 'opacity:0'], [2.0, 'opacity:0'], [2.5, 'opacity:1'], [3.2, 'opacity:1'], [3.3, 'opacity:0'], [P, 'opacity:0']],
     h1: [[0, o(150, 52, 0)], [.3, o(128, 50)], [.7, o(110, 44)], [1.2, o(100, 54)], [1.4, o(112, 46)], [1.9, o(100, 56)], [2.4, o(112, 50)], [2.7, o(140, 52)], [2.9, o(150, 52, 0)], [P, o(150, 52, 0)]],
     p2: [[0, 'opacity:0'], [3.0, 'opacity:0'], [3.3, 'opacity:1'], [6.3, 'opacity:1'], [6.6, 'opacity:0'], [P, 'opacity:0']],
-    l2: [[0, 'transform:translate(0px,-24px) scale(1,1)'], [3.3, 'transform:translate(0px,-24px) scale(1,1)'], [4.3, 'transform:translate(0px,-8px) scale(1,1)'], [4.8, 'transform:translate(0px,4px) scale(1.06,.94)'], [5.1, 'transform:translate(0px,0px) scale(1,1)'], [P, 'transform:translate(0px,-24px) scale(1,1)']],
+    l2: [[0, 'transform:translate(0px,-26px);opacity:1'], [3.3, 'transform:translate(0px,-26px);opacity:1'], [4.3, 'transform:translate(0px,-8px);opacity:1'], [4.8, 'transform:translate(0px,8px);opacity:1'], [5.0, 'transform:translate(0px,10px);opacity:1'], [5.2, 'transform:translate(0px,10px);opacity:0'], [P, 'transform:translate(0px,-26px);opacity:0']],
+    sf: [[0, 'opacity:0'], [4.95, 'opacity:0'], [5.2, 'opacity:1'], [6.3, 'opacity:1'], [6.6, 'opacity:0'], [P, 'opacity:0']],
     h2: [[0, o(60, -16, 0)], [3.0, o(60, -16, 0)], [3.3, o(60, -16)], [4.3, o(60, 0)], [4.8, o(60, 12)], [5.1, o(60, 12)], [5.7, o(60, -30)], [6.1, o(60, -40, 0)], [P, o(60, -16, 0)]],
     pf: [[0, pu], [4.7, pu], [4.85, 'transform:translateY(0px) scale(.6);opacity:.95'], [5.6, 'transform:translateY(-9px) scale(1.3);opacity:0'], [P, pu]]
   });
 }
-(function () { try { var st = document.createElement('style'); st.textContent = preCss() + shapeCss() + '.shp .l2, .shp .d1, .shp .pf, .pre2 .pm, .pre2 .pb { transform-box: fill-box; transform-origin: 50% 50%; }'; document.head.appendChild(st); } catch (e) {} })();
+(function () { try { var st = document.createElement('style'); st.textContent = preCss() + shapeCss() + '.shp .d1, .shp .pf, .pre2 .pm, .pre2 .pb { transform-box: fill-box; transform-origin: 50% 50%; }'; document.head.appendChild(st); } catch (e) {} })();
 ART.pre = function () {
   return '<svg class="pre2" width="215" height="108" viewBox="0 0 172 86" aria-hidden="true"><rect x="6" y="8" width="108" height="74" rx="10" stroke-width="2" style="fill:var(--card);stroke:var(--line)"/>' +
     '<path class="pm" d="M30 42C25 29 40 21 52 25C62 17 79 26 77 38C86 46 79 61 66 63C59 71 43 70 37 62C27 60 23 51 30 42Z" stroke-width="2.2" stroke-linejoin="round" style="fill:var(--dough);stroke:var(--deep)"/>' +
@@ -959,11 +980,12 @@ ART.shape = function () {
   var wall = 'M20 42Q60 56 100 42L90 78Q60 86 30 78Z';
   return '<svg class="shp" width="215" height="108" viewBox="-26 0 172 90" aria-hidden="true">' +
     '<g class="p1"><rect x="6" y="8" width="108" height="74" rx="10" stroke-width="2" style="fill:var(--card);stroke:var(--line)"/>' +
-    '<ellipse class="d1" cx="52" cy="46" rx="20" ry="20" stroke-width="2.2" style="fill:var(--dough);stroke:var(--deep)"/>' +
-    '<path class="sm" d="M30 47Q52 52 74 47" fill="none" stroke-width="1.8" stroke-linecap="round" style="stroke:var(--dough-edge)"/>' +
+    '<g transform="translate(52 62)"><g class="d1">' + doughLoaf(20, 20) + '</g></g>' +
+    '<path class="sm" d="M36 50Q52 55 68 50" fill="none" stroke-width="1.8" stroke-linecap="round" style="stroke:var(--dough-edge)"/>' +
     '<g class="h1">' + handSvg(-90) + '</g></g>' +
     '<g class="p2"><ellipse cx="60" cy="42" rx="40" ry="9" stroke-width="2.2" style="fill:#b8945f;stroke:var(--deep)"/>' +
-    '<g class="l2"><ellipse cx="60" cy="42" rx="27" ry="17" stroke-width="2.2" style="fill:var(--dough);stroke:var(--deep)"/><ellipse cx="50" cy="35" rx="8" ry="3.4" fill="#fff" fill-opacity=".28" transform="rotate(-18 50 35)"/></g>' +
+    '<g class="l2"><g transform="translate(60 47)">' + doughLoaf(28, 19) + '</g></g>' +
+    '<g class="sf"><ellipse cx="60" cy="42.5" rx="35" ry="7.4" stroke-width="1.8" style="fill:var(--dough);stroke:var(--dough-edge)"/><path d="M34 42.5Q60 45.5 86 42.5" fill="none" stroke-width="1.6" stroke-linecap="round" style="stroke:var(--dough-edge)"/></g>' +
     [[34, 44], [60, 36], [86, 44]].map(function (q) { return '<circle class="pf" cx="' + q[0] + '" cy="' + q[1] + '" r="2.4" fill="#fff"/>'; }).join('') +
     '<path d="' + wall + '" stroke-width="2.2" stroke-linejoin="round" style="fill:#d9b98a;stroke:var(--deep)"/>' +
     '<path d="M23 52Q60 66 97 52M26 61Q60 75 94 61M29 70Q60 83 91 70" fill="none" stroke-width="1.6" style="stroke:#b8945f"/>' +
@@ -992,7 +1014,7 @@ function bakeCss() {
     ck: [[0, 'opacity:0'], [3.8, 'opacity:0'], [4.1, 'opacity:1'], [5.0, 'opacity:1'], [5.4, 'opacity:0']]
   });
   css += sceneCss('rk', 5.6, {
-    lf: [[0, T(0, -34, 1)], [.5, T(0, -34, 1)], [1.6, T(0, -3, 1.05)], [1.9, T(0, -5, 1)], [5.2, T(0, -5, 1)], [5.6, T(0, -34, 1)]],
+    lf: [[0, T(0, -34, 1)], [.5, T(0, -34, 1)], [1.6, T(0, 2, 1)], [1.9, T(0, 0, 1)], [5.2, T(0, 0, 1)], [5.6, T(0, -34, 1)]],
     s1: [[0, T(0, 6, 1, 0)], [1.9, T(0, 6, 1, 0)], [2.7, T(0, 0, 1, .85)], [4.2, T(0, -12, 1, 0)], [5.6, T(0, -12, 1, 0)]],
     s2: [[0, T(0, 6, 1, 0)], [2.4, T(0, 6, 1, 0)], [3.2, T(0, 0, 1, .85)], [4.7, T(0, -12, 1, 0)], [5.6, T(0, -12, 1, 0)]],
     s3: [[0, T(0, 6, 1, 0)], [2.9, T(0, 6, 1, 0)], [3.7, T(0, 0, 1, .85)], [5.1, T(0, -12, 1, 0)], [5.6, T(0, -12, 1, 0)]]
@@ -1016,8 +1038,8 @@ ART.preheat = function () {
 ART.load = function () {
   return '<svg class="ld" width="150" height="112" viewBox="0 0 120 90" aria-hidden="true">' +
     '<ellipse cx="60" cy="56" rx="36" ry="7" stroke-width="2" style="fill:#4a4a52;stroke:#2c2c32"/>' +
-    '<g class="lf"><ellipse cx="60" cy="56" rx="23" ry="15" stroke-width="2.2" style="fill:var(--dough);stroke:var(--deep)"/>' +
-    '<path class="sc" d="M44 54Q60 46 76 54" fill="none" stroke-width="2.4" stroke-linecap="round" style="stroke:#fff7e8"/></g>' +
+    '<g class="lf"><g transform="translate(60 61)">' + doughLoaf(23, 15) + '</g>' +
+    '<path class="sc" d="M47 55Q60 47 73 55" fill="none" stroke-width="2.4" stroke-linecap="round" style="stroke:#fff7e8"/></g>' +
     '<path d="M24 56Q26 82 60 84Q94 82 96 56Q60 66 24 56Z" stroke-width="2.2" stroke-linejoin="round" style="fill:#5a5a64;stroke:#2c2c32"/>' +
     '<rect x="21" y="52" width="6" height="5" rx="2" style="fill:#2c2c32"/><rect x="93" y="52" width="6" height="5" rx="2" style="fill:#2c2c32"/>' +
     '<g class="bl"><path d="M60 50l9 0 0 6-9 0z" transform="translate(-4 0) rotate(-12 60 50)" style="fill:#d7dde2;stroke:#8a949c" stroke-width="1.2"/><path d="M58 44h14v6H58z" style="fill:#8a949c"/></g>' +
@@ -1025,8 +1047,8 @@ ART.load = function () {
 };
 ART.temp = function () {
   return '<svg class="tp" width="150" height="112" viewBox="0 0 120 90" aria-hidden="true">' +
-    '<ellipse cx="46" cy="60" rx="34" ry="20" stroke-width="2.2" style="' + CR + '"/><ellipse cx="38" cy="52" rx="12" ry="4.4" transform="rotate(-18 38 52)" fill="#fff" fill-opacity=".28"/>' +
-    '<g class="pr"><path d="M46 6L46 50" stroke-width="3" stroke-linecap="round" style="stroke:#8a949c"/><path d="M46 50L46 56" stroke-width="1.6" stroke-linecap="round" style="stroke:#8a949c"/><rect x="42" y="2" width="8" height="12" rx="3" style="fill:#e0703a;stroke:#9d3f17" stroke-width="1.4"/></g>' +
+    '<g transform="translate(46 72)">' + bakedLoaf(34, 30) + '</g>' +
+    '<g class="pr"><path d="M46 6L46 56" stroke-width="3" stroke-linecap="round" style="stroke:#8a949c"/><path d="M46 56L46 60" stroke-width="1.6" stroke-linecap="round" style="stroke:#8a949c"/><rect x="42" y="2" width="8" height="12" rx="3" style="fill:#e0703a;stroke:#9d3f17" stroke-width="1.4"/></g>' +
     '<rect x="84" y="20" width="30" height="46" rx="6" stroke-width="2" style="fill:var(--card);stroke:var(--deep)"/>' +
     '<rect x="88" y="26" width="22" height="12" rx="2" style="fill:#2b2420"/><text x="99" y="36" text-anchor="middle" font-size="9" font-weight="700" style="fill:#7dffb0;font-family:inherit">95°</text>' +
     '<rect x="88" y="44" width="22" height="6" rx="3" style="fill:var(--line)"/><rect class="mg" x="88" y="44" width="22" height="6" rx="3" style="fill:#e0703a"/>' +
@@ -1035,7 +1057,7 @@ ART.temp = function () {
 ART.rack = function () {
   var st = function (cls, x) { return '<path class="' + cls + '" d="M' + x + ' 44q-3-4 0-8t0-8" fill="none" stroke-width="2" stroke-linecap="round" style="stroke:var(--mut);stroke-opacity:.7"/>'; };
   return '<svg class="rk" width="150" height="112" viewBox="0 0 120 90" aria-hidden="true">' + st('s1', 44) + st('s2', 60) + st('s3', 76) +
-    '<g class="lf"><ellipse cx="60" cy="58" rx="34" ry="17" stroke-width="2.2" style="' + CR + '"/><path d="M42 54Q60 46 78 54" fill="none" stroke-width="2.2" stroke-linecap="round" style="stroke:#f2d3a3"/><ellipse cx="48" cy="50" rx="9" ry="3.4" transform="rotate(-16 48 50)" fill="#fff" fill-opacity=".25"/></g>' +
+    '<g class="lf"><g transform="translate(60 64)">' + bakedLoaf(34, 25) + '</g></g>' +
     '<g stroke-width="2.2" stroke-linecap="round" style="stroke:#8a949c"><path d="M18 70h84M22 78h76M30 70v14M50 70v14M70 70v14M90 70v14"/></g>' +
     '<path d="M14 70h92" stroke-width="3" stroke-linecap="round" style="stroke:#6a747c"/></svg>';
 };
