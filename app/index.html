@@ -642,9 +642,9 @@ function doughItems(b) {
 }
 function bakeItems(b) {
   var p = b.plan, c = b.c, items = [], dutch = c.shape === 'dutch';
-  items.push({ id: 'preheat', title: dutch ? 'מחממים תנור עם התנור ההולנדי' : 'מחממים תנור', sub: '230° · מתחילים כ־30 דקות לפני, בערך ב־' + hhmm(p.preheat) + '.' });
+  items.push({ id: 'preheat', anim: 'preheat', title: dutch ? 'מחממים תנור עם התנור ההולנדי' : 'מחממים תנור', sub: '230° · מתחילים כ־30 דקות לפני, בערך ב־' + hhmm(p.preheat) + '.' });
   var loadT = { dutch: 'חריצה והעברה לסיר', stone: 'חריצה והעברה לאבן', pan: 'מעבירים לקסטן', tray: 'מניחים בתבנית ומכניסים לתנור' }[c.shape];
-  items.push({ id: 'load', title: loadT, sub: dutch ? 'סוגרים את המכסה.' : '', starts: c.bakeSplit ? 'bake1' : 'bake' });
+  items.push({ id: 'load', anim: 'load', title: loadT, sub: dutch ? 'סוגרים את המכסה.' : '', starts: c.bakeSplit ? 'bake1' : 'bake' });
   if (c.bakeSplit) {
     items.push({ id: 'bake1', title: dutch ? 'מכוסה, עד Oven Spring' : c.shape === 'stone' ? 'עם קיטור, עד Oven Spring' : 'שלב ראשון, עד Oven Spring', sub: c.bake1 + ' דקות.', starts: 'bake2',
       timer: { id: 'bake1', total: c.bake1 * 60, label: 'נשאר עד Oven Spring', art: 'loaf', msg: dutch ? 'עברו ' + c.bake1 + ' דקות. מורידים את המכסה.' : 'עברו ' + c.bake1 + ' דקות. ממשיכים באפייה.' } });
@@ -653,8 +653,8 @@ function bakeItems(b) {
   } else {
     items.push({ id: 'bake', title: 'אפייה', sub: c.bakeOne + ' דקות.', timer: { id: 'bake', total: c.bakeOne * 60, label: 'נשאר עד שמוכן', art: 'loaf', msg: 'האפייה הסתיימה. בודקים אם מוכן.' } });
   }
-  if (c.shape !== 'tray') items.push({ id: 'temp', title: 'בדיקת טמפרטורה פנימית', sub: 'מוכן ב־95 מעלות במרכז הכיכר.' });
-  items.push({ id: 'rack', title: 'מניחים על רשת להתקרר', sub: 'לפחות שעה לפני החיתוך.' });
+  if (c.shape !== 'tray') items.push({ id: 'temp', anim: 'temp', title: 'בדיקת טמפרטורה פנימית', sub: 'מוכן ב־95 מעלות במרכז הכיכר.' });
+  items.push({ id: 'rack', anim: 'rack', title: 'מניחים על רשת להתקרר', sub: 'לפחות שעה לפני החיתוך.' });
   return items;
 }
 function allItems(b) { return feedItems(b).concat(doughItems(b), bakeItems(b)); }
@@ -913,6 +913,75 @@ ART.shape = function () {
     '<path d="M23 52Q60 66 97 52M26 61Q60 75 94 61M29 70Q60 83 91 70" fill="none" stroke-width="1.6" style="stroke:#b8945f"/>' +
     '<path d="M20 42Q60 56 100 42" fill="none" stroke-width="3.2" stroke-linecap="round" style="stroke:var(--deep)"/>' +
     '<g class="h2">' + handSvg(180) + '</g></g></svg>';
+};
+function bakeCss() {
+  var T = function (x, y, s, o) { return 'transform:translate(' + x + 'px,' + y + 'px) scale(' + (s === undefined ? 1 : s) + ');opacity:' + (o === undefined ? 1 : o); };
+  var css = '';
+  css += sceneCss('pw', 5, {
+    gl: [[0, 'opacity:0'], [3.2, 'opacity:1'], [4.6, 'opacity:1'], [5, 'opacity:0']],
+    w1: [[0, T(0, 4, 1, 0)], [1, T(0, 0, 1, .8)], [2.2, T(0, -9, 1, 0)], [5, T(0, -9, 1, 0)]],
+    w2: [[0, T(0, 4, 1, 0)], [1.1, T(0, 4, 1, 0)], [2.1, T(0, 0, 1, .8)], [3.3, T(0, -9, 1, 0)], [5, T(0, -9, 1, 0)]],
+    w3: [[0, T(0, 4, 1, 0)], [2.2, T(0, 4, 1, 0)], [3.2, T(0, 0, 1, .8)], [4.4, T(0, -9, 1, 0)], [5, T(0, -9, 1, 0)]],
+    bar: [[0, 'transform:scaleX(.08)'], [3.4, 'transform:scaleX(1)'], [4.6, 'transform:scaleX(1)'], [5, 'transform:scaleX(.08)']]
+  });
+  css += sceneCss('ld', 6.4, {
+    lf: [[0, T(0, -30, 1)], [.6, T(0, -30, 1)], [2.4, T(0, -30, 1)], [3.2, T(0, -9, 1)], [3.6, T(0, 0, 1.04)], [3.9, T(0, 0, 1)], [6.0, T(0, 0, 1)], [6.4, T(0, -30, 1)]],
+    sc: [[0, 'stroke-dashoffset:34'], [.7, 'stroke-dashoffset:34'], [1.8, 'stroke-dashoffset:0'], [6.0, 'stroke-dashoffset:0'], [6.4, 'stroke-dashoffset:34']],
+    bl: [[0, T(-26, -42, 1, 0)], [.5, T(-26, -42, 1, 1)], [.7, T(-26, -42, 1, 1)], [1.8, T(28, -42, 1, 1)], [2.1, T(28, -42, 1, 0)], [6.4, T(-26, -42, 1, 0)]],
+    lid: [[0, T(0, -44, 1, 0)], [4.0, T(0, -44, 1, 0)], [4.2, T(0, -44, 1, 1)], [5.0, T(0, 0, 1, 1)], [6.0, T(0, 0, 1, 1)], [6.4, T(0, -44, 1, 0)]]
+  });
+  css += sceneCss('tp', 5.6, {
+    pr: [[0, T(24, -40, 1, 0)], [.4, T(24, -40, 1, 1)], [1.6, T(0, 0, 1, 1)], [5.0, T(0, 0, 1, 1)], [5.6, T(24, -40, 1, 0)]],
+    mg: [[0, 'transform:scaleX(.1)'], [1.6, 'transform:scaleX(.1)'], [3.8, 'transform:scaleX(1)'], [5.0, 'transform:scaleX(1)'], [5.6, 'transform:scaleX(.1)']],
+    ck: [[0, 'opacity:0'], [3.8, 'opacity:0'], [4.1, 'opacity:1'], [5.0, 'opacity:1'], [5.4, 'opacity:0']]
+  });
+  css += sceneCss('rk', 5.6, {
+    lf: [[0, T(0, -34, 1)], [.5, T(0, -34, 1)], [1.6, T(0, -3, 1.05)], [1.9, T(0, -5, 1)], [5.2, T(0, -5, 1)], [5.6, T(0, -34, 1)]],
+    s1: [[0, T(0, 6, 1, 0)], [1.9, T(0, 6, 1, 0)], [2.7, T(0, 0, 1, .85)], [4.2, T(0, -12, 1, 0)], [5.6, T(0, -12, 1, 0)]],
+    s2: [[0, T(0, 6, 1, 0)], [2.4, T(0, 6, 1, 0)], [3.2, T(0, 0, 1, .85)], [4.7, T(0, -12, 1, 0)], [5.6, T(0, -12, 1, 0)]],
+    s3: [[0, T(0, 6, 1, 0)], [2.9, T(0, 6, 1, 0)], [3.7, T(0, 0, 1, .85)], [5.1, T(0, -12, 1, 0)], [5.6, T(0, -12, 1, 0)]]
+  });
+  return css + '.pw .bar{transform-box:fill-box;transform-origin:0 50%}.tp .mg{transform-box:fill-box;transform-origin:0 50%}.ld .sc{stroke-dasharray:34}@media (prefers-reduced-motion: reduce){.pw *,.ld *,.tp *,.rk *{animation:none!important}}';
+}
+(function () { try { var st = document.createElement('style'); st.textContent = bakeCss(); document.head.appendChild(st); } catch (e) {} })();
+var CR = 'fill:#c98a4b;stroke:#7a4a1f';
+ART.preheat = function () {
+  var wave = function (cls, x) { return '<path class="' + cls + '" d="M' + x + ' 24q-3-4 0-8t0-8" fill="none" stroke-width="2" stroke-linecap="round" style="stroke:#e0703a"/>'; };
+  return '<svg class="pw" width="150" height="112" viewBox="0 0 120 90" aria-hidden="true">' +
+    '<rect x="20" y="22" width="80" height="62" rx="9" stroke-width="2.2" style="fill:var(--card);stroke:var(--deep)"/>' +
+    '<circle cx="36" cy="32" r="4" stroke-width="1.6" style="fill:var(--tint2);stroke:var(--deep)"/><circle cx="84" cy="32" r="4" stroke-width="1.6" style="fill:var(--tint2);stroke:var(--deep)"/>' +
+    '<rect x="46" y="27" width="28" height="11" rx="3" style="fill:#2b2420"/><text x="60" y="36" text-anchor="middle" font-size="9" font-weight="700" style="fill:#ffb86b;font-family:inherit">230°</text>' +
+    '<rect x="28" y="44" width="64" height="34" rx="5" stroke-width="2" style="fill:#3a2c26;stroke:var(--deep)"/>' +
+    '<rect class="gl" x="30" y="46" width="60" height="30" rx="4" style="fill:#ff8a3d"/>' +
+    '<path d="M32 70h56M32 62h56" stroke-width="1.6" style="stroke:#7a4a1f;stroke-opacity:.55"/>' +
+    wave('w1', 40) + wave('w2', 60) + wave('w3', 80) +
+    '<rect x="28" y="82" width="64" height="4" rx="2" style="fill:var(--line)"/><rect class="bar" x="28" y="82" width="64" height="4" rx="2" style="fill:#e0703a"/></svg>';
+};
+ART.load = function () {
+  return '<svg class="ld" width="150" height="112" viewBox="0 0 120 90" aria-hidden="true">' +
+    '<ellipse cx="60" cy="56" rx="36" ry="7" stroke-width="2" style="fill:#4a4a52;stroke:#2c2c32"/>' +
+    '<g class="lf"><ellipse cx="60" cy="56" rx="23" ry="15" stroke-width="2.2" style="fill:var(--dough);stroke:var(--deep)"/>' +
+    '<path class="sc" d="M44 54Q60 46 76 54" fill="none" stroke-width="2.4" stroke-linecap="round" style="stroke:#fff7e8"/></g>' +
+    '<path d="M24 56Q26 82 60 84Q94 82 96 56Q60 66 24 56Z" stroke-width="2.2" stroke-linejoin="round" style="fill:#5a5a64;stroke:#2c2c32"/>' +
+    '<rect x="21" y="52" width="6" height="5" rx="2" style="fill:#2c2c32"/><rect x="93" y="52" width="6" height="5" rx="2" style="fill:#2c2c32"/>' +
+    '<g class="bl"><path d="M60 50l9 0 0 6-9 0z" transform="translate(-4 0) rotate(-12 60 50)" style="fill:#d7dde2;stroke:#8a949c" stroke-width="1.2"/><path d="M58 44h14v6H58z" style="fill:#8a949c"/></g>' +
+    '<g class="lid"><path d="M22 56Q60 16 98 56Q60 62 22 56Z" stroke-width="2.2" stroke-linejoin="round" style="fill:#6a6a76;stroke:#2c2c32"/><circle cx="60" cy="37" r="4.2" stroke-width="1.8" style="fill:#c98a4b;stroke:#7a4a1f"/></g></svg>';
+};
+ART.temp = function () {
+  return '<svg class="tp" width="150" height="112" viewBox="0 0 120 90" aria-hidden="true">' +
+    '<ellipse cx="46" cy="60" rx="34" ry="20" stroke-width="2.2" style="' + CR + '"/><ellipse cx="38" cy="52" rx="12" ry="4.4" transform="rotate(-18 38 52)" fill="#fff" fill-opacity=".28"/>' +
+    '<g class="pr"><path d="M46 6L46 50" stroke-width="3" stroke-linecap="round" style="stroke:#8a949c"/><path d="M46 50L46 56" stroke-width="1.6" stroke-linecap="round" style="stroke:#8a949c"/><rect x="42" y="2" width="8" height="12" rx="3" style="fill:#e0703a;stroke:#9d3f17" stroke-width="1.4"/></g>' +
+    '<rect x="84" y="20" width="30" height="46" rx="6" stroke-width="2" style="fill:var(--card);stroke:var(--deep)"/>' +
+    '<rect x="88" y="26" width="22" height="12" rx="2" style="fill:#2b2420"/><text x="99" y="36" text-anchor="middle" font-size="9" font-weight="700" style="fill:#7dffb0;font-family:inherit">95°</text>' +
+    '<rect x="88" y="44" width="22" height="6" rx="3" style="fill:var(--line)"/><rect class="mg" x="88" y="44" width="22" height="6" rx="3" style="fill:#e0703a"/>' +
+    '<path class="ck" d="M92 58l4 4 8-8" fill="none" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="stroke:#3a9d5d"/></svg>';
+};
+ART.rack = function () {
+  var st = function (cls, x) { return '<path class="' + cls + '" d="M' + x + ' 44q-3-4 0-8t0-8" fill="none" stroke-width="2" stroke-linecap="round" style="stroke:var(--mut);stroke-opacity:.7"/>'; };
+  return '<svg class="rk" width="150" height="112" viewBox="0 0 120 90" aria-hidden="true">' + st('s1', 44) + st('s2', 60) + st('s3', 76) +
+    '<g class="lf"><ellipse cx="60" cy="58" rx="34" ry="17" stroke-width="2.2" style="' + CR + '"/><path d="M42 54Q60 46 78 54" fill="none" stroke-width="2.2" stroke-linecap="round" style="stroke:#f2d3a3"/><ellipse cx="48" cy="50" rx="9" ry="3.4" transform="rotate(-16 48 50)" fill="#fff" fill-opacity=".25"/></g>' +
+    '<g stroke-width="2.2" stroke-linecap="round" style="stroke:#8a949c"><path d="M18 70h84M22 78h76M30 70v14M50 70v14M70 70v14M90 70v14"/></g>' +
+    '<path d="M14 70h92" stroke-width="3" stroke-linecap="round" style="stroke:#6a747c"/></svg>';
 };
 var CHEV = '<svg class="chev" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
 var ICO = {
