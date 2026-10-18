@@ -431,7 +431,9 @@ var MAINA = ['bakeEnd', 'bakeStart', 'bulkEnd', 'peak'], EXTRAA = ['feed1', 'fee
 var AUTOCAP = { dutch: 1, stone: 2, pan: 2, tray: 3 }, RELOAD = 10;
 function stg1(sh) { return sh === 'dutch' ? 'שלב ראשון (מכוסה)' : 'שלב ראשון (עם אדים)'; }
 function stg2(sh) { return sh === 'dutch' ? 'שלב שני (פתוח)' : 'שלב שני (אחרי שחרור האדים)'; }
-function loavesTxt(n) { return n === 1 ? 'כיכר אחת' : n + ' כיכרות'; }
+function isFoc(c) { return !!c && c.shape === 'tray'; }
+function loavesTxt(n, foc) { return foc ? (n === 1 ? 'פוקצ׳ה אחת' : n + ' פוקצ׳ות') : (n === 1 ? 'כיכר אחת' : n + ' כיכרות'); }
+function bakeNoun(gs) { var f = gs.filter(function (g) { return isFoc(g.p.c); }).length; return f === 0 ? 'כיכרות' : f === gs.length ? 'פוקצ׳ות' : 'כיכרות ופוקצ׳ות'; }
 function capOf(c) { return Math.max(1, S.plan.cap || AUTOCAP[c.shape] || 1); }
 function leadOf() { return S.plan.lead != null ? S.plan.lead : 10; }
 var ORD = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי'];
@@ -758,7 +760,7 @@ function bakeStages(c) {
   if (c.scoreMid && st[0].mins > 10) {
     st[0].mins -= 7;
     if (st[0].k === 'bake1') st[0].msg = st[0].msg.replace(/עברו \d+ דקות/, 'עברו ' + st[0].mins + ' דקות');
-    st.unshift({ k: 'score', art: 'loafP_' + c.shape, mins: 7, title: 'חריצה אחרי 7 דקות', label: 'עד החריצה', msg: 'עברו 7 דקות. פותחים את התנור, חורצים את הכיכר וסוגרים מהר.' });
+    st.unshift({ k: 'score', art: 'loafP_' + c.shape, mins: 7, title: 'חריצה אחרי 7 דקות', label: 'עד החריצה', msg: 'עברו 7 דקות. פותחים את התנור, חורצים את ' + (isFoc(c) ? 'הפוקצ׳ה' : 'הכיכר') + ' וסוגרים מהר.' });
   }
   return st;
 }
@@ -773,10 +775,10 @@ function bakeItems(b) {
     if (nx) {
       starts.push('pull' + (r + 1));
       var T = b.timers['pull' + (r + 1)];
-      note = 'התראה להוצאת הכיכר הבאה מהמקרר ב־' + hhmm(T && T.end ? T.end : nx.pull) + '.';
+      note = 'התראה להוצאת ' + (isFoc(c) ? 'הפוקצ׳ה' : 'הכיכר') + ' הבאה מהמקרר ב־' + hhmm(T && T.end ? T.end : nx.pull) + '.';
     }
     var sub = [r && !c.scoreMid ? 'חורצים מיד אחרי ההוצאה מהמקרר.' : '', dutch ? 'סוגרים את המכסה.' : 'שופכים כוס מים רותחים למגש חם בתחתית התנור כדי ליצור אדים, וסוגרים מהר.', note].filter(Boolean).join(' ');
-    items.push({ id: 'load' + sx, group: R > 1 ? 'סבב ' + (r + 1) + ' מתוך ' + R + (rd ? ' · ' + loavesTxt(rd.n) : '') : undefined, anim: 'load_' + c.shape, title: (r ? (c.scoreMid ? 'מוציאים מהמקרר ומכניסים' : 'מוציאים מהמקרר, חורצים ומכניסים') : loadT) + lbl, sub: sub, starts: starts });
+    items.push({ id: 'load' + sx, group: R > 1 ? 'סבב ' + (r + 1) + ' מתוך ' + R + (rd ? ' · ' + loavesTxt(rd.n, isFoc(c)) : '') : undefined, anim: 'load_' + c.shape, title: (r ? (c.scoreMid ? 'מוציאים מהמקרר ומכניסים' : 'מוציאים מהמקרר, חורצים ומכניסים') : loadT) + lbl, sub: sub, starts: starts });
     stages.forEach(function (s, i) {
       var nxt = stages[i + 1];
       items.push({ id: s.k + sx, title: s.title + lbl, sub: s.mins + ' דקות.', starts: nxt ? nxt.k + sx : undefined,
@@ -1366,17 +1368,17 @@ function planView() {
   var cf0 = bs[0] ? bs[0].p.c : null, isX = EXTRAA.indexOf(S.plan.anchor) >= 0, showX = isX || !!S.plan.moreAnch;
   var xs = EXTRAA.filter(function (k) { return !(cf0 && ((cf0.feeds < 1 && (k === 'feed1' || k === 'feedLast')) || (cf0.folds < 1 && k === 'fold1'))); });
   function abtn(k) { return '<button type="button" data-act="anchor" data-v="' + k + '" aria-pressed="' + (S.plan.anchor === k) + '">' + ANCH[k] + '</button>'; }
-  var bakeCard = !bs.some(function (g) { return g.p.L > 1; }) ? '' : '<div class="sub" style="margin-top:6px">אפייה של כמה כיכרות</div>' +
-    '<div class="card sgroup">' + srow('planopt', 'cap', 'כיכרות בתנור', capOf(cf0), 'בבת אחת') +
+  var bakeCard = !bs.some(function (g) { return g.p.L > 1; }) ? '' : '<div class="sub" style="margin-top:6px">אפייה של כמה ' + bakeNoun(bs) + '</div>' +
+    '<div class="card sgroup">' + srow('planopt', 'cap', bakeNoun(bs) + ' בתנור', capOf(cf0), 'בבת אחת') +
     srow('planopt', 'lead', 'התראה לפני הכנסה', leadOf(), 'להוצאה מהמקרר ולחריצה') + '</div>' +
     bs.map(function (g) {
       var pp = g.p, cold = pp.c.proof !== 'warm';
       return (multi ? '<div style="font-weight:700;font-size:14px">' + esc(g.name) + '</div>' : '') + '<div class="card pad" style="display:flex;flex-direction:column;gap:8px">' +
         pp.rounds.map(function (rd) {
-          return '<div><div class="rowx" style="justify-content:space-between"><b>סבב ' + (rd.i + 1) + ' · ' + loavesTxt(rd.n) + '</b><span dir="ltr">' + hhmm(rd.start) + ' – ' + hhmm(rd.end) + '</span></div>' +
+          return '<div><div class="rowx" style="justify-content:space-between"><b>סבב ' + (rd.i + 1) + ' · ' + loavesTxt(rd.n, isFoc(pp.c)) + '</b><span dir="ltr">' + hhmm(rd.start) + ' – ' + hhmm(rd.end) + '</span></div>' +
             (rd.i ? '<div class="sx mut" style="font-size:13px">להוציא מהמקרר ולחרוץ ב־' + ltr(hhmm(rd.pull)) + (cold ? ' · בתפיחה קרה כ־' + (Math.round((rd.pull - pp.proofStart) / 36e4) / 10) + ' שעות' : '') + '</div>' : '') + '</div>';
         }).join('') + '</div>' +
-        (pp.R > 1 && !cold ? '<div class="notice">בתפיחה חמה הכיכרות של הסבבים האחרונים יתפחו הרבה יותר. כדאי לעבור לתפיחה קרה, או להתחיל ממנה את הסבבים הבאים מאוחר יותר.</div>' : '');
+        (pp.R > 1 && !cold ? '<div class="notice">בתפיחה חמה ה' + bakeNoun([g]) + ' של הסבבים האחרונים יתפחו הרבה יותר. כדאי לעבור לתפיחה קרה, או להתחיל ממנה את הסבבים הבאים מאוחר יותר.</div>' : '');
     }).join('');
   var when = '<div class="sub" style="margin-top:0">לפי מה נקבע את כל זמני התהליך?</div><div class="anchors">' +
     MAINA.map(abtn).join('') + '</div>' + (showX ? '<div class="sub" style="margin-top:2px">עוד שלבים בהכנה</div><div class="anchors">' + xs.map(abtn).join('') + '</div>' : '') +
@@ -1451,7 +1453,7 @@ function bakeView() {
   var b = B(); if (!b) return emptyBrew('האפייה');
   var items = bakeItems(b), pr = progressOf(b, items), c = b.c, p = b.plan;
   var all = pr.d === pr.n;
-  var hero = all ? '<div class="hero"><div class="l"><span>הלחם מוכן</span></div><div class="t m" style="font-size:44px">בתיאבון</div><div class="s">כדאי לחכות שהכיכר תתקרר לפני החיתוך.</div></div>' :
+  var hero = all ? '<div class="hero"><div class="l"><span>הלחם מוכן</span></div><div class="t m" style="font-size:44px">בתיאבון</div><div class="s">כדאי לחכות ש' + (isFoc(c) ? 'הפוקצ׳ה' : 'הכיכר') + ' תתקרר לפני החיתוך.</div></div>' :
     '<div class="hero"><div class="l"><span>' + ((p.R || 1) > 1 ? 'הסבב האחרון יוצא מהתנור ב־' : 'הלחם יוצא מהתנור ב־') + '</span></div><div class="t m">' + hhmm(p.bakeEnd) + '</div><div class="s">' + SHAPE[c.shape] + ' · ' + (c.bakeSplit ? c.bake1 + ' + ' + c.bake2 : c.bakeOne) + ' דק׳ · 230°</div></div>';
   return hero + '<div class="sec" style="gap:8px"><div class="bar"><i style="width:' + Math.round(pr.d / pr.n * 100) + '%"></i></div><div class="meta2"><span>' + esc(b.name) + '</span><span>הושלמו ' + pr.d + ' מתוך ' + pr.n + '</span></div></div>' +
     listHTML(b, items) + '<button type="button" class="cta' + (all ? '' : ' alt') + '" data-act="newbrew">אפייה חדשה</button>';

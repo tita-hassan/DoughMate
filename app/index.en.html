@@ -431,7 +431,10 @@ var MAINA = ['bakeEnd', 'bakeStart', 'bulkEnd', 'peak'], EXTRAA = ['feed1', 'fee
 var AUTOCAP = { dutch: 1, stone: 2, pan: 2, tray: 3 }, RELOAD = 10;
 function stg1(sh) { return sh === 'dutch' ? 'Stage 1 (covered)' : 'Stage 1 (with steam)'; }
 function stg2(sh) { return sh === 'dutch' ? 'Stage 2 (uncovered)' : 'Stage 2 (after releasing steam)'; }
-function loavesTxt(n) { return n === 1 ? '1 loaf' : n + ' loaves'; }
+function isFoc(c) { return !!c && c.shape === 'tray'; }
+function loavesTxt(n, foc) { return foc ? n + ' focaccia' : (n === 1 ? '1 loaf' : n + ' loaves'); }
+function bakeNoun(gs) { var f = gs.filter(function (g) { return isFoc(g.p.c); }).length; return f === 0 ? 'loaves' : f === gs.length ? 'focaccias' : 'loaves and focaccias'; }
+function focW(c, loaf) { return isFoc(c) ? 'focaccia' : loaf; }
 function capOf(c) { return Math.max(1, S.plan.cap || AUTOCAP[c.shape] || 1); }
 function leadOf() { return S.plan.lead != null ? S.plan.lead : 10; }
 var ORD = ['1', '2', '3', '4', '5', '6'];
@@ -758,7 +761,7 @@ function bakeStages(c) {
   if (c.scoreMid && st[0].mins > 10) {
     st[0].mins -= 7;
     if (st[0].k === 'bake1') st[0].msg = st[0].msg.replace(/\d+ minutes have passed/, st[0].mins + ' minutes have passed');
-    st.unshift({ k: 'score', art: 'loafP_' + c.shape, mins: 7, title: 'Score after 7 minutes', label: 'Until scoring', msg: '7 minutes have passed. Open the oven, score the loaf and close it quickly.' });
+    st.unshift({ k: 'score', art: 'loafP_' + c.shape, mins: 7, title: 'Score after 7 minutes', label: 'Until scoring', msg: '7 minutes have passed. Open the oven, score the ' + focW(c, 'loaf') + ' and close it quickly.' });
   }
   return st;
 }
@@ -773,10 +776,10 @@ function bakeItems(b) {
     if (nx) {
       starts.push('pull' + (r + 1));
       var T = b.timers['pull' + (r + 1)];
-      note = 'Alert to take the next loaf out of the fridge at ' + hhmm(T && T.end ? T.end : nx.pull) + '.';
+      note = 'Alert to take the next ' + focW(c, 'loaf') + ' out of the fridge at ' + hhmm(T && T.end ? T.end : nx.pull) + '.';
     }
     var sub = [r && !c.scoreMid ? 'Score right after taking it out of the fridge.' : '', dutch ? 'Close the lid.' : 'Pour a cup of boiling water into a hot tray at the bottom of the oven to make steam, and close the door quickly.', note].filter(Boolean).join(' ');
-    items.push({ id: 'load' + sx, group: R > 1 ? 'Round ' + (r + 1) + ' of ' + R + (rd ? ' · ' + loavesTxt(rd.n) : '') : undefined, anim: 'load_' + c.shape, title: (r ? (c.scoreMid ? 'Take out of the fridge and load in' : 'Take out of the fridge, score and load in') : loadT) + lbl, sub: sub, starts: starts });
+    items.push({ id: 'load' + sx, group: R > 1 ? 'Round ' + (r + 1) + ' of ' + R + (rd ? ' · ' + loavesTxt(rd.n, isFoc(c)) : '') : undefined, anim: 'load_' + c.shape, title: (r ? (c.scoreMid ? 'Take out of the fridge and load in' : 'Take out of the fridge, score and load in') : loadT) + lbl, sub: sub, starts: starts });
     stages.forEach(function (s, i) {
       var nxt = stages[i + 1];
       items.push({ id: s.k + sx, title: s.title + lbl, sub: s.mins + ' minutes.', starts: nxt ? nxt.k + sx : undefined,
@@ -1366,17 +1369,17 @@ function planView() {
   var cf0 = bs[0] ? bs[0].p.c : null, isX = EXTRAA.indexOf(S.plan.anchor) >= 0, showX = isX || !!S.plan.moreAnch;
   var xs = EXTRAA.filter(function (k) { return !(cf0 && ((cf0.feeds < 1 && (k === 'feed1' || k === 'feedLast')) || (cf0.folds < 1 && k === 'fold1'))); });
   function abtn(k) { return '<button type="button" data-act="anchor" data-v="' + k + '" aria-pressed="' + (S.plan.anchor === k) + '">' + ANCH[k] + '</button>'; }
-  var bakeCard = !bs.some(function (g) { return g.p.L > 1; }) ? '' : '<div class="sub" style="margin-top:6px">Baking several loaves</div>' +
-    '<div class="card sgroup">' + srow('planopt', 'cap', 'Loaves in the oven', capOf(cf0), 'at once') +
+  var bakeCard = !bs.some(function (g) { return g.p.L > 1; }) ? '' : '<div class="sub" style="margin-top:6px">Baking several ' + bakeNoun(bs) + '</div>' +
+    '<div class="card sgroup">' + srow('planopt', 'cap', (function (t) { return t.charAt(0).toUpperCase() + t.slice(1); })(bakeNoun(bs)) + ' in the oven', capOf(cf0), 'at once') +
     srow('planopt', 'lead', 'Alert before loading', leadOf(), 'to take out of the fridge and score') + '</div>' +
     bs.map(function (g) {
       var pp = g.p, cold = pp.c.proof !== 'warm';
       return (multi ? '<div style="font-weight:700;font-size:14px">' + esc(g.name) + '</div>' : '') + '<div class="card pad" style="display:flex;flex-direction:column;gap:8px">' +
         pp.rounds.map(function (rd) {
-          return '<div><div class="rowx" style="justify-content:space-between"><b>Round ' + (rd.i + 1) + ' · ' + loavesTxt(rd.n) + '</b><span dir="ltr">' + hhmm(rd.start) + ' – ' + hhmm(rd.end) + '</span></div>' +
+          return '<div><div class="rowx" style="justify-content:space-between"><b>Round ' + (rd.i + 1) + ' · ' + loavesTxt(rd.n, isFoc(pp.c)) + '</b><span dir="ltr">' + hhmm(rd.start) + ' – ' + hhmm(rd.end) + '</span></div>' +
             (rd.i ? '<div class="sx mut" style="font-size:13px">Take out of the fridge and score at ' + ltr(hhmm(rd.pull)) + (cold ? ' · cold proof about ' + (Math.round((rd.pull - pp.proofStart) / 36e4) / 10) + ' h' : '') + '</div>' : '') + '</div>';
         }).join('') + '</div>' +
-        (pp.R > 1 && !cold ? '<div class="notice">With a warm proof, the loaves in the later rounds will over-proof. Consider switching to a cold proof, or start proofing the later rounds later.</div>' : '');
+        (pp.R > 1 && !cold ? '<div class="notice">With a warm proof, the ' + bakeNoun([g]) + ' in the later rounds will over-proof. Consider switching to a cold proof, or start proofing the later rounds later.</div>' : '');
     }).join('');
   var when = '<div class="sub" style="margin-top:0">What should all the process times be based on?</div><div class="anchors">' +
     MAINA.map(abtn).join('') + '</div>' + (showX ? '<div class="sub" style="margin-top:2px">More steps in the process</div><div class="anchors">' + xs.map(abtn).join('') + '</div>' : '') +
@@ -1451,7 +1454,7 @@ function bakeView() {
   var b = B(); if (!b) return emptyBrew('the bake');
   var items = bakeItems(b), pr = progressOf(b, items), c = b.c, p = b.plan;
   var all = pr.d === pr.n;
-  var hero = all ? '<div class="hero"><div class="l"><span>The bread is ready</span></div><div class="t m" style="font-size:44px">Enjoy</div><div class="s">Let the loaf cool before slicing.</div></div>' :
+  var hero = all ? '<div class="hero"><div class="l"><span>The bread is ready</span></div><div class="t m" style="font-size:44px">Enjoy</div><div class="s">Let the ' + focW(c, 'loaf') + ' cool before slicing.</div></div>' :
     '<div class="hero"><div class="l"><span>' + ((p.R || 1) > 1 ? 'The last round comes out of the oven at ' : 'The bread comes out of the oven at ') + '</span></div><div class="t m">' + hhmm(p.bakeEnd) + '</div><div class="s">' + SHAPE[c.shape] + ' · ' + (c.bakeSplit ? c.bake1 + ' + ' + c.bake2 : c.bakeOne) + ' min · 230°</div></div>';
   return hero + '<div class="sec" style="gap:8px"><div class="bar"><i style="width:' + Math.round(pr.d / pr.n * 100) + '%"></i></div><div class="meta2"><span>' + esc(b.name) + '</span><span>Done ' + pr.d + ' of ' + pr.n + '</span></div></div>' +
     listHTML(b, items) + '<button type="button" class="cta' + (all ? '' : ' alt') + '" data-act="newbrew">New bake</button>';
