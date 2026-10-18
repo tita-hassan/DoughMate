@@ -87,6 +87,70 @@ h1, h2, h3, p { margin: 0; }
 .obdots i { width: 8px; height: 8px; border-radius: 4px; background: var(--line); }
 .obdots i.on { width: 22px; background: var(--acc); }
 .obwrap { display: flex; flex-direction: column; gap: 22px; padding-top: 8px; }
+/* welcome + three intro screens, shown once before the questionnaire */
+.intro { display: flex; flex-direction: column; gap: 22px; min-height: calc(100vh - 120px); min-height: calc(100svh - 120px); padding-top: 4px; }
+.intro .stage { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 24px; animation: ivIn .45s cubic-bezier(.3,.9,.3,1) backwards; }
+@keyframes ivIn { from { opacity: 0; transform: translateX(calc(var(--d, 0) * 28px)); } }
+.intro .art { display: block; width: 100%; max-width: 360px; margin: 0 auto; padding: 8px; border: 0; border-radius: 28px; background: var(--tint); cursor: pointer; overflow: hidden; }
+.intro .art svg { display: block; width: 100%; height: auto; }
+.app[dir="ltr"] .intro .art svg.flipx { transform: scaleX(-1); }
+.intro .txt { text-align: center; display: flex; flex-direction: column; gap: 8px; padding: 0 6px; }
+.intro .txt h1 { font-family: var(--f-disp); font-weight: 500; font-size: 30px; line-height: 1.15; }
+.intro .txt .eye { font-size: 16px; font-weight: 600; color: var(--mut); }
+.intro .txt h1.brandbig { font-size: 50px; line-height: 1; direction: ltr; letter-spacing: -1px; margin-top: -2px; }
+.intro .txt h1 b { color: var(--acc); font-weight: 500; }
+.intro .txt p { color: var(--mut); font-size: 16px; }
+.intro svg .fc { fill: var(--card); } .intro svg .fd { fill: var(--dough); } .intro svg .fe { fill: var(--ear); } .intro svg .fk { fill: var(--crust); }
+.intro svg .fp { fill: var(--deep); } .intro svg .fa { fill: var(--acc); } .intro svg .ft { fill: var(--tint); } .intro svg .ft2 { fill: var(--tint2); }
+.intro svg .fl { fill: var(--line); } .intro svg .fb { fill: var(--bubble); } .intro svg .fs { fill: var(--stone); }
+.intro svg .sp { stroke: var(--deep); } .intro svg .sa { stroke: var(--acc); } .intro svg .sl { stroke: var(--line); } .intro svg .se { stroke: var(--ear); }
+.intro svg .sm { stroke: var(--mut); } .intro svg .sd { stroke: var(--dough-edge); } .intro svg .si { stroke: var(--acc-ink); }
+.intro svg .ivp { transform-box: fill-box; transform-origin: 50% 50%; }
+.intro svg .ivb { transform-box: fill-box; transform-origin: 50% 100%; }
+@keyframes ivPop { from { transform: scale(0); opacity: 0; } }
+@keyframes ivPopB { from { transform: scale(.4, .15); opacity: 0; } }
+@keyframes ivTw { 0%, 100% { transform: scale(0) rotate(0deg); opacity: 0; } 50% { transform: scale(1) rotate(45deg); opacity: 1; } }
+.intro svg .iv-tw { transform-box: fill-box; transform-origin: 50% 50%; fill: var(--acc); opacity: .85; animation: ivTw 2.4s ease-in-out var(--dl, 0s) infinite backwards; }
+/* 0: welcome loaf */
+@keyframes ivBr { 0%, 100% { transform: scale(1, 1); } 50% { transform: scale(1.015, 1.03); } }
+.intro svg .iv-loaf { animation: ivPopB .9s cubic-bezier(.3,1.5,.5,1) var(--dl, .15s) backwards; }
+.intro svg .iv-loaf.br { animation: ivPopB .9s cubic-bezier(.3,1.5,.5,1) .15s backwards, ivBr 4s ease-in-out 1.3s infinite; }
+.intro svg .iv-ear { stroke-dasharray: 400; animation: ivEar .7s ease-out calc(var(--dl, .15s) + .7s) backwards; }
+@keyframes ivEar { from { stroke-dashoffset: 400; } }
+@keyframes ivDraw { from { stroke-dashoffset: 1; } }
+@keyframes ivSt { 0% { transform: translateY(8px); opacity: 0; } 35% { opacity: .55; } 100% { transform: translateY(-10px); opacity: 0; } }
+.intro svg .iv-st { stroke: var(--mut); stroke-width: 3; stroke-linecap: round; fill: none; opacity: .4; animation: ivSt 3s ease-out var(--dl, 0s) infinite backwards; }
+/* 1: plan backwards */
+.intro svg .iv-hm { transform-origin: 120px 58px; animation: ivHm 1.8s cubic-bezier(.5,0,.3,1) .3s backwards; }
+@keyframes ivHm { from { transform: rotate(1080deg); } }
+.intro svg .iv-hh { transform-origin: 120px 58px; animation: ivHh 1.8s cubic-bezier(.5,0,.3,1) .3s backwards; }
+@keyframes ivHh { from { transform: rotate(540deg); } }
+.intro svg .iv-draw { stroke-dasharray: 1; animation: ivDraw 1.8s cubic-bezier(.5,0,.3,1) .3s backwards; }
+.intro svg .iv-dot { fill: var(--acc); opacity: 0; animation: ivDot 1.8s cubic-bezier(.5,0,.3,1) .3s both; }
+@keyframes ivDot { 0% { transform: translateX(-168px); opacity: 1; } 92% { transform: none; opacity: 1; } 100% { transform: none; opacity: 0; } }
+.intro svg .iv-node { transform-box: fill-box; transform-origin: 50% 50%; fill: var(--tint); stroke: var(--acc); stroke-width: 3; animation: ivLit .5s ease var(--dl, 0s) backwards; }
+@keyframes ivLit { from { fill: var(--card); stroke: var(--line); transform: scale(1); } 50% { transform: scale(1.2); } }
+/* 2: feeding */
+.intro svg .iv-rise { animation: ivRise 2.2s cubic-bezier(.3,.6,.3,1) .6s backwards; }
+@keyframes ivRise { from { transform: translateY(44px); } }
+.intro svg .iv-bub { transform-box: fill-box; transform-origin: 50% 50%; animation: ivPop .45s cubic-bezier(.3,1.6,.5,1) var(--dl, 1s) backwards; }
+.intro svg .iv-drop { opacity: 0; animation: ivDrop .7s ease-in var(--dl, 0s) both; }
+@keyframes ivDrop { 0% { transform: translateY(-10px); opacity: 0; } 20% { opacity: 1; } 85% { opacity: 1; } 100% { transform: translateY(46px); opacity: 0; } }
+.intro svg .iv-ptr { animation: ivPop .5s cubic-bezier(.3,1.6,.5,1) 2.5s backwards; }
+.intro svg .iv-bellpop { transform-box: fill-box; transform-origin: 50% 20%; animation: ivPop .5s cubic-bezier(.3,1.6,.5,1) 2.6s backwards; }
+.intro svg .iv-swing { transform-origin: 198px 30px; animation: ivSwing 1.3s ease-in-out 2.95s 2 backwards; }
+@keyframes ivSwing { 0%, 100% { transform: rotate(0deg); } 20% { transform: rotate(16deg); } 40% { transform: rotate(-13deg); } 60% { transform: rotate(9deg); } 80% { transform: rotate(-5deg); } }
+.intro svg .iv-rip { opacity: 0; stroke: var(--acc); stroke-width: 3; stroke-linecap: round; fill: none; animation: ivRip 1.1s ease-out var(--dl, 2.95s) 2 backwards; }
+@keyframes ivRip { 0% { opacity: 0; } 30% { opacity: 1; } 100% { opacity: 0; } }
+/* 3: step by step */
+.intro svg .iv-hl { opacity: 0; animation: ivHl var(--du, 1s) ease var(--dl, 0s) both; }
+@keyframes ivHl { 0% { opacity: 0; } 12%, 88% { opacity: 1; } 100% { opacity: 0; } }
+.intro svg .iv-ring { stroke-dasharray: 1; animation: ivDraw var(--du, 1.2s) linear var(--dl, 0s) backwards; }
+.intro svg .iv-chk { animation: ivPop .35s cubic-bezier(.3,1.6,.5,1) var(--dl, 0s) backwards; }
+.intro svg .iv-tick { stroke-dasharray: 1; animation: ivDraw .3s ease-out var(--dl, 0s) backwards; }
+.intro svg .iv-ln { animation: ivDim .4s ease var(--dl, 0s) forwards; }
+@keyframes ivDim { to { opacity: .45; } }
+@media (prefers-reduced-motion: reduce) { .intro, .intro * { animation: none !important; } }
 /* plan screen: three collapsible headings, each opening with its own small animation */
 .accd { background: var(--card); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); overflow: hidden; }
 .acch { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 72px; padding: 12px 16px; background: none; border: 0; text-align: start; color: var(--ink); }
@@ -414,7 +478,7 @@ function defCalc() {
   return { temps: temps, types: types };
 }
 function fresh() {
-  return { settings: Object.assign({}, DEFAULTS), recipes: seedRecipes(), plan: { sel: { plain: 2 }, anchor: 'bakeStart', ats: {} }, brews: [], bi: 0, view: 'plan', open: null, calc: defCalc(), calcType: 'white', ob: { i: 0 }, acc: {}, jo: null };
+  return { settings: Object.assign({}, DEFAULTS), recipes: seedRecipes(), plan: { sel: { plain: 2 }, anchor: 'bakeStart', ats: {} }, brews: [], bi: 0, view: 'plan', open: null, calc: defCalc(), calcType: 'white', ob: { i: 0, w: 0 }, acc: {}, jo: null };
 }
 var S = (function () {
   var s = fresh();
@@ -1489,6 +1553,110 @@ function obSteps() {
     : ['temp', 'cold', 'mix', 'shape'];
   return [first].concat(keys.map(function (k) { return Q[k]; }));
 }
+
+/* ---------- welcome + three intro screens, shown once before the questionnaire ---------- */
+var IV_T = {"eye": "Welcome to", "p0": "Sourdough without the guesswork. We'll plan together when to feed, mix and bake.", "h1": "Pick when you want bread", "p1": "We count backwards to when to feed, mix and heat the oven.", "h2": "Feed at just the right time", "p2": "How much to feed and when, so your starter peaks when you need it.", "h3": "Step by step", "p3": "Timers, alerts and a small demo for every step, until the loaf is out of the oven.", "start": "Let's go", "next": "Next", "go": "Let's start", "back": "Back", "skip": "Skip", "replay": "Replay the animation", "of": "Screen %d of 4"};
+function ivStar(x, y, s, dl) { return '<g transform="translate(' + x + ',' + y + ')"><path class="iv-tw" style="--dl:' + dl + 's" d="M0 ' + (-s) + 'Q0 0 ' + s + ' 0Q0 0 0 ' + s + 'Q0 0 ' + (-s) + ' 0Q0 0 0 ' + (-s) + 'Z"/></g>'; }
+function ivWrap(cls, inner) { return '<svg class="' + cls + '" viewBox="0 0 240 190" fill="none" aria-hidden="true">' + inner.replace(/\n\s*/g, '') + '</svg>'; }
+function ivArt0() {
+  return ivWrap('', `
+    <rect x="46" y="140" width="148" height="11" rx="5.5" class="ft2"/>
+    <path class="iv-st" style="--dl:1.1s" d="M102 52q-7-8 0-16t0-16"/>
+    <path class="iv-st" style="--dl:1.9s" d="M120 46q-7-8 0-16t0-16"/>
+    <path class="iv-st" style="--dl:2.7s" d="M138 52q-7-8 0-16t0-16"/>
+    <g transform="translate(120,142)"><g class="ivb iv-loaf br">${bakedLoaf(66, 74, { earCls: 'iv-ear' })}</g></g>
+    ${ivStar(34, 54, 9, 0.4)}${ivStar(208, 70, 7, 1.2)}${ivStar(204, 142, 6, 0.8)}${ivStar(40, 138, 5, 1.6)}${ivStar(176, 30, 5, 2)}`);
+}
+function ivNode(x, kind, dl) {
+  var ic = {
+    jar: `<rect x="${x - 8}" y="137" width="16" height="19" rx="4" class="fb sp" stroke-width="2"/><path d="M${x - 8} 148H${x + 8}V152Q${x + 8} 156 ${x + 4} 156H${x - 4}Q${x - 8} 156 ${x - 8} 152Z" class="fd"/><rect x="${x - 6}" y="133" width="12" height="4" rx="2" class="fp"/>`,
+    bowl: `<path d="M${x - 11} 145H${x + 11}Q${x + 10} 158 ${x} 158Q${x - 10} 158 ${x - 11} 145Z" class="fc sp" stroke-width="2" stroke-linejoin="round"/><path d="M${x - 8} 145Q${x - 8} 135 ${x} 135Q${x + 8} 135 ${x + 8} 145Z" class="fd sd" stroke-width="1.5"/>`,
+    oven: `<rect x="${x - 11}" y="136" width="22" height="20" rx="4" class="fc sp" stroke-width="2"/><rect x="${x - 7}" y="142" width="14" height="9" rx="2" class="fk"/><circle cx="${x - 6}" cy="139" r="1.3" class="fp"/><circle cx="${x - 2}" cy="139" r="1.3" class="fp"/>`,
+    loaf: `<g transform="translate(${x},155)">${bakedLoaf(14, 15)}</g>`
+  };
+  return '<circle class="iv-node" cx="' + x + '" cy="146" r="22" style="--dl:' + dl + 's"/>' + ic[kind];
+}
+function ivArt1() {
+  return ivWrap('flipx', `
+    <circle cx="120" cy="58" r="40" class="fc sp" stroke-width="3.5"/>
+    <path d="M120 24v5M120 87v5M86 58h5M149 58h5" class="sp" stroke-width="3" stroke-linecap="round"/>
+    <g class="iv-hh"><path d="M120 58v18" class="sa" stroke-width="5" stroke-linecap="round"/></g>
+    <g class="iv-hm"><path d="M120 58V30" class="sp" stroke-width="3.5" stroke-linecap="round"/></g>
+    <circle cx="120" cy="58" r="4.5" class="fa"/>
+    <path d="M36 146H204" class="sl" stroke-width="3" stroke-linecap="round" stroke-dasharray="1 7"/>
+    <path class="iv-draw sa" pathLength="1" d="M36 146H204" stroke-width="3.5" stroke-linecap="round"/>
+    ${ivNode(204, 'jar', 2.2)}${ivNode(148, 'bowl', 2.6)}${ivNode(92, 'oven', 3)}${ivNode(36, 'loaf', 3.4)}
+    <circle class="iv-dot" cx="204" cy="146" r="6.5"/>
+    ${ivStar(196, 40, 7, 3.6)}${ivStar(46, 96, 6, 4)}`);
+}
+function ivArt2() {
+  var jar = 'M86 64H154V148Q154 164 138 164H102Q86 164 86 148Z';
+  return ivWrap('', `
+    <defs><clipPath id="ivjc"><path d="M88 66H152V148Q152 162 138 162H102Q88 162 88 148Z"/></clipPath></defs>
+    <path d="${jar}" class="fc"/>
+    <g clip-path="url(#ivjc)"><g class="iv-rise">
+      <rect x="80" y="100" width="80" height="70" class="fd"/>
+      <ellipse cx="120" cy="100" rx="32" ry="6" class="fb"/>
+      <circle class="iv-bub fb sd" style="--dl:1.2s" cx="104" cy="118" r="3.5" stroke-width="1"/>
+      <circle class="iv-bub fb sd" style="--dl:1.5s" cx="128" cy="126" r="4.5" stroke-width="1"/>
+      <circle class="iv-bub fb sd" style="--dl:1.8s" cx="140" cy="110" r="2.8" stroke-width="1"/>
+      <circle class="iv-bub fb sd" style="--dl:2.1s" cx="112" cy="142" r="4" stroke-width="1"/>
+      <circle class="iv-bub fb sd" style="--dl:2.4s" cx="134" cy="148" r="3" stroke-width="1"/>
+    </g></g>
+    <path d="${jar}" class="sp" stroke-width="3.5" stroke-linejoin="round"/>
+    <rect x="90" y="52" width="60" height="12" rx="6" class="fc sp" stroke-width="3"/>
+    <path d="M87 142H153" class="sa" stroke-width="4" stroke-linecap="round"/>
+    <path class="iv-ptr fa" d="M160 100L174 92V108Z"/>
+    <circle class="iv-drop fc sd" style="--dl:0s" cx="120" cy="16" r="5" stroke-width="2"/>
+    <circle class="iv-drop fc sd" style="--dl:.22s" cx="112" cy="12" r="4" stroke-width="2"/>
+    <circle class="iv-drop fc sd" style="--dl:.44s" cx="128" cy="14" r="4.5" stroke-width="2"/>
+    <path class="iv-rip" style="--dl:2.95s" d="M172 42Q166 52 172 62"/><path class="iv-rip" style="--dl:3.1s" d="M165 38Q157 52 165 66"/>
+    <path class="iv-rip" style="--dl:2.95s" d="M224 42Q230 52 224 62"/><path class="iv-rip" style="--dl:3.1s" d="M231 38Q239 52 231 66"/>
+    <g class="iv-bellpop"><g class="iv-swing">
+      <circle cx="198" cy="30" r="3.5" class="fp"/>
+      <path d="M184 62V50Q184 34 198 34Q212 34 212 50V62L218 70H178Z" class="fk sp" stroke-width="3" stroke-linejoin="round"/>
+      <circle cx="198" cy="76" r="4.5" class="fp"/>
+    </g></g>
+    ${ivStar(52, 56, 7, 3.2)}${ivStar(40, 120, 5, 3.8)}`);
+}
+function ivRow(cy, tickDl, ringDl, ringDu, hlDl, hlDu) {
+  var ring = ringDu ? '<circle class="iv-ring sa" style="--dl:' + ringDl + 's;--du:' + ringDu + 's" cx="158" cy="' + cy + '" r="14.5" pathLength="1" stroke-width="3" stroke-linecap="round" transform="rotate(-90 158 ' + cy + ')"/>' : '';
+  return `<rect class="iv-hl ft" style="--dl:${hlDl}s;--du:${hlDu}s" x="66" y="${cy - 18}" width="108" height="36" rx="12"/>
+    <rect class="iv-ln ft2" style="--dl:${tickDl}s" x="78" y="${cy - 9}" width="56" height="7" rx="3.5"/>
+    <rect class="iv-ln fl" style="--dl:${tickDl}s" x="78" y="${cy + 3}" width="36" height="6" rx="3"/>
+    <circle cx="158" cy="${cy}" r="11" class="fc sl" stroke-width="2.5"/>${ring}
+    <circle class="iv-chk ivp fa" style="--dl:${tickDl}s" cx="158" cy="${cy}" r="11"/>
+    <path class="iv-tick si" style="--dl:${tickDl + 0.15}s" pathLength="1" d="M152 ${cy}l4.2 4.4 8-9" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>`;
+}
+function ivArt3() {
+  return ivWrap('flipx', `
+    <rect x="58" y="10" width="124" height="140" rx="20" class="fc sl" stroke-width="3"/>
+    <rect x="106" y="17" width="28" height="4.5" rx="2.25" class="fl"/>
+    ${ivRow(44, 0.5, 0, 0, 0, 1)}${ivRow(84, 2.2, 1, 1.2, 1, 1.4)}${ivRow(124, 3.6, 2.6, 1, 2.6, 1.6)}
+    <g transform="translate(120,177)"><g class="ivb iv-loaf" style="--dl:3.9s">${bakedLoaf(32, 31, { earCls: 'iv-ear' })}</g></g>
+    ${ivStar(74, 160, 7, 4.2)}${ivStar(168, 158, 6, 4.5)}${ivStar(196, 60, 5, 4.8)}`);
+}
+function introView() {
+  var w = S.ob.w, t = IV_T, art = [ivArt0, ivArt1, ivArt2, ivArt3][w], d = (S.ob.dir || 0) * (app.dir === 'rtl' ? -1 : 1);
+  var dots = '<div class="obdots" aria-label="' + t.of.replace('%d', w + 1) + '">' + [0, 1, 2, 3].map(function (k) { return '<i class="' + (k === w ? 'on' : '') + '"></i>'; }).join('') + '</div>';
+  var txt = w === 0
+    ? '<div class="eye">' + t.eye + '</div><h1 class="ttl brandbig">Dough<b>Mate</b></h1><p>' + t.p0 + '</p>'
+    : '<h1 class="ttl">' + t['h' + w] + '</h1><p>' + t['p' + w] + '</p>';
+  return '<div class="intro">' + dots +
+    '<div class="stage" style="--d:' + d + '"><button type="button" class="art" data-act="ivreplay" aria-label="' + t.replay + '">' + art() + '</button><div class="txt">' + txt + '</div></div>' +
+    '<div class="sec" style="gap:6px"><button type="button" class="cta" data-act="wnext">' + (w === 0 ? t.start : w === 3 ? t.go : t.next) + '</button>' +
+    '<div class="rowx" style="justify-content:space-between">' + (w > 0 ? '<button type="button" class="link" data-act="wback">' + t.back + '</button>' : '<span></span>') +
+    '<button type="button" class="link" style="color:var(--mut)" data-act="wskip">' + (w < 3 ? t.skip : '') + '</button></div></div></div>';
+}
+var ivX = null, ivY = null;
+app.addEventListener('touchstart', function (e) { if (S.ob && S.ob.w != null && e.touches.length === 1) { ivX = e.touches[0].clientX; ivY = e.touches[0].clientY; } else ivX = null; }, { passive: true });
+app.addEventListener('touchend', function (e) {
+  if (ivX == null || !S.ob || S.ob.w == null) return;
+  var dx = e.changedTouches[0].clientX - ivX, dy = e.changedTouches[0].clientY - ivY; ivX = null;
+  if (Math.abs(dx) < 50 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+  var fwd = app.dir === 'rtl' ? dx > 0 : dx < 0;
+  if (fwd) onAct('wnext', { dataset: {} }); else if (S.ob.w > 0) onAct('wback', { dataset: {} });
+}, { passive: true });
 function obView() {
   var st = obSteps(), i = Math.min(S.ob.i, st.length - 1), q = st[i], last = i === st.length - 1, isMode = q.id === 'mode';
   return '<div class="obwrap"><div class="obdots" aria-label="Question ' + (i + 1) + ' of ' + st.length + '">' + st.map(function (x, k) { return '<i class="' + (k === i ? 'on' : '') + '"></i>'; }).join('') + '</div>' +
@@ -1500,10 +1668,10 @@ function obView() {
 }
 function render() {
   var v = S.view;
-  var body = S.ob ? obView() : { plan: planView, feed: feedView, dough: doughView, bake: bakeView, recipes: recipesView, settings: settingsView, calc: calcView }[v]();
+  var body = S.ob ? (S.ob.w != null ? introView() : obView()) : { plan: planView, feed: feedView, dough: doughView, bake: bakeView, recipes: recipesView, settings: settingsView, calc: calcView }[v]();
   var y = window.scrollY;
   if (!S.ob && (v === 'feed' || v === 'dough' || v === 'bake') && S.brews.length > 1) body = batchSwitch() + body;
-  app.innerHTML = (S.ob ? '<div class="top"><div class="brand">Dough<b>Mate</b></div><button type="button" class="ib" data-act="lang" data-l="he" aria-label="עברית" style="font-size:13px;font-weight:700">עב</button></div>' : headHTML()) + body;
+  app.innerHTML = (S.ob ? '<div class="top"><div class="brand"' + (S.ob.w === 0 ? ' style="visibility:hidden"' : '') + '>Dough<b>Mate</b></div><button type="button" class="ib" data-act="lang" data-l="he" aria-label="עברית" style="font-size:13px;font-weight:700">עב</button></div>' : headHTML()) + body;
   window.scrollTo(0, y);
   save();
 }
@@ -1556,9 +1724,13 @@ function onAct(a, el) {
   var d = el.dataset, b = B();
   switch (a) {
     case 'nav': if (d.v === 'settings') draft = Object.assign({}, S.settings); S.view = d.v; window.scrollTo(0, 0); break;
+    case 'wnext': S.ob.dir = 1; if (S.ob.w >= 3) delete S.ob.w; else S.ob.w++; window.scrollTo(0, 0); break;
+    case 'wback': S.ob.dir = -1; S.ob.w = Math.max(0, S.ob.w - 1); window.scrollTo(0, 0); break;
+    case 'wskip': S.ob.dir = 1; delete S.ob.w; window.scrollTo(0, 0); break;
+    case 'ivreplay': S.ob.dir = 0; break;
     case 'obmode': S.ob.mode = d.v; S.ob.i = 1; window.scrollTo(0, 0); break;
     case 'obnext': if (S.ob.i >= obSteps().length - 1) { var own = S.ob.mode === 'own'; S.ob = null; S.view = 'plan'; toast('Ready', own ? 'Your settings are saved. You can change them at any time with the gear icon.' : 'The other settings got a recommended default. You can change them at any time with the gear icon.'); } else S.ob.i++; window.scrollTo(0, 0); break;
-    case 'obrestart': S.ob = { i: 0 }; draft = null; window.scrollTo(0, 0); break;
+    case 'obrestart': S.ob = { i: 0, w: 0 }; draft = null; window.scrollTo(0, 0); break;
     case 'obback': S.ob.i = Math.max(0, S.ob.i - 1); window.scrollTo(0, 0); break;
     case 'obskip': S.ob = null; S.view = 'plan'; window.scrollTo(0, 0); break;
     case 'grp': S.gc = S.gc || {}; S.gc[d.g] = d.open !== '1'; break;
